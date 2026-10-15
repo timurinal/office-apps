@@ -87,6 +87,11 @@ class Page(QWebEnginePage):
             QDesktopServices.openUrl(url)
         return False
 
+    def chooseFiles(self, mode, old_files: list[str], accepted: list[str]) -> list[str]:  # noqa: N802
+        if self.win.manager.selftest is not None:
+            return self.win.manager.selftest.choose_files()
+        return super().chooseFiles(mode, old_files, accepted)
+
     def javaScriptConsoleMessage(self, level, message: str, line: int, source: str) -> None:  # noqa: N802
         self.win.manager.console(self.win, level, message, line, source)
 

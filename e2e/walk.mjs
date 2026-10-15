@@ -226,6 +226,20 @@ await step('Slides: a new presentation, typed, saved, opened again', async () =>
   expect(text?.includes('Hello from the deck'), `text ${JSON.stringify(text)}`);
 });
 
+await step('Slides: a picture from a file, kept in the deck', async () => {
+  await page.getByRole('tab', { name: 'Insert' }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Picture', exact: true }).click();
+  await (await chooser).setFiles(`${ROOT}shell/packaging/icon-1024.png`);
+  await until('the picture on the slide', async () => ((await st('slidePictures()')) ?? []).some((s) => s === 'blob:'));
+  await until('saved by itself', async () => (await saveState()) === 'Saved', 10000);
+  await page.goto(BASE);
+  await ready();
+  await page.locator('.oa-recent-open', { hasText: 'Walk deck.oadeck' }).click();
+  await ready();
+  await until('the picture after opening again', async () => ((await st('slidePictures()')) ?? []).some((s) => s === 'blob:'));
+});
+
 await step('Slides: a template', async () => {
   await page.goto(BASE);
   await ready();

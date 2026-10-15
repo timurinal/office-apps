@@ -1,71 +1,76 @@
 # Handoff
 
-Written 2026-10-15, at the first version. Overwrite it; do not append.
+Written 2026-10-15, when Slides arrived. Overwrite it; do not append.
 
 ## Where it stands
 
-Docs and Sheets run offline as a desktop app: the React editors on a local source, in a PySide6 6.12
-shell with one window per document and a Start window.
+Docs, Sheets and Slides run offline as a desktop app: the React editors on a local source, in a
+PySide6 6.12 shell with one window per document and a Start window.
 
-| Check | Result (Linux container) |
+| Check (Linux container) | Result |
 |---|---|
 | `npm run typecheck` | clean |
-| `npm test` | 137 files; all pass |
-| `npm run build` | clean, 9 MB |
-| `npm run e2e` | 8 of 8 |
+| `npm test` | 223 files, 4125 tests; all pass |
+| `npm run build` | clean |
+| `npm run e2e` | 13 of 13, five of them Slides: new, a picture from a file, template, PowerPoint with pictures, presenter view |
 | `pytest shell` | 8 of 8 |
-| `--self-test` under Xvfb | 10 of 10: save, autosave, reopen, template, docx import with pictures and export, sheet formula save and xlsx/csv export, Qt keyboard into the grid, print to PDF, clipboard, the close prompt, no network |
-| The PyInstaller build of `shell/packaging/office.spec` on Linux, self-test inside it | 10 of 10; 421 MB (Qt WebEngine is 195 MB of it) |
+| `--self-test` under Xvfb | 13 of 13; new for Slides: type, add a picture through Insert → Picture and the open panel, save and reopen; F5 taking the screen and Escape giving it back; presenter view's audience window showing the deck and closing when the show ends; a pptx with pictures saved, reopened and exported |
 
-**CI.** `ci.yml` (Linux: typecheck, tests, build, the browser walk, the shell's tests and self-test) is
-green on GitHub. Sessions here cannot push to `.github/workflows/` (no `workflow` permission); the
-owner moves workflow changes in by hand.
+## What this session did
 
-**The first macOS run** stopped in `vite build`: `web/src/docs/core/` has `Picker.tsx` and `picker.ts`,
-and on a case-insensitive disk `import './Picker'` found `picker.ts`. `vite.exact-case.ts` resolves
-relative imports by their exact case, in the page's bundle and the workers'. Its next run is the
-first to reach PyInstaller on macOS.
-
-**Not yet seen on a Mac.** `macos.yml` builds `Office.app` with PyInstaller on `macos-15`, signs it
-ad hoc, runs the self-test inside it and makes the dmg; its first run is the first time any of that
-has happened on macOS. The same spec builds and passes on Linux, so what is left to find is
-Mac-specific: the QtWebEngine helper inside the frameworks, signing, and the minimum macOS version
-(`LSMinimumSystemVersion` is 13.0; the job prints QtCore's `minos`, which wins if it is higher). The
-spec drops Qt modules the app does not load (`KEEP_QT`); a missing one shows as a crash at start.
+- **Slides.** `desktop/LocalSlidesPage.tsx` opens a blank, a template, an `.oadeck` or a PowerPoint
+  file (`.pptx`, `.ppsx`, `.potx`); `slidesModule.tsx` adds the save state and the File rows. Five
+  new hunks in base files, 7 to 11 in `CLAUDE.md`.
+- **Pictures** live in the window's `PictureStore` and in the file's `pictures/`, not in the Yjs
+  state, because the editor and its model only take asset ids (`slides/model/safe.ts`). The
+  container now allows 4096 entries (it was 16). Insert → Picture is the desktop module's (upstream
+  shows its own only on a server).
+- The browser walk had no Slides; the self-test can now click like a person (`SelfTest.click`) and
+  answer the open panel (`Page.chooseFiles`).
+- **Presenter view.** The audience window is a second `DocumentWindow(audience=True)`, opened from
+  the page's `window.open`; the presenter's window feeds it the deck over a BroadcastChannel.
+- **Full screen** is on in the profile; the shell puts the window in full screen when a show asks,
+  and tells the page when the window leaves it another way.
+- **New blank decks start in Harbour**, not the theme list's first one: that one (upstream's
+  default) is the old brand's violet and teal, renamed Violet by the port. It is still in the gallery.
+- `--data-dir` is made absolute: a relative one (what `npm run selftest` passes) broke every save
+  in the self-test, because the web profile's storage was relative.
 
 ## What to check on a real Mac (nobody has)
 
-- **Keys.** Each must act once: in Docs ⌘C ⌘X ⌘V ⌘A ⌘Z ⇧⌘Z ⌘B ⌘K ⌘F ⌘P; in the Sheets grid ⌘C ⌘X
-  ⌘V (also pasting from another app) ⌘A ⌘Z; in the formula bar, a cell being edited, the title and
-  the ⌘K box. QtWebEngine gives an editing key to the page in an editable field and to the menu bar
-  elsewhere (the grid is not editable), which `menus.py` relies on. If one acts twice or not at
-  all: take that item's shortcut off the menu, or route the grid's copy and paste to the editor's
-  `edit.copy` / `edit.cut` / `edit.paste` commands.
-- **Finder.** Double-clicking a `.oadoc` with the app closed and open; a `.docx` via Open With;
-  dropping on the Dock icon (`QFileOpenEvent`, buffered in `Application.event`).
-- **Close and quit.** ⌘W and ⌘Q with a dirty untitled document (a sheet asks), and with a dirty
-  saved one (it saves and closes); the Dock's Quit and logging out take the same path.
-- **Print** opens the native panel (`QPrintDialog`, `view.print`); only print to PDF was run here.
-- Export opens a save panel, and the files open in Pages, Numbers, Word and Excel.
+Everything in the last handoff still stands (keys in Docs and the Sheets grid, Finder, close and
+quit, print, export). For Slides, also:
 
-## Choices, and why
-
-- **Files.** The app's own `.oadoc` / `.oasheet` (a zip: manifest, Yjs state, Sheets' cell list)
-  is lossless; Word and Excel go through Open (as a new, untitled document) and Export. The xlsx
-  writer drops charts, which is why a workbook is not saved as xlsx.
-- **Editors untouched.** The cloud code stays in the tree, unreachable; see `CLAUDE.md`.
-- **PySide6, not C++.** It runs here under Xvfb on the same Qt the Mac build uses, so the shell is
-  tested before a Mac sees it.
-- **`app://local/`, not `file://`.** Module workers (the converters), `pushState`, `localStorage`
-  and the async clipboard need a real origin.
+- **Present** and F5 go full screen in a Space of their own; Escape and the green button both come
+  back, and the show ends with either.
+- **Presenter view on two displays**: the audience window opens, can be dragged to the second
+  display, and F there makes it full screen on that display. Ending the show closes it.
+- ⌘C ⌘X ⌘V ⌘Z on the canvas and in a text box act once (the canvas is not editable, so the menu
+  takes them, as for the Sheets grid).
+- Insert → Picture opens the Mac's open panel, and the picture is in the saved file.
+- Finder: a `.pptx` offers Office under Open With; an `.oadeck` opens in it.
 
 ## Half-done and known gaps
 
-- Slides is not built (`kinds.ts` / `kinds.json` have it disabled). When it arrives it needs a
-  `LocalSlidesPage`, a `slidesModule`, its route in `desktop/App.tsx`, `enabled: true` in both kinds
-  files, and its document type in the spec.
-- Comments, suggestions and version history are hidden: they live on a server upstream.
+- `formats/security.test.ts`'s "fifty thousand shapes … under two seconds" took 2.1 s once in a full
+  parallel run here and passes alone; on a loaded CI runner it may fail. It is upstream's test.
+- A slide's background picture (Design → Background → Picture…) is hidden: upstream shows it only
+  on a server, and showing it here is a hunk plus a change to upstream's test. Worth doing if asked.
+- The audience window is fed by its presentation's window and has nothing of its own once that
+  one closes.
+- Slides' version history, comments and sharing are hidden, as for Docs and Sheets.
 - Untitled documents are not autosaved anywhere; a crash loses them. A drafts folder would fix it.
-- Bytes cross the bridge as base64; a 20 MB workbook has not been timed.
+- Bytes cross the bridge as base64; a deck with 50 MB of photographs has not been timed.
 - The app is signed ad hoc, so Gatekeeper asks once (README). Notarising needs a Developer ID.
 - `npm test` excludes two ExcelJS test files from `tsc` only (their `Buffer` typing); vitest runs them.
+
+## Choices, and why
+
+- **Files.** The app's own `.oadoc` / `.oasheet` / `.oadeck` (a zip: manifest, Yjs state, Sheets'
+  cell list, Slides' pictures) is lossless; Word, Excel and PowerPoint go through Open (as a new,
+  untitled document) and Export.
+- **Editors untouched** but for the hunks; the cloud code stays in the tree, unreachable.
+- **PySide6, not C++.** It runs here under Xvfb on the same Qt the Mac build uses.
+- **`app://local/`, not `file://`.** Module workers, `pushState`, `localStorage`, BroadcastChannel
+  and the async clipboard need a real origin.
+- **CI.** Sessions here cannot push to `.github/workflows/`; the owner moves workflow changes in.
