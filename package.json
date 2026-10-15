@@ -11,8 +11,8 @@
     "test": "LANG=en_GB.UTF-8 vitest run",
     "test:watch": "LANG=en_GB.UTF-8 vitest",
     "e2e": "node e2e/walk.mjs",
-    "shell": "python3 -m officeapps --web-dir ../dist/web",
-    "selftest": "node scripts/selftest.mjs"
+    "shell": "cd shell && python3 -m officeapps --web-dir ../dist/web",
+    "selftest": "cd shell && python3 -m officeapps --self-test --web-dir ../dist/web --fixtures ../tests/corpus --data-dir ../dist/selftest --report ../dist/selftest-report.json"
   },
   "dependencies": {
     "@formulajs/formulajs": "^4.6.1",

@@ -11,7 +11,8 @@ import type { Host } from './host';
 
 export function guardFor(host: Host): (url: URL) => boolean {
   return (url) => {
-    if (url.origin !== window.location.origin) {
+    // Not `origin`: a custom scheme's is "null" wherever the scheme is not registered as standard.
+    if (url.protocol !== window.location.protocol || url.host !== window.location.host) {
       if (/^(https?|mailto):$/.test(url.protocol)) host.openExternal(url.href);
       return true;
     }

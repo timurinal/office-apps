@@ -1,0 +1,38 @@
+{
+  "docs": {
+    "label": "Docs",
+    "noun": "document",
+    "extension": "oadoc",
+    "mime": "application/x-office-document",
+    "imports": ["docx", "md", "markdown", "html", "htm", "txt"],
+    "exports": [
+      { "command": "file.download-docx", "label": "Word (.docx)" },
+      { "command": "file.download-markdown", "label": "Markdown (.md)" },
+      { "command": "file.download-html", "label": "Web page (.html)" },
+      { "command": "file.download-text", "label": "Plain text (.txt)" }
+    ],
+    "enabled": true
+  },
+  "sheets": {
+    "label": "Sheets",
+    "noun": "spreadsheet",
+    "extension": "oasheet",
+    "mime": "application/x-office-spreadsheet",
+    "imports": ["xlsx", "csv", "tsv"],
+    "exports": [
+      { "command": "file.download-xlsx", "label": "Excel (.xlsx)" },
+      { "command": "file.download-csv", "label": "CSV (.csv)" },
+      { "command": "file.download-tsv", "label": "Tab-separated (.tsv)" }
+    ],
+    "enabled": true
+  },
+  "slides": {
+    "label": "Slides",
+    "noun": "presentation",
+    "extension": "oadeck",
+    "mime": "application/x-office-presentation",
+    "imports": [],
+    "exports": [],
+    "enabled": false
+  }
+}
