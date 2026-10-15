@@ -19,7 +19,7 @@ function deckWith(...ids: string[]): DeckJSON {
 
 const ok = (bytes: Uint8Array, type = 'image/png') => new Response(bytes as BodyInit, { status: 200, headers: { 'content-type': type } });
 
-describe('Download as PowerPoint', () => {
+describe('Export as PowerPoint', () => {
   it('fetches each picture the deck names once, from the document’s assets, and writes every slide', async () => {
     const get = vi.fn(async (url: string | URL | Request) => (String(url).endsWith('/a1') ? ok(PNG_1PX) : new Response(null, { status: 404 })));
     const out = await buildPptxFile({ deck: deckWith('a1', 'a1', 'gone'), title: 'Kick-off', assetUrl: (id) => `/api/office/documents/d/assets/${id}` }, get as unknown as typeof fetch);

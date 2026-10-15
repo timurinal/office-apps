@@ -151,13 +151,13 @@ describe('the Slides modules', () => {
     expect(fileSections(all.fileItems, c).map((s) => [s.section, s.items.map((i) => i.label)])).toEqual([
       ['Document', ['New', 'Open', 'Make a copy', 'Rename', 'Save as template']],
       ['Share', ['Version history', 'Share']],
-      ['Export', ['Download as PowerPoint (.pptx)']],
+      ['Export', ['Export as PowerPoint (.pptx)']],
       ['Danger', ['Move to trash']]
     ]);
-    expect(searchCommands(all.commands, 'powerpoint', c, 20).map((x) => x.title)).toContain('Download as PowerPoint');
+    expect(searchCommands(all.commands, 'powerpoint', c, 20).map((x) => x.title)).toContain('Export as PowerPoint');
     const reader = { ...ctx({ download: false, template: false, edit: false }), meta: { id: 'd1', templateScope: null } } as unknown as SlidesContext;
     const labels = fileSections(all.fileItems, reader).flatMap((s) => s.items.map((i) => i.label));
-    expect(labels).not.toContain('Download as PowerPoint (.pptx)');
+    expect(labels).not.toContain('Export as PowerPoint (.pptx)');
     expect(labels).not.toContain('Save as template');
     const saved = { ...ctx(), meta: { id: 'd2', templateScope: 'user' } } as unknown as SlidesContext;
     expect(fileSections(all.fileItems, saved).flatMap((s) => s.items.map((i) => i.label))).toContain('Remove from templates');

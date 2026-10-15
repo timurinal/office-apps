@@ -50,7 +50,7 @@ export const filesModule: SlidesModule = {
   ribbon: [],
 
   commands: [
-    { id: 'file.download-pptx', title: 'Download as PowerPoint', section: 'File', icon: downloadIcon, keywords: ['pptx', 'powerpoint', 'export', 'save', 'download'], visible: allowed, run: (c) => void download(c) },
+    { id: 'file.download-pptx', title: 'Export as PowerPoint', section: 'File', icon: downloadIcon, keywords: ['pptx', 'powerpoint', 'export', 'save', 'download'], visible: allowed, run: (c) => void download(c) },
     { id: 'file.template', title: 'Save as template', section: 'File', icon: cardsIcon, keywords: ['template'], visible: unsaved, run: (c) => void offer(c, 'user') },
     { id: 'file.template-company', title: 'Save as company template', section: 'File', icon: buildingsIcon, keywords: ['template', 'organisation'], visible: company, run: (c) => void offer(c, 'org') },
     { id: 'file.template-remove', title: 'Remove from templates', section: 'File', icon: xIcon, keywords: ['template'], visible: saved, run: (c) => void offer(c, null) }
@@ -63,6 +63,6 @@ export const filesModule: SlidesModule = {
     { id: 'file.template-company', label: 'Save as company template', icon: buildingsIcon, section: 'Document', order: 460, visible: company, run: (c) => void offer(c, 'org') },
     { id: 'file.template-remove', label: 'Remove from templates', icon: xIcon, section: 'Document', order: 470, visible: saved, run: (c) => void offer(c, null) },
     // The Export section's slot is 600 to 690 (types.ts), as Docs' and Sheets' are.
-    { id: 'file.download-pptx', label: 'Download as PowerPoint (.pptx)', icon: pptIcon, section: 'Export', order: 610, visible: allowed, run: (c) => void download(c) }
+    { id: 'file.download-pptx', label: 'Export as PowerPoint (.pptx)', icon: pptIcon, section: 'Export', order: 610, visible: allowed, run: (c) => void download(c) }
   ]
 };

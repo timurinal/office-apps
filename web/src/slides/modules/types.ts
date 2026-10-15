@@ -37,7 +37,7 @@
  *
  *   Document   New 100 · Open 200 · Make a copy 300 · Rename 400
  *   Share      Version history 500 · Share 510
- *   Export     reserved, 600 to 690: Download as PowerPoint goes at 610, PDF at 620
+ *   Export     reserved, 600 to 690: Export as PowerPoint goes at 610, PDF at 620
  *   Danger     Move to trash 900
  *
  * Commands take their `section` from the same vocabulary: File, Edit, Insert, Format, Slide, View.
