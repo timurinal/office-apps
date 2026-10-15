@@ -1,0 +1,82 @@
+/* The shape gallery and the table picker, in the ribbon's popovers. */
+
+.oa-popover.sl-shapes {
+  width: 340px;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sl-shape-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 4px 8px;
+}
+
+.sl-shape-title {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--fg-3);
+}
+
+.sl-shape-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 36px);
+  gap: 2px;
+}
+
+.sl-shape-tile {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.sl-shape-tile:hover,
+.sl-shape-tile:focus-visible {
+  background: var(--app-hover);
+}
+.sl-shape-tile[aria-pressed='true'] {
+  background: var(--app-hover);
+  color: var(--app-text);
+}
+
+/* The table picker: up to 10 columns by 8 rows. */
+.oa-popover.sl-table-pop {
+  padding: 10px;
+}
+.sl-table-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 18px);
+  gap: 3px;
+}
+.sl-table-cell {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--bd-soft);
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+}
+.sl-table-cell[data-on] {
+  border-color: var(--app-solid);
+  background: var(--app-hover);
+}
+.sl-table-cell:focus-visible {
+  outline: 2px solid var(--app-solid);
+  outline-offset: 1px;
+}
+.sl-table-size {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--fg-3);
+  text-align: center;
+}

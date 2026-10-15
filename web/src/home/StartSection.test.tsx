@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DocKind, TemplateSummary } from '@shared/api';
 import { predefinedSummaries } from '../docs/templates';
+import { predefinedSlidesSummaries } from '../slides/templates/summaries';
 
 (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -122,5 +123,18 @@ describe('Start something new', () => {
     mount(predefinedSummaries());
     expect(cards().find((c) => c.getAttribute('aria-label') === 'Report')!.getAttribute('title')).toBe('A cover, contents, numbered pages and the usual sections.');
     expect(cards()[0]!.getAttribute('title')).toBeNull();
+  });
+
+  it('draws a Slides template’s slide once its sketch has loaded, and a skeleton of a slide until then', async () => {
+    act(() => root.render(<StartSection templates={predefinedSlidesSummaries()} orgName={null} onCreate={onCreate} />));
+    const card = () => cards().find((c) => c.getAttribute('aria-label') === 'Project kick-off')!;
+    expect(card(), 'the kick-off card, named before its deck has loaded').toBeTruthy();
+    expect(card().querySelector('.oa-tcard-thumb .oa-bone'), 'a skeleton where the slide will be').toBeTruthy();
+    expect(card().querySelector('.oa-tcard-thumb svg rect')).toBeNull();
+    // The sketches are a dynamic import of every Slides template, which takes over the default
+    // second when the whole suite is running at once.
+    await vi.waitFor(() => expect(card().querySelector('.oa-tcard-thumb svg rect')).toBeTruthy(), { timeout: 15_000 });
+    expect(card().querySelector('.oa-tcard-thumb .oa-bone')).toBeNull();
+    expect(host.querySelector('.oa-spin, [role="progressbar"]'), 'never a spinner').toBeNull();
   });
 });

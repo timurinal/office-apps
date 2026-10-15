@@ -1,0 +1,91 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:10",
+ "slides": 2,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Slide",
+  "Title and Content"
+ ],
+ "hidden": [
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "ctrTitle",
+    "box": [
+     240,
+     196.39,
+     1440,
+     417.78
+    ],
+    "text": "Sixteen by ten"
+   },
+   {
+    "kind": "shape",
+    "ph": "subTitle",
+    "box": [
+     240,
+     630.28,
+     1440,
+     289.72
+    ],
+    "text": "Between the two"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     63.89,
+     1656,
+     231.94
+    ],
+    "text": "A 44 point title"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     319.44,
+     1656,
+     761.39
+    ],
+    "text": "Body at 28 points"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     192,
+     768,
+     384,
+     153.6
+    ],
+    "text": "Box"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

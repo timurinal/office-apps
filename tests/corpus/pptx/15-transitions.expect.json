@@ -1,0 +1,221 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 11,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  "fade",
+  "push",
+  "wipe",
+  "zoom",
+  "fade",
+  "push",
+  "none",
+  "fade",
+  "push",
+  "wipe",
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 1"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 2"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 3"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 4"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 5"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 6"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 7"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 8"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 9"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Transition 10"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "None"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [],
+ "transitionDetails": [
+  {
+   "from": "bottom"
+  },
+  null,
+  {
+   "from": "left"
+  }
+ ]
+}

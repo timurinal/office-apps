@@ -1,0 +1,68 @@
+{
+ "dialect": "python-pptx",
+ "size": "16:9",
+ "slides": 1,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Comparison",
+  "Title Only",
+  "Blank",
+  "Content with Caption",
+  "Picture with Caption",
+  "Title and Vertical Text",
+  "Vertical Title and Text"
+ ],
+ "slideLayouts": [
+  "Title and Content"
+ ],
+ "hidden": [
+  false
+ ],
+ "notes": [
+  null
+ ],
+ "transitions": [
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     72.0,
+     43.25,
+     1296.0,
+     180.0
+    ],
+    "text": "Widescreen, layouts left as they were"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     72.0,
+     252.0,
+     1296.0,
+     712.75
+    ],
+    "text": "The layouts keep their 4:3 places"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1440.0,
+     720.0,
+     172.8,
+     172.8
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

@@ -1,0 +1,544 @@
+/*
+ * The Slides editor: the rail, the desk and the slide on it, what is drawn over the slide (the
+ * selection, other people, guides), the text being typed in, and the notes. Numbers are from
+ * docs/design/boards/Slides.dc.html. Only `transform` and `opacity` animate, and nothing here does
+ * while a person types or drags.
+ */
+
+.sl-page {
+  --sl-sel: #c0501c;
+  --sl-guide: #17c6bb;
+  --sl-notes-bg: #1b1d2b;
+  --sl-thumb-ring: rgba(233, 233, 237, 0.08);
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Normal view: the rail, then the slide over its notes ────────────────── */
+
+.sl-normal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 20px;
+  padding: 6px 16px 62px 16px;
+  box-sizing: border-box;
+}
+
+.sl-rail {
+  flex: 0 0 176px;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  outline: none;
+  overscroll-behavior: contain;
+}
+
+.sl-rail-list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 6px 6px 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sl-rail-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sl-rail-item[data-dragging] {
+  opacity: 0.45;
+}
+
+.sl-rail-num {
+  flex: none;
+  width: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  padding-top: 2px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--fg-3);
+}
+
+.sl-rail-item[data-active] .sl-rail-num {
+  color: var(--app-solid);
+}
+
+.sl-rail-thumb {
+  position: relative;
+  flex: none;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--sl-thumb-ring);
+  cursor: pointer;
+}
+
+.sl-rail-item[data-chosen] .sl-rail-thumb {
+  box-shadow: 0 0 0 2px rgba(249, 168, 116, 0.45);
+}
+
+.sl-rail-item[data-active] .sl-rail-thumb {
+  box-shadow: 0 0 0 2px var(--app-solid);
+}
+
+.sl-rail:focus-visible .sl-rail-item[data-active] .sl-rail-thumb {
+  box-shadow:
+    0 0 0 2px var(--app-solid),
+    0 0 0 5px var(--focus-ring);
+}
+
+.sl-rail-item[data-hidden] .sl-rail-thumb > .sl-view {
+  opacity: 0.4;
+}
+
+.sl-rail-dots {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+}
+
+.sl-rail-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+.sl-rail-drop {
+  position: absolute;
+  left: 24px;
+  right: 6px;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: var(--app-solid);
+  pointer-events: none;
+}
+
+.sl-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── The desk and the slide ──────────────────────────────────────────────── */
+
+.sl-desk {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  outline: none;
+  scrollbar-width: thin;
+}
+
+.sl-desk[data-fit] {
+  overflow: hidden;
+}
+
+.sl-desk-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 100%;
+  min-height: 100%;
+  width: max-content;
+  height: max-content;
+  padding: 8px 16px;
+}
+
+.sl-canvas {
+  position: relative;
+  flex: none;
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  touch-action: none;
+}
+
+.sl-canvas > .sl-view {
+  border-radius: 4px;
+}
+
+.sl-desk:focus-visible .sl-canvas {
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 3px var(--focus-ring);
+}
+
+/* The text being typed in, in the slide's own px, with the slide's own type (render.css .sl-stage). */
+.sl-logical {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+  color: #000000;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 36px;
+  line-height: 1.2;
+  text-align: left;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
+}
+
+.sl-edit-box {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: auto;
+  cursor: text;
+}
+
+.sl-pm {
+  outline: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0;
+  caret-color: currentColor;
+}
+
+.sl-pm p {
+  margin: 0;
+}
+
+.sl-pm [contenteditable='false'] {
+  white-space: normal;
+}
+
+.sl-pm .ProseMirror-gapcursor {
+  display: none;
+}
+
+.sl-text.sl-nowrap .sl-pm {
+  white-space: pre;
+}
+
+/* Other people's carets, in slide px: the scale is undone so they read the same at every zoom. */
+.sl-caret {
+  position: relative;
+  margin-left: calc(-1px / var(--sl-scale, 1));
+  margin-right: calc(-1px / var(--sl-scale, 1));
+  border-left: calc(2px / var(--sl-scale, 1)) solid;
+  word-break: normal;
+  pointer-events: none;
+}
+
+.sl-caret-label {
+  position: absolute;
+  left: calc(-1px / var(--sl-scale, 1));
+  bottom: 100%;
+  padding: 0 calc(5px / var(--sl-scale, 1));
+  border-radius: calc(3px / var(--sl-scale, 1)) calc(3px / var(--sl-scale, 1)) calc(3px / var(--sl-scale, 1)) 0;
+  color: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: calc(11px / var(--sl-scale, 1));
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.5;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* What is drawn over the slide, in screen px. */
+.sl-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sl-sel {
+  position: absolute;
+  box-shadow: 0 0 0 1.5px var(--sl-sel);
+  pointer-events: none;
+}
+
+.sl-sel[data-locked] {
+  box-shadow: none;
+  outline: 1.5px dashed var(--sl-sel);
+}
+
+.sl-sel[data-editing] {
+  box-shadow: 0 0 0 1px var(--sl-sel);
+  outline: 1px dashed rgba(192, 80, 28, 0.5);
+  outline-offset: 3px;
+}
+
+.sl-sel[data-soft] {
+  box-shadow: 0 0 0 1px rgba(192, 80, 28, 0.55);
+}
+
+.sl-handle {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--sl-sel);
+  border-radius: 2px;
+  background: #ffffff;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.sl-rot {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--sl-sel);
+  border-radius: 999px;
+  background: #ffffff;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.sl-rot-stalk {
+  position: absolute;
+  width: 0;
+  border-left: 1px solid var(--sl-sel);
+  pointer-events: none;
+}
+
+.sl-marquee {
+  position: absolute;
+  border: 1px solid var(--app-solid);
+  background: rgba(249, 168, 116, 0.1);
+  pointer-events: none;
+}
+
+.sl-guide {
+  position: absolute;
+  pointer-events: none;
+}
+
+.sl-guide[data-axis='x'] {
+  width: 0;
+  border-left: 1px dashed var(--sl-guide);
+}
+
+.sl-guide[data-axis='y'] {
+  height: 0;
+  border-top: 1px dashed var(--sl-guide);
+}
+
+.sl-peer {
+  position: absolute;
+  pointer-events: none;
+  box-shadow: 0 0 0 1.5px var(--peer);
+}
+
+.sl-peer-tag {
+  position: absolute;
+  left: -1.5px;
+  bottom: calc(100% + 1.5px);
+  padding: 1px 5px;
+  border-radius: 4px 4px 4px 0;
+  background: var(--peer);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.sl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--fg-3);
+  font-size: 13.5px;
+}
+
+/* ── Notes ───────────────────────────────────────────────────────────────── */
+
+.sl-notes {
+  position: relative;
+  align-self: center;
+  flex: none;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 16px 14px;
+  border-radius: 12px;
+  background: var(--sl-notes-bg);
+}
+
+.sl-notes-grab {
+  align-self: center;
+  width: 32px;
+  height: 3px;
+  margin: -4px 0 4px;
+  border-radius: 2px;
+  background: rgba(233, 233, 237, 0.14);
+  cursor: ns-resize;
+  touch-action: none;
+  position: relative;
+}
+
+.sl-notes-grab::before {
+  content: '';
+  position: absolute;
+  inset: -8px -24px;
+}
+
+.sl-notes-body {
+  position: relative;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fg-2);
+  cursor: text;
+}
+
+.sl-notes-body .sl-pm {
+  min-height: 1.5em;
+}
+
+.sl-notes-body .sl-caret {
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left-width: 2px;
+}
+
+.sl-notes-body .sl-caret-label {
+  left: -1px;
+  padding: 0 5px;
+  font-size: 11px;
+  border-radius: 3px 3px 3px 0;
+}
+
+.sl-notes-hint {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--fg-3);
+  pointer-events: none;
+}
+
+.sl-notes-static p {
+  margin: 0;
+}
+
+/* ── The footer's buttons ────────────────────────────────────────────────── */
+
+.sl-sb {
+  height: 24px;
+  min-width: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fg-3);
+  font-size: 12px;
+}
+
+.sl-sb[data-icon] {
+  padding: 0;
+}
+
+.sl-sb:hover {
+  background: var(--app-hover);
+}
+
+.sl-sb[aria-pressed='true'] {
+  background: var(--app-hover);
+  color: var(--app-text);
+}
+
+.sl-sbs {
+  display: inline-flex;
+  gap: 2px;
+}
+
+/* ── The layout gallery ──────────────────────────────────────────────────── */
+
+.sl-layouts {
+  display: grid;
+  grid-template-columns: repeat(3, 132px);
+  gap: 10px 12px;
+  padding: 6px;
+}
+
+.sl-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 11.5px;
+  text-align: left;
+}
+
+.sl-layout:hover {
+  background: var(--app-hover);
+}
+
+.sl-layout .sl-view {
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px var(--sl-thumb-ring);
+}
+
+.sl-layout[aria-checked='true'] .sl-view {
+  box-shadow: 0 0 0 2px var(--app-solid);
+}
+
+.sl-ctx {
+  position: fixed;
+  z-index: 60;
+  width: 0;
+  height: 0;
+}
+
+@media (max-width: 760px) {
+  .sl-rail {
+    display: none;
+  }
+}
+
+/* ── Opening ─────────────────────────────────────────────────────────────── */
+
+/* The deck's outline until the room has sent it, the same as the page's skeleton
+   (pages/skeleton.css), over the desk; it fades off what arrives under it. */
+.sl-skel {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: var(--app-desk);
+  pointer-events: none;
+}
+
+/* ── The header ──────────────────────────────────────────────────────────── */
+
+.oa-btn.sl-present {
+  border-color: var(--app-solid);
+  color: var(--app-text);
+}

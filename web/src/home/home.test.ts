@@ -7,6 +7,7 @@ import {
   importKindFor,
   isDocsFile,
   isSheetsFile,
+  isSlidesFile,
   ownerLabel,
   ownedBy,
   RAIL,
@@ -27,6 +28,11 @@ describe('importKindFor', () => {
   it('opens a workbook and delimited text in Sheets, and not a document', () => {
     for (const name of ['budget.xlsx', 'export.csv', 'export.tsv']) expect(isSheetsFile(name), name).toBe(true);
     for (const name of ['Report.docx', 'notes.md', 'deck.pptx', 'old.xls', 'data.xlsm']) expect(isSheetsFile(name), name).toBe(false);
+  });
+
+  it('opens a deck, a show and a template in Slides, and not an old binary .ppt', () => {
+    for (const name of ['deck.pptx', 'show.PPSX', 'brand.potx']) expect(isSlidesFile(name), name).toBe(true);
+    for (const name of ['old.ppt', 'macro.pptm', 'deck.pptx.zip', 'Report.docx']) expect(isSlidesFile(name), name).toBe(false);
   });
 
   it('opens Markdown and web pages in Docs', () => {

@@ -1,0 +1,106 @@
+{
+ "dialect": "libreoffice",
+ "size": "16:9",
+ "slides": 3,
+ "layouts": [
+  "Title Slide",
+  "Title, Content",
+  "Title and 2 Content",
+  "Title Only",
+  "Blank Slide"
+ ],
+ "slideLayouts": [
+  "Title Slide",
+  "Title, Content",
+  "Blank Slide"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  "Say this first.\nThen this.",
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "ctrTitle",
+    "box": [
+     96,
+     43.25,
+     1728,
+     180
+    ],
+    "text": "Impress deck"
+   },
+   {
+    "kind": "shape",
+    "ph": "subTitle",
+    "box": [
+     96,
+     252,
+     1728,
+     712.75
+    ],
+    "text": "Written by LibreOffice"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96,
+     43.25,
+     1728,
+     180
+    ],
+    "text": "Points"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     96,
+     252,
+     1728,
+     712.75
+    ],
+    "text": "First\nSecond\nNested"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "box": [
+     314.96,
+     314.96,
+     944.88,
+     188.98
+    ],
+    "text": "A text box with no autofit"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     314.96,
+     598.43,
+     472.44,
+     157.48
+    ],
+    "text": "Box"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

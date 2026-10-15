@@ -1,0 +1,109 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 3,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "SmartArt"
+   },
+   {
+    "kind": "group",
+    "box": [
+     144,
+     288,
+     944.88,
+     314.96
+    ],
+    "text": "Plan\nBuild\nShip",
+    "children": [
+     {
+      "kind": "shape"
+     },
+     {
+      "kind": "shape"
+     },
+     {
+      "kind": "shape"
+     }
+    ]
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "OLE with a picture"
+   },
+   {
+    "kind": "image",
+    "box": [
+     144,
+     288,
+     432,
+     216
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "OLE with only an EMF"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [
+  "in a format that cannot be shown"
+ ]
+}

@@ -49,14 +49,19 @@ const editorHere = new Set<DocKind>();
 export const editorIsLoaded = (kind: DocKind = 'docs'): boolean => editorHere.has(kind);
 
 /**
- * Load a kind's editor code. Slides has no editor yet, so there is nothing to load for it. A new
- * spreadsheet's blank seed rides along for Sheets: it is built in the page, on the press.
+ * Load a kind's editor code. A new spreadsheet's blank seed rides along for Sheets, and a new
+ * presentation's for Slides: each is built in the page, on the press.
  */
 export function prefetchEditor(kind: DocKind = 'docs'): void {
-  if (kind === 'slides' || editorAsked.has(kind)) return;
+  if (editorAsked.has(kind)) return;
   editorAsked.add(kind);
   // The same module the route lazy-loads, so this fills the same chunk.
-  const loads = kind === 'docs' ? [import('../docs/DocsPage')] : [import('../sheets/SheetsPage'), import('../sheets/blank')];
+  const loads =
+    kind === 'docs'
+      ? [import('../docs/DocsPage')]
+      : kind === 'sheets'
+        ? [import('../sheets/SheetsPage'), import('../sheets/blank')]
+        : [import('../slides/SlidesPage'), import('../slides/blank')];
   void Promise.all(loads).then(
     () => {
       editorHere.add(kind);

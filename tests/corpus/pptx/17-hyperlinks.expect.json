@@ -1,0 +1,77 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 2,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title and Content",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Links"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "The site and mail us\na script and a file\nother slide"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Second"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [],
+ "links": {
+  "kept": [
+   "https://example.com/office",
+   "mailto:hello@example.com"
+  ],
+  "refused": 2
+ }
+}

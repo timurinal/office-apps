@@ -64,3 +64,35 @@ export interface SheetsExportRequest {
 export type SheetsExportReply =
   | { id: number; ok: true; bytes: Uint8Array; mime: string; extension: string; warnings: import('../types').Warning[] }
   | { id: number; ok: false; message: string };
+
+// ── presentations ───────────────────────────────────────────────────────────
+
+/** What the page and the presentation import worker say to each other. */
+export interface SlidesWorkerRequest {
+  id: number;
+  name: string;
+  bytes: Uint8Array;
+}
+
+export type SlidesWorkerReply =
+  | { id: number; ok: true; out: import('../importSlides').SlidesImportOutcome }
+  | { id: number; ok: false; code: FormatErrorCode; message: string };
+
+/** A picture a deck names, fetched by the page: the worker has no session to fetch it with. */
+export interface SlidesAsset {
+  id: string;
+  bytes: Uint8Array;
+  mime: string;
+}
+
+export interface SlidesExportRequest {
+  id: number;
+  deck: import('../../slides/model/deck').DeckJSON;
+  assets: SlidesAsset[];
+  title: string;
+  now: number;
+}
+
+export type SlidesExportReply =
+  | { id: number; ok: true; bytes: Uint8Array; warnings: import('../types').Warning[] }
+  | { id: number; ok: false; message: string };

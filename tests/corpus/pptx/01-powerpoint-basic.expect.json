@@ -1,0 +1,128 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 3,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Slide",
+  "Title and Content",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "ctrTitle",
+    "box": [
+     240,
+     176.75,
+     1440,
+     376
+    ],
+    "text": "Quarterly review"
+   },
+   {
+    "kind": "shape",
+    "ph": "subTitle",
+    "box": [
+     240,
+     567.25,
+     1440,
+     260.75
+    ],
+    "text": "Finance and operations"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Agenda"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Results\nOutlook\nRisks and mitigations"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     720,
+     720,
+     144
+    ],
+    "text": "Bold italic underlined struck sized and red\nSecond paragraph, centred"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Shapes"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     288,
+     288,
+     432,
+     144
+    ],
+    "text": "On a style"
+   },
+   {
+    "kind": "line",
+    "box": [
+     1008,
+     288,
+     432,
+     288
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

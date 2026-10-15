@@ -1,0 +1,127 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 2,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Merged cells"
+   },
+   {
+    "kind": "table",
+    "box": [
+     144,
+     259.2,
+     864,
+     233.6
+    ],
+    "text": "Header spans two\nC\nD\nTall\nb1\nc1\nd1\nb2\nBig\na4\nb4",
+    "tableTexts": [
+     "Header spans two",
+     "C",
+     "D",
+     "Tall",
+     "b1",
+     "c1",
+     "d1",
+     "b2",
+     "Big",
+     "a4",
+     "b4"
+    ],
+    "rows": 4,
+    "cols": 4
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Plain"
+   },
+   {
+    "kind": "table",
+    "box": [
+     144,
+     259.2,
+     576,
+     116.8
+    ],
+    "text": "one\ntwo\nthree\nfour",
+    "tableTexts": [
+     "one",
+     "two",
+     "three",
+     "four"
+    ],
+    "rows": 2,
+    "cols": 2
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [],
+ "tables": [
+  {
+   "slide": 0,
+   "rows": 4,
+   "cols": 4,
+   "spans": [
+    {
+     "r": 0,
+     "c": 0,
+     "colSpan": 2
+    },
+    {
+     "r": 1,
+     "c": 0,
+     "rowSpan": 2
+    },
+    {
+     "r": 2,
+     "c": 2,
+     "colSpan": 2,
+     "rowSpan": 2
+    }
+   ]
+  }
+ ]
+}

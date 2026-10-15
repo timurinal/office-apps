@@ -1,0 +1,85 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 1,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only"
+ ],
+ "hidden": [
+  false
+ ],
+ "notes": [
+  null
+ ],
+ "transitions": [
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Freeforms"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     288,
+     288,
+     288
+    ],
+    "text": "freeform"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     576,
+     288,
+     288,
+     288
+    ],
+    "text": "decision"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1008,
+     288,
+     288,
+     288
+    ],
+    "text": "sun"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1368,
+     288,
+     216,
+     216
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [
+  "freeform shape",
+  "in a form that cannot be drawn"
+ ]
+}

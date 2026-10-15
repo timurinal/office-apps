@@ -1,0 +1,97 @@
+/*
+ * The slide sorter, in place of Normal view: a grid of thumbnails whose width is set by the footer's
+ * zoom (--sl-sort-w, from Sorter.tsx). Only `transform` and `opacity` animate (the FLIP glide after a
+ * drop, which motion/flip.ts plays); nothing here animates under a drag. The page's own variables
+ * (--sl-thumb-ring and the rest, editor.css) are inherited from .sl-page.
+ */
+
+.sl-sorter {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 18px 28px 66px;
+  box-sizing: border-box;
+  outline: none;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}
+
+.sl-sorter[data-drag] {
+  cursor: grabbing;
+}
+
+.sl-sort-list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--sl-sort-w, 224px));
+  justify-content: center;
+  gap: 24px var(--sl-sort-gap, 20px);
+}
+
+.sl-sort-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sl-sort-item[data-dragging] {
+  opacity: 0.45;
+}
+
+.sl-sort-thumb {
+  position: relative;
+  flex: none;
+  align-self: flex-start;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--sl-thumb-ring);
+  cursor: pointer;
+}
+
+.sl-sort-item[data-chosen] .sl-sort-thumb {
+  box-shadow: 0 0 0 2px rgba(249, 168, 116, 0.45);
+}
+
+.sl-sort-item[data-active] .sl-sort-thumb {
+  box-shadow: 0 0 0 2px var(--app-solid);
+}
+
+.sl-sorter:focus-visible .sl-sort-item[data-active] .sl-sort-thumb {
+  box-shadow:
+    0 0 0 2px var(--app-solid),
+    0 0 0 5px var(--focus-ring);
+}
+
+.sl-sort-item[data-hidden] .sl-sort-thumb > .sl-view {
+  opacity: 0.4;
+}
+
+.sl-sort-num {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 2px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--fg-3);
+}
+
+.sl-sort-item[data-active] .sl-sort-num {
+  color: var(--app-solid);
+}
+
+.sl-sort-drop {
+  position: absolute;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--app-solid);
+  pointer-events: none;
+}
