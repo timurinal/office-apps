@@ -1,0 +1,47 @@
+/* ── Typography ───────────────────────────────────────────────────────
+   Inter 600 = titles. Inter 400–600 = body + UI. JetBrains Mono = eyebrow
+   labels, code, tokens. */
+:root{
+  --fw-regular:400; /* @kind font */
+  --fw-medium:500; /* @kind font */
+  --fw-semibold:600; /* @kind font */
+  --fw-display:600; /* @kind font */
+
+  --fs-micro:9px;
+  --fs-2xs:11px;
+  --fs-xs:12px;
+  --fs-sm:13px;
+  --fs-md:15px;
+  --fs-base:16px;
+  --fs-lg:18px;
+  --fs-xl:22px;
+  --fs-2xl:28px;
+  --fs-3xl:40px;
+  --fs-4xl:52px;
+  --fs-5xl:58px;
+  --fs-6xl:64px;
+
+  --lh-flat:1; /* @kind font */
+  --lh-tight:1.02; /* @kind font */
+  --lh-snug:1.28; /* @kind font */
+  --lh-normal:1.5; /* @kind font */
+  --lh-relaxed:1.65; /* @kind font */
+
+  --ls-label:0.16em; /* @kind font */
+  --ls-label-wide:0.18em; /* @kind font */
+  --ls-display:-0.005em; /* @kind font */
+  --ls-normal:0; /* @kind font */
+
+  /* Semantic type roles */
+  --type-display-family:var(--font-display);
+  --type-display-weight:var(--fw-display);
+  --type-display-line:var(--lh-tight); /* @kind font */
+  --type-subtitle-family:var(--font-display);
+  --type-subtitle-weight:var(--fw-regular);
+  --type-subtitle-line:var(--lh-snug); /* @kind font */
+  --type-body-family:var(--font-body);
+  --type-body-line:var(--lh-relaxed); /* @kind font */
+  --type-label-family:var(--font-mono);
+  --type-label-size:var(--fs-2xs);
+  --type-label-tracking:var(--ls-label); /* @kind font */
+}

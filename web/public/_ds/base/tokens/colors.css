@@ -1,0 +1,131 @@
+/* ── Colour system ───────────────────────────────────────────────────────
+   Four ramps: Accent (the app's own chrome, interactive), Indigo (dark ground),
+   Teal (signal, never re-hued), Slate (neutral text + greys). The per-app colours
+   (Docs, Sheets, Slides) are in web/src/styles.css under `data-app`.
+   Semantic aliases below are what product code should consume. */
+:root{
+  /* Accent · a cool steel, the suite's own chrome */
+  --accent-50:#f6f7fa; --accent-100:#eceff5; --accent-200:#dde2ec; --accent-300:#c3cbdb;
+  --accent-400:#9aa6bf; --accent-500:#71809f; --accent-600:#56657f; --accent-700:#45526a;
+  --accent-800:#363f52; --accent-900:#262c3a; --accent-950:#171b25;
+
+  /* Indigo · dark ground */
+  --indigo-50:#f2f3fb; --indigo-100:#e2e4f5; --indigo-200:#c5c9ea; --indigo-300:#9ea4d6;
+  --indigo-400:#6f78bd; --indigo-500:#4c5397; --indigo-600:#353b80; --indigo-700:#2b2f68;
+  --indigo-800:#262a60; --indigo-900:#1c1f47; --indigo-950:#12142e;
+
+  /* Teal · signal */
+  --teal-50:#e6fbf9; --teal-100:#c1f5f0; --teal-200:#8aeae2; --teal-300:#49d9cf;
+  --teal-400:#17c6bb; --teal-500:#0fb3a8; --teal-600:#0d938b; --teal-700:#0f736d;
+  --teal-800:#115a56; --teal-900:#123f3c; --teal-950:#082523;
+
+  /* Slate · neutral, text + greys */
+  --slate-50:#f8f9fc; --slate-100:#f3f5fa; --slate-200:#e4e7ef; --slate-300:#cfd3df;
+  --slate-400:#b2b6c4; --slate-500:#9397a6; --slate-600:#75798a; --slate-700:#595d6b;
+  --slate-800:#3f424c; --slate-900:#292b31; --slate-950:#161820;
+
+  --danger-100:#fdecf0; --danger-500:#d94f6f; --danger-600:#b93c59;
+  --warning-100:#fdf1de; --warning-500:#e8a33d; --warning-600:#c9852a;
+  --success-100:var(--teal-100); --success-500:var(--teal-600); --success-600:var(--teal-700);
+
+  /* Shadow ink (rgb triplet) */
+  --ink-rgb:20,24,33; /* @kind other */
+
+  /* ── Semantic · light (default) ────────────────────────────────── */
+  --bg-page:#eceef2;
+  --bg-page-alt:var(--slate-100);
+  --surface-card:#ffffff;
+  --surface-raised:#ffffff;
+  --surface-sunken:var(--slate-100);
+  --surface-inset:var(--accent-50);
+  --surface-code:var(--slate-950);
+
+  --border-subtle:rgba(20,24,33,0.07);
+  --border-hairline:rgba(20,24,33,0.04);
+  --border-strong:var(--slate-300);
+
+  --text-strong:var(--slate-900);
+  --text-body:var(--slate-800);
+  --text-muted:var(--slate-600);
+  --text-faint:var(--slate-500);
+  --text-quiet:var(--slate-400);
+  --text-on-primary:#ffffff;
+  --text-on-accent:#ffffff;
+  --text-link:var(--accent-600);
+  --text-link-hover:var(--accent-700);
+
+  --brand:var(--accent-500);
+  --primary:var(--accent-600);
+  --primary-hover:var(--accent-700);
+  --primary-active:var(--accent-800);
+  --primary-soft:var(--accent-100);
+  --primary-soft-hover:var(--accent-200);
+  --primary-text:var(--accent-700);
+
+  --accent:var(--accent-500);
+  --accent-hover:var(--accent-600);
+  --accent-soft:var(--accent-100);
+  --signal:var(--teal-500);
+  --signal-hover:var(--teal-600);
+  --signal-soft:var(--teal-100);
+
+  --focus-ring:rgba(113,128,159,0.45);
+  --selection-bg:var(--accent-200);
+
+  /* App chrome: a cool window ground with neutral content panels on it. */
+  --app-ground:#e6e9f0;
+  --app-chrome-panel:#f4f6fa;
+  --app-panel:var(--slate-50);
+  --app-panel-alt:var(--slate-100);
+  --app-panel-sunken:#eef0f6;
+}
+
+/* ── Semantic · dark ────────────────────────────────────────────────── */
+[data-theme="dark"]{
+  --bg-page:var(--slate-950);
+  --bg-page-alt:#1b1d26;
+  --surface-card:#23252e;
+  --surface-raised:#2b2d37;
+  --surface-sunken:#12141c;
+  --surface-inset:rgba(154,166,191,0.08);
+  --surface-code:#12141c;
+
+  --border-subtle:rgba(233,233,237,0.08);
+  --border-hairline:rgba(233,233,237,0.05);
+  --border-strong:rgba(233,233,237,0.18);
+
+  --text-strong:#e9e9ed;
+  --text-body:var(--slate-300);
+  --text-muted:var(--slate-500);
+  --text-faint:var(--slate-600);
+  --text-quiet:var(--slate-700);
+  --text-on-primary:var(--accent-950);
+  --text-on-accent:var(--accent-950);
+  --text-link:var(--accent-300);
+  --text-link-hover:var(--accent-200);
+
+  --brand:var(--accent-400);
+  --primary:var(--accent-300);
+  --primary-hover:var(--accent-200);
+  --primary-active:var(--accent-400);
+  --primary-soft:rgba(154,166,191,0.14);
+  --primary-soft-hover:rgba(154,166,191,0.22);
+  --primary-text:var(--accent-300);
+
+  --accent:var(--accent-400);
+  --accent-hover:var(--accent-300);
+  --accent-soft:rgba(154,166,191,0.16);
+  --signal:var(--teal-400);
+  --signal-hover:var(--teal-300);
+  --signal-soft:rgba(15,179,168,0.16);
+
+  --ink-rgb:6,8,12; /* @kind other */
+  --focus-ring:rgba(154,166,191,0.55);
+  --selection-bg:rgba(113,128,159,0.35);
+
+  --app-ground:#14161d;
+  --app-chrome-panel:#1b1d26;
+  --app-panel:#1b1d26;
+  --app-panel-alt:#1f212b;
+  --app-panel-sunken:#161820;
+}

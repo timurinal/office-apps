@@ -1,0 +1,16 @@
+/* ── Element defaults ────────────────────────────────────────────────
+   Minimal: sets the page ground, body type and link colours before a single
+   component mounts. */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg-page);color:var(--text-body);font-family:var(--font-body);font-size:var(--fs-base);line-height:var(--lh-relaxed);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--fw-display);color:var(--text-strong);line-height:var(--lh-tight);letter-spacing:var(--ls-display);margin:0}
+h1{font-size:var(--fs-4xl)}h2{font-size:var(--fs-3xl)}h3{font-size:var(--fs-2xl)}h4{font-size:var(--fs-xl)}
+p{margin:0 0 var(--space-16);text-wrap:pretty}
+a{color:var(--text-link);text-decoration:none;transition:color var(--dur-fast) var(--ease-out)}
+a:hover{color:var(--text-link-hover)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:none;box-shadow:var(--shadow-focus)}
+code,pre,kbd{font-family:var(--font-mono)}
+::selection{background:var(--selection-bg)}
+small{font-size:var(--fs-sm)}
+hr{border:none;border-top:1px solid var(--border-subtle);margin:var(--space-24) 0}
+.mono-label{font-family:var(--font-mono);font-size:var(--fs-2xs);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--text-faint)}

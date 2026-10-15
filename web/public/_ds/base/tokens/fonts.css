@@ -1,0 +1,8 @@
+/* Font family variables only. The @font-face rules are in /fonts/fonts.css, bundled
+   with the app, because the page's policy names no font host but its own. */
+
+:root{
+  --font-display:'Inter','Helvetica Neue',Arial,sans-serif;
+  --font-body:'Inter','Helvetica Neue',Arial,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+}
