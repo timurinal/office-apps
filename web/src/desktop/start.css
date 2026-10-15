@@ -1,0 +1,109 @@
+/* The Start window: Home's panels and cards, a bar with the app's name, and the recent files. */
+
+.oa-start .oa-home-h {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.oa-start-hd {
+  padding: 10px 20px;
+}
+.oa-start-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.oa-start-gap {
+  flex: 1;
+}
+.oa-start .oa-home-body {
+  padding: 0 20px 20px;
+}
+
+.oa-recent {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.oa-recent-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 10px;
+}
+.oa-recent-row:hover {
+  background: var(--accent-100);
+}
+.oa-recent-row[data-missing='true'] {
+  opacity: 0.55;
+}
+.oa-recent-open {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 2fr) minmax(0, 2fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  border-radius: 10px;
+}
+.oa-recent-open:disabled {
+  cursor: default;
+}
+.oa-recent-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--app-50, var(--accent-100));
+  color: var(--app-600, var(--accent-600));
+}
+.oa-recent-name {
+  color: var(--fg-1);
+  font-weight: 500;
+}
+.oa-recent-folder,
+.oa-recent-when {
+  color: var(--fg-3);
+  font-size: 13px;
+}
+.oa-recent-act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-3);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.oa-recent-row:hover .oa-recent-act,
+.oa-recent-act:focus-visible {
+  opacity: 1;
+}
+.oa-recent-act:hover {
+  background: var(--accent-200);
+  color: var(--fg-1);
+}
+@media (max-width: 760px) {
+  .oa-recent-open {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+  }
+  .oa-recent-folder {
+    display: none;
+  }
+}

@@ -56,7 +56,7 @@ export function prefetchEditor(kind: DocKind = 'docs'): void {
   if (kind === 'slides' || editorAsked.has(kind)) return;
   editorAsked.add(kind);
   // The same module the route lazy-loads, so this fills the same chunk.
-  const loads = kind === 'docs' ? [import('../docs/DocsPage')] : [import('../sheets/SheetsPage'), import('../sheets/blank')];
+  const loads = kind === 'docs' ? [import('../desktop/LocalDocsPage')] : [import('../desktop/LocalSheetsPage'), import('../sheets/blank')];
   void Promise.all(loads).then(
     () => {
       editorHere.add(kind);

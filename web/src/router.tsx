@@ -18,6 +18,12 @@ interface RouterValue {
 
 const RouterContext = createContext<RouterValue | null>(null);
 
+/** Called with every URL `navigate` is given; true means it was handled and the router does nothing. */
+let guard: ((url: URL) => boolean) | null = null;
+export function setNavigationGuard(next: ((url: URL) => boolean) | null): void {
+  guard = next;
+}
+
 export function RouterProvider({ children }: { children: React.ReactNode }) {
   const [path, setPath] = useState(() => window.location.pathname);
   const [search, setSearch] = useState(() => window.location.search);
@@ -34,6 +40,7 @@ export function RouterProvider({ children }: { children: React.ReactNode }) {
 
   const navigate = useCallback((to: string, opts?: { replace?: boolean }) => {
     const url = new URL(to, window.location.origin);
+    if (guard?.(url)) return;
     // An external link should leave the SPA rather than being pushed onto our
     // own history stack.
     if (url.origin !== window.location.origin) {

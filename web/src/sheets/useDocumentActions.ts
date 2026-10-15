@@ -22,7 +22,7 @@ export interface DocumentActions {
   restoreFromTrash: () => Promise<void>;
 }
 
-export function useDocumentActions(meta: DocumentMeta, setMeta: (m: DocumentMeta) => void, reload: () => void): DocumentActions {
+export function useDocumentActions(meta: DocumentMeta, setMeta: (m: DocumentMeta) => void, reload: () => void, local = false): DocumentActions {
   const notify = useNotify();
   const { navigate } = useRouter();
 
@@ -31,6 +31,8 @@ export function useDocumentActions(meta: DocumentMeta, setMeta: (m: DocumentMeta
       async rename(title) {
         const before = meta;
         setMeta({ ...meta, title });
+        // A file's title is the host's to keep; there is no row to rename.
+        if (local) return;
         try {
           setMeta(await documents.rename(meta.id, title));
         } catch (err) {
@@ -100,6 +102,6 @@ export function useDocumentActions(meta: DocumentMeta, setMeta: (m: DocumentMeta
         }
       }
     }),
-    [meta, setMeta, reload, notify, navigate]
+    [meta, setMeta, reload, notify, navigate, local]
   );
 }

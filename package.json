@@ -8,8 +8,8 @@
     "build": "vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "LANG=en_GB.UTF-8 vitest run",
+    "test:watch": "LANG=en_GB.UTF-8 vitest",
     "e2e": "node e2e/walk.mjs",
     "shell": "python3 -m officeapps --web-dir ../dist/web",
     "selftest": "node scripts/selftest.mjs"

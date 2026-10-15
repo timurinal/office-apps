@@ -109,7 +109,7 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
   const notify = useNotify();
   const caps = capsFor(meta);
   const features = source.features;
-  const act = useDocumentActions(meta, setMeta, reload);
+  const act = useDocumentActions(meta, setMeta, reload, source.kind === 'local');
 
   const [tab, setTab] = useState('home');
   const [mode, setMode] = useState('editing');
