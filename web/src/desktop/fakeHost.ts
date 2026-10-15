@@ -117,7 +117,13 @@ export function fakeHost(): Host {
 
   return {
     async hello(): Promise<WindowInfo> {
-      return { windowId, platform: 'web', appName: 'Office', version: '0.1.0', selfTest: false, open };
+      let selfTest = false;
+      try {
+        selfTest = localStorage.getItem('office.fake.selftest') === '1';
+      } catch {
+        // No storage, no hooks.
+      }
+      return { windowId, platform: 'web', appName: 'Office', version: '0.1.0', selfTest, open };
     },
 
     async readOpened() {
