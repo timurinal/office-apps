@@ -1,0 +1,74 @@
+name: macOS app
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - 'shell/**'
+      - 'package.json'
+      - '.github/workflows/macos.yml'
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    # Apple Silicon. For an Intel build, add a runner with an x86_64 image and OFFICE_ARCH=x86_64.
+    runs-on: macos-15
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r shell/requirements-dev.txt
+      - name: Icon
+        run: sh shell/packaging/make_icons.sh
+      - name: Build Office.app
+        run: pyinstaller --noconfirm --distpath dist/mac --workpath build/pyinstaller shell/packaging/office.spec
+      - name: Sign (ad hoc)
+        run: |
+          codesign --force --deep --sign - dist/mac/Office.app
+          codesign --verify --deep --strict --verbose=2 dist/mac/Office.app
+      - name: What the app needs
+        run: |
+          du -sh dist/mac/Office.app
+          find dist/mac/Office.app -name QtCore -path '*QtCore.framework*' -type f | head -1 | xargs -I{} sh -c 'otool -l "{}" | grep -A3 LC_BUILD_VERSION | grep minos'
+          /usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' dist/mac/Office.app/Contents/Info.plist
+      - name: Self-test, in the built app
+        run: |
+          dist/mac/Office.app/Contents/MacOS/Office --self-test \
+            --fixtures "$GITHUB_WORKSPACE/tests/corpus" \
+            --data-dir "$RUNNER_TEMP/selftest" --report "$RUNNER_TEMP/selftest/report.json"
+      - name: Disk image
+        run: |
+          version=$(python -c "import sys; sys.path.insert(0, 'shell'); import officeapps; print(officeapps.__version__)")
+          sh shell/packaging/make_dmg.sh dist/mac/Office.app "dist/Office-$version-arm64.dmg"
+          ls -lh dist/*.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Office-macOS-arm64
+          path: dist/*.dmg
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selftest-macos
+          path: ${{ runner.temp }}/selftest
+          retention-days: 7
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.dmg --title "Office $GITHUB_REF_NAME" --notes-file shell/packaging/RELEASE.md
