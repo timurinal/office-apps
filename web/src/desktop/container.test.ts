@@ -16,6 +16,26 @@ describe('the native file', () => {
     expect([...book.cells!]).toEqual([9, 9]);
   });
 
+  it('round-trips a presentation with its pictures, and only pictures it can read', () => {
+    const png = { id: 'p1', mime: 'image/png', name: 'a.png', bytes: new Uint8Array([137, 80, 78, 71]) };
+    const deck = readContainer(writeContainer({ kind: 'slides', id: 'd', title: 'Deck', app: 'Office', state, pictures: [png] }), 'slides');
+    expect(deck.manifest.pictures).toEqual([{ id: 'p1', mime: 'image/png', name: 'a.png' }]);
+    expect(deck.pictures).toHaveLength(1);
+    expect(deck.pictures[0]).toMatchObject({ id: 'p1', mime: 'image/png', name: 'a.png' });
+    expect([...deck.pictures[0]!.bytes]).toEqual([137, 80, 78, 71]);
+
+    const manifest = { format: 'office', version: 1, kind: 'slides', id: 'd', title: 't', app: 'x', savedAt: '', pictures: [
+      { id: 'p1', mime: 'image/png', name: 'a' },
+      { id: '../x', mime: 'image/png', name: 'b' },
+      { id: 'p3', mime: 'text/html', name: 'c' },
+      { id: 'p4', mime: 'image/png', name: 'not in the zip' }
+    ] };
+    const odd = readContainer(zipSync({ 'manifest.json': strToU8(JSON.stringify(manifest)), 'state.bin': state, 'pictures/p1': state, 'pictures/p3': state }));
+    expect(odd.pictures.map((p) => p.id)).toEqual(['p1']);
+    // A document never carries pictures.
+    expect(readContainer(writeContainer({ kind: 'docs', id: 'a', title: 't', app: 'x', state, pictures: [png] })).pictures).toEqual([]);
+  });
+
   it('puts the mimetype first, stored', () => {
     const bytes = writeContainer({ kind: 'docs', id: 'a', title: 't', app: 'x', state });
     // A local file header: signature, version, flags, then the method (0 = stored), then the name at 30.
@@ -37,7 +57,7 @@ describe('the native file', () => {
 
   it('refuses a zip with too many entries', () => {
     const files: Record<string, Uint8Array> = {};
-    for (let i = 0; i < 20; i++) files[`f${i}`] = state;
+    for (let i = 0; i < 4100; i++) files[`f${i}`] = state;
     expect(() => readContainer(zipSync(files))).toThrow(ContainerError);
   });
 });

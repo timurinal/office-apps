@@ -21,8 +21,9 @@ import { slideshowModule } from './slideshow';
 import { transitionsModule } from './transitions';
 import { filesModule } from './files';
 import type { SlidesModule } from './types';
+import { desktopSlidesModule } from '../../desktop/slidesModule';
 
-export const SLIDES_MODULES: readonly SlidesModule[] = [coreModule, insertModule, designModule, formatModule, arrangeModule, guidesModule, sorterModule, findModule, viewModule, slideshowModule, transitionsModule, filesModule];
+export const SLIDES_MODULES: readonly SlidesModule[] = [coreModule, insertModule, designModule, formatModule, arrangeModule, guidesModule, sorterModule, findModule, viewModule, slideshowModule, transitionsModule, filesModule, desktopSlidesModule];
 
 export type { SlidesContext, SlidesModule } from './types';
 export { SLIDES_TABS } from './types';

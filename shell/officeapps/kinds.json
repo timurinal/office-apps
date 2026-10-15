@@ -31,8 +31,8 @@
     "noun": "presentation",
     "extension": "oadeck",
     "mime": "application/x-office-presentation",
-    "imports": [],
-    "exports": [],
-    "enabled": false
+    "imports": ["pptx", "ppsx", "potx"],
+    "exports": [{ "command": "file.download-pptx", "label": "PowerPoint (.pptx)" }],
+    "enabled": true
   }
 }

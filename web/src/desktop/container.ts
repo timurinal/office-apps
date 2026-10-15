@@ -5,6 +5,8 @@
  *     manifest.json   { format, version, kind, id, title, app, savedAt }
  *     state.bin       the document's Yjs state (a Sheets workbook's structure)
  *     cells.bin       Sheets only: the cell list (`encodeCellList`)
+ *     pictures/<id>   Slides only: each picture the deck names, as its bytes; the manifest's
+ *                     `pictures` says what each is
  *
  * Nothing is converted on the way in or out, so a save loses nothing the editor has. The id is
  * kept from save to save; the title on screen is always the file's name, and `title` here is
@@ -13,6 +15,7 @@
 
 import { strFromU8, strToU8, unzipSync, zipSync, type Zippable } from 'fflate';
 import { KINDS, type Kind } from './kinds';
+import { isPictureId, isPictureMime, type StoredPicture } from './pictures';
 
 export const FORMAT = 'office';
 export const VERSION = 1;
@@ -25,6 +28,8 @@ export interface Manifest {
   title: string;
   app: string;
   savedAt: string;
+  /** Slides: the pictures in `pictures/`. */
+  pictures?: { id: string; mime: string; name: string }[];
 }
 
 export interface ContainerContent {
@@ -32,6 +37,8 @@ export interface ContainerContent {
   state: Uint8Array;
   /** Sheets: the encoded cell list. */
   cells: Uint8Array | null;
+  /** Slides: its pictures. */
+  pictures: StoredPicture[];
 }
 
 export class ContainerError extends Error {
@@ -41,7 +48,8 @@ export class ContainerError extends Error {
   }
 }
 
-const MAX_ENTRIES = 16;
+/** The few entries of a document, and a presentation's pictures. */
+const MAX_ENTRIES = 4096;
 const MAX_UNZIPPED = 256 * 1024 * 1024;
 
 export function writeContainer(input: {
@@ -51,6 +59,7 @@ export function writeContainer(input: {
   app: string;
   state: Uint8Array;
   cells?: Uint8Array | null;
+  pictures?: readonly StoredPicture[];
   now?: Date;
 }): Uint8Array {
   const manifest: Manifest = {
@@ -62,6 +71,8 @@ export function writeContainer(input: {
     app: input.app,
     savedAt: (input.now ?? new Date()).toISOString()
   };
+  const pictures = input.kind === 'slides' ? (input.pictures ?? []) : [];
+  if (input.kind === 'slides') manifest.pictures = pictures.map((p) => ({ id: p.id, mime: p.mime, name: p.name }));
   // Insertion order is the order in the zip; `mimetype` must be first and stored.
   const files: Zippable = {
     mimetype: [strToU8(KINDS[input.kind].mime), { level: 0 }],
@@ -69,6 +80,8 @@ export function writeContainer(input: {
     'state.bin': input.state
   };
   if (input.kind === 'sheets') files['cells.bin'] = input.cells ?? new Uint8Array();
+  // Pictures are compressed already.
+  for (const p of pictures) files[`pictures/${p.id}`] = [p.bytes, { level: 0 }];
   return zipSync(files, { level: 6, mtime: input.now ?? new Date() });
 }
 
@@ -109,7 +122,19 @@ export function readContainer(bytes: Uint8Array, expected?: Kind): ContainerCont
   if (!state) throw new ContainerError('no state');
   const cells = entries['cells.bin'] ?? null;
   if (manifest.kind === 'sheets' && !cells) throw new ContainerError('no cells');
-  return { manifest, state, cells };
+  return { manifest, state, cells, pictures: readPictures(manifest, entries) };
+}
+
+/** The pictures the manifest lists and the file has. One that is not there, or not a picture, is left out. */
+function readPictures(manifest: Manifest, entries: Record<string, Uint8Array>): StoredPicture[] {
+  if (manifest.kind !== 'slides' || !Array.isArray(manifest.pictures)) return [];
+  const out: StoredPicture[] = [];
+  for (const p of manifest.pictures) {
+    if (!p || !isPictureId(p.id) || !isPictureMime(p.mime)) continue;
+    const bytes = entries[`pictures/${p.id}`];
+    if (bytes) out.push({ id: p.id, mime: p.mime, name: typeof p.name === 'string' ? p.name.slice(0, 200) : '', bytes });
+  }
+  return out;
 }
 
 /** A new document's id: kept in the file from then on. */

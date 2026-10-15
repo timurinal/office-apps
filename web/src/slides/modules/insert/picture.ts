@@ -29,6 +29,11 @@ const real: PictureSteps = {
   }
 };
 
+/** The desktop app keeps a deck's pictures in its file, and stores them itself. */
+export function setPictureUpload(upload: PictureSteps['upload']): void {
+  real.upload = upload;
+}
+
 export interface StoredPicture {
   asset: { id: string; name: string };
   size: Size;

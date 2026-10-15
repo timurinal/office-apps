@@ -14,7 +14,9 @@ describe('the kinds', () => {
     expect(classify('/x/Plan.oadoc')).toEqual({ kind: 'docs', native: true });
     expect(classify('notes.MD')).toEqual({ kind: 'docs', native: false });
     expect(classify('book.xlsx')).toEqual({ kind: 'sheets', native: false });
-    expect(classify('deck.pptx')).toBeNull();
+    expect(classify('deck.pptx')).toEqual({ kind: 'slides', native: false });
+    expect(classify('deck.oadeck')).toEqual({ kind: 'slides', native: true });
+    expect(classify('deck.key')).toBeNull();
     expect(baseName('/a/b/Q3 plan.oasheet')).toBe('Q3 plan');
     expect(baseName('.oadoc')).toBe('.oadoc');
   });

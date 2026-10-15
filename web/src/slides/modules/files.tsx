@@ -29,7 +29,7 @@ async function download(c: SlidesContext): Promise<void> {
   await downloadPptx({
     deck: () => c.model.deck(),
     title: c.meta.title,
-    assetUrl: c.source.kind === 'cloud' ? documentAssets(c.meta.id) : () => null,
+    assetUrl: c.source.kind !== 'locked' ? documentAssets(c.meta.id) : () => null,
     notify: c.notify
   });
 }

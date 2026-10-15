@@ -14,5 +14,11 @@ export const SlideAssets = createContext<AssetUrl>(none);
 
 export const useAssetUrl = (): AssetUrl => useContext(SlideAssets);
 
+/** Where the desktop app keeps a document's pictures, when it is one of its own. */
+let local: ((docId: string) => AssetUrl | null) | null = null;
+export const setLocalAssets = (find: typeof local): void => {
+  local = find;
+};
+
 /** The assets route of one document. */
-export const documentAssets = (docId: string): AssetUrl => (assetId) => PATHS.asset(docId, assetId);
+export const documentAssets = (docId: string): AssetUrl => local?.(docId) ?? ((assetId) => PATHS.asset(docId, assetId));

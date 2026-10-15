@@ -10,6 +10,7 @@ import type { Host } from './host';
 import { currentSession } from './session';
 import type { DocsContext } from '../docs/modules/types';
 import type { SheetsContext } from '../sheets/modules/types';
+import type { SlidesContext } from '../slides/modules/types';
 
 declare global {
   interface Window {
@@ -36,6 +37,7 @@ export function installSelfTest(host: Host): void {
   };
   const docs = () => currentSession()?.ctx as DocsContext | null;
   const sheets = () => currentSession()?.ctx as SheetsContext | null;
+  const slides = () => currentSession()?.ctx as SlidesContext | null;
 
   window.__selftest = {
     where: () => (document.querySelector('[data-start]') ? 'start' : (currentSession()?.kind ?? 'loading')),
@@ -43,6 +45,7 @@ export function installSelfTest(host: Host): void {
       const s = currentSession();
       if (!s) return Boolean(document.querySelector('[data-start]'));
       if (s.kind === 'docs') return Boolean(docs()?.editor) && s.isArmed;
+      if (s.kind === 'slides') return Boolean(slides()?.model) && s.isArmed;
       return Boolean(sheets()?.model.status().loaded) && s.isArmed;
     },
     session: () => {
@@ -67,6 +70,27 @@ export function installSelfTest(host: Host): void {
       const { row, col } = a1(String(ref));
       return c.model.view(c.sheetId).cell(row, col)?.text ?? '';
     },
+    slideCount: () => slides()?.model.order().length ?? null,
+    /** Type over the first box of the slide on screen. */
+    setSlideText: (text: string) => {
+      const c = slides();
+      const el = c?.slideId ? c.model.slide(c.slideId)?.elements.find((e) => e.type === 'shape') : undefined;
+      if (!c || !c.slideId || !el?.id) return false;
+      currentSession()?.arm();
+      return c.model.setText(c.slideId, el.id, { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: String(text) }] }] });
+    },
+    deckText: () => {
+      const c = slides();
+      if (!c) return null;
+      const out: string[] = [];
+      const walk = (v: unknown): void => {
+        if (Array.isArray(v)) v.forEach(walk);
+        else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) k === 'text' && typeof x === 'string' ? out.push(x) : walk(x);
+      };
+      walk(c.model.deck());
+      return out.join(' ');
+    },
+    slidePictures: () => Array.from(document.querySelectorAll('.sl-image img')).map((i) => (i.getAttribute('src') ?? '').slice(0, 5)),
     run: (key: string, id: string) => {
       const s = currentSession();
       later(String(key), s ? runCommand(s, String(id)) : Promise.resolve(false));
