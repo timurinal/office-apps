@@ -22,9 +22,9 @@ import type { SheetsContext, SheetsModule } from './types';
 const downloadIcon = ph(downloadSimpleRaw);
 
 const FORMATS: { format: SheetExportFormat; label: string; title: string; icon: ReturnType<typeof ph>; keywords: string[] }[] = [
-  { format: 'xlsx', label: 'Export as Excel (.xlsx)', title: 'Export as Excel', icon: ph(fileXlsRaw), keywords: ['xlsx', 'excel', 'export', 'save'] },
-  { format: 'csv', label: 'Export as CSV (.csv)', title: 'Export as CSV', icon: ph(fileCsvRaw), keywords: ['csv', 'comma', 'export', 'save'] },
-  { format: 'tsv', label: 'Export as tab-separated (.tsv)', title: 'Export as tab-separated', icon: ph(fileTextRaw), keywords: ['tsv', 'tab', 'export', 'save'] }
+  { format: 'xlsx', label: 'Export as Excel (.xlsx)', title: 'Export as Excel', icon: ph(fileXlsRaw), keywords: ['xlsx', 'excel', 'export', 'save', 'download'] },
+  { format: 'csv', label: 'Export as CSV (.csv)', title: 'Export as CSV', icon: ph(fileCsvRaw), keywords: ['csv', 'comma', 'export', 'save', 'download'] },
+  { format: 'tsv', label: 'Export as tab-separated (.tsv)', title: 'Export as tab-separated', icon: ph(fileTextRaw), keywords: ['tsv', 'tab', 'export', 'save', 'download'] }
 ];
 
 async function download(c: SheetsContext, format: SheetExportFormat): Promise<void> {

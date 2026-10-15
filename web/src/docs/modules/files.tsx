@@ -23,10 +23,10 @@ const downloadIcon = ph(downloadSimpleRaw);
 type Format = 'docx' | 'markdown' | 'html' | 'text';
 
 const FORMATS: { format: Format; label: string; title: string; icon: ReturnType<typeof ph>; keywords: string[] }[] = [
-  { format: 'docx', label: 'Export as Word (.docx)', title: 'Export as Word', icon: ph(fileDocRaw), keywords: ['docx', 'word', 'export', 'save'] },
-  { format: 'markdown', label: 'Export as Markdown (.md)', title: 'Export as Markdown', icon: ph(markdownLogoRaw), keywords: ['md', 'markdown', 'export', 'save'] },
-  { format: 'html', label: 'Export as web page (.html)', title: 'Export as a web page', icon: ph(fileHtmlRaw), keywords: ['html', 'web', 'export', 'save'] },
-  { format: 'text', label: 'Export as plain text (.txt)', title: 'Export as plain text', icon: ph(fileTextRaw), keywords: ['txt', 'text', 'export', 'save'] }
+  { format: 'docx', label: 'Export as Word (.docx)', title: 'Export as Word', icon: ph(fileDocRaw), keywords: ['docx', 'word', 'export', 'save', 'download'] },
+  { format: 'markdown', label: 'Export as Markdown (.md)', title: 'Export as Markdown', icon: ph(markdownLogoRaw), keywords: ['md', 'markdown', 'export', 'save', 'download'] },
+  { format: 'html', label: 'Export as web page (.html)', title: 'Export as a web page', icon: ph(fileHtmlRaw), keywords: ['html', 'web', 'export', 'save', 'download'] },
+  { format: 'text', label: 'Export as plain text (.txt)', title: 'Export as plain text', icon: ph(fileTextRaw), keywords: ['txt', 'text', 'export', 'save', 'download'] }
 ];
 
 async function download(c: DocsContext, format: Format): Promise<void> {
