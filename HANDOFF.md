@@ -15,12 +15,18 @@ shell with one window per document and a Start window.
 | `npm run e2e` | 8 of 8 |
 | `pytest shell` | 8 of 8 |
 | `--self-test` under Xvfb | 10 of 10: save, autosave, reopen, template, docx import with pictures and export, sheet formula save and xlsx/csv export, Qt keyboard into the grid, print to PDF, clipboard, the close prompt, no network |
+| The PyInstaller build of `shell/packaging/office.spec` on Linux, self-test inside it | 10 of 10; 421 MB (Qt WebEngine is 195 MB of it) |
 
-**Not yet seen on a Mac.** `.github/workflows/macos.yml` builds `Office.app` with PyInstaller on
-`macos-15`, signs it ad hoc, runs the self-test inside it and makes the dmg; its first run is the
-first time any of that has happened. Expect to iterate on it: the QtWebEngine helper inside the
-bundle, signing, and the minimum macOS version (`LSMinimumSystemVersion` is 13.0; the job prints
-QtCore's `minos`, which wins if it is higher).
+**The workflows are not switched on.** The session that wrote them had no GitHub `workflow`
+permission, so `ci.yml` and `macos.yml` wait in `ci/workflows/` (`ci/README.md` says how to move
+them into `.github/workflows/`). Until then nothing runs in CI.
+
+**Not yet seen on a Mac.** `macos.yml` builds `Office.app` with PyInstaller on `macos-15`, signs it
+ad hoc, runs the self-test inside it and makes the dmg; its first run is the first time any of that
+has happened on macOS. The same spec builds and passes on Linux, so what is left to find is
+Mac-specific: the QtWebEngine helper inside the frameworks, signing, and the minimum macOS version
+(`LSMinimumSystemVersion` is 13.0; the job prints QtCore's `minos`, which wins if it is higher). The
+spec drops Qt modules the app does not load (`KEEP_QT`); a missing one shows as a crash at start.
 
 ## What to check on a real Mac (nobody has)
 
