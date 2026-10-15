@@ -1,0 +1,68 @@
+{
+  "formulas": [
+    "Data!E1",
+    "Data!E2",
+    "Data!E3",
+    "Data!E4",
+    "Data!E5",
+    "Data!E6",
+    "Other!C1"
+  ],
+  "names": [
+    {
+      "name": "Rate",
+      "scope": null,
+      "text": "Data!$C$1"
+    },
+    {
+      "name": "Prices",
+      "scope": null,
+      "text": "Data!$A$1:$A$5"
+    },
+    {
+      "name": "Tax",
+      "scope": null,
+      "text": "0.2"
+    },
+    {
+      "name": "Double",
+      "scope": null,
+      "text": "Data!$A$1*2"
+    },
+    {
+      "name": "Elsewhere",
+      "scope": null,
+      "text": "Other!$A$1:$A$5"
+    },
+    {
+      "name": "Local",
+      "scope": "Data",
+      "text": "Data!$A$2"
+    },
+    {
+      "name": "Local",
+      "scope": "Other",
+      "text": "Other!$A$2"
+    }
+  ],
+  "values": {
+    "Data!A1": 10,
+    "Data!A2": 20,
+    "Data!A3": 30,
+    "Data!A4": 40,
+    "Data!A5": 50,
+    "Data!C1": 0.25,
+    "Data!E1": 150,
+    "Data!E2": 25,
+    "Data!E3": 2,
+    "Data!E4": 21,
+    "Data!E5": 15,
+    "Data!E6": 20,
+    "Other!A1": 1,
+    "Other!A2": 2,
+    "Other!A3": 3,
+    "Other!A4": 4,
+    "Other!A5": 5,
+    "Other!C1": 2
+  }
+}

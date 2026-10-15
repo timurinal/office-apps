@@ -1,0 +1,583 @@
+/*
+ * Home, from docs/design/boards/Main.dc.html.
+ *
+ * The accent is the suite's own chrome and stays on Home: the rail, the New button, the
+ * chips. What takes an app's colour is each kind's mark and thumbnail, which sit
+ * under a `data-app` of their own.
+ */
+
+.oa-home {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-ground);
+  color: var(--fg-2);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* ── The bar ─────────────────────────────────────────────────────────────── */
+
+.oa-home-hd {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding: 0 16px;
+}
+.oa-home-brand {
+  display: inline-flex;
+  color: inherit;
+}
+.oa-home-brand:hover {
+  color: inherit;
+}
+.oa-home-nav {
+  display: flex;
+  gap: 4px;
+}
+.oa-home-menu {
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 13px;
+}
+.oa-home-menu:hover,
+.oa-home-menu[aria-expanded='true'] {
+  background: var(--accent-100);
+}
+.oa-home-search {
+  margin-left: auto;
+  flex: 0 1 320px;
+  min-width: 200px;
+}
+.oa-home-search .oa-search {
+  border-color: var(--bd);
+  background: transparent;
+}
+.oa-home-search .oa-search:focus-within {
+  background: var(--ctrl);
+}
+.oa-home-account {
+  display: inline-flex;
+  border-radius: 50%;
+}
+
+/* ── The body ────────────────────────────────────────────────────────────── */
+
+.oa-home-body {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 16px;
+  padding: 0 16px;
+}
+.oa-home-main {
+  flex: 999 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.oa-home-views {
+  display: none;
+}
+
+/* The rail's selection slides: a pill and a teal bar, one item tall. */
+.oa-rail {
+  position: relative;
+  width: 72px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-radius: 16px;
+  background: var(--app-chrome-panel);
+}
+.oa-rail-item {
+  position: relative;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-4);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.oa-rail-item:hover {
+  color: var(--accent-700);
+}
+.oa-rail-item[aria-current='page'] {
+  color: var(--accent-600);
+}
+.oa-rail-gear {
+  height: 44px;
+}
+.oa-rail-gear:hover {
+  color: var(--accent-700);
+}
+.oa-rail-pill,
+.oa-rail-bar {
+  position: absolute;
+  pointer-events: none;
+  opacity: var(--ind-o, 0);
+  transform: translateY(var(--ind-y, 0px));
+}
+.oa-rail-pill {
+  top: 0;
+  left: 6px;
+  right: 6px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--accent-100);
+}
+.oa-rail-bar {
+  top: 16px;
+  left: 0;
+  width: 2px;
+  height: 24px;
+  background: var(--teal-500);
+}
+[data-ready='true'] > .oa-rail-pill,
+[data-ready='true'] > .oa-rail-bar {
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out);
+}
+
+/* ── Panels, headings ────────────────────────────────────────────────────── */
+
+.oa-home-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 24px 24px;
+  border-radius: 16px;
+  background: var(--app-panel);
+}
+.oa-home-list {
+  flex: 1;
+}
+.oa-home-panel-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.oa-home-h {
+  margin: 0;
+  font-family: var(--font-display), 'Trebuchet MS', sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+  color: var(--fg-1);
+}
+.oa-home-list-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.oa-home-list-head .oa-home-h {
+  margin-right: 8px;
+}
+.oa-home-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.oa-home-empty {
+  margin: 24px 0;
+  text-align: center;
+  color: var(--fg-3);
+  font-size: 15px;
+}
+
+/* ── Templates ───────────────────────────────────────────────────────────── */
+
+.oa-tgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 16px;
+}
+.oa-tcard {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: inherit;
+}
+.oa-tcard-thumb {
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow:
+    0 1px 0 rgba(40, 28, 45, 0.04),
+    0 0 0 1px rgba(40, 28, 45, 0.06);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+@media (hover: hover) {
+  .oa-tcard:hover:not(:disabled) .oa-tcard-thumb {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md), 0 0 0 1px rgba(40, 28, 45, 0.06);
+  }
+}
+/* A press settles the page a little, over the hover's lift: 120ms, transform only. */
+.oa-tcard:active:not(:disabled) .oa-tcard-thumb {
+  transform: translateY(0) scale(0.985);
+}
+/* After a change of tab the cards rise in one after another (the .oa-rise keyframes, which
+   reduced motion turns into a fade). `--i` is the card's place, capped by the component. */
+.oa-tgrid[data-stagger='true'] > .oa-tcard {
+  animation: oa-rise-in var(--dur-base) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .oa-tgrid[data-stagger='true'] > .oa-tcard {
+    animation-name: oa-fade-in;
+    animation-delay: 0ms;
+  }
+  .oa-tcard:active:not(:disabled) .oa-tcard-thumb {
+    transform: none;
+  }
+}
+:root[data-motion='off'] .oa-tgrid[data-stagger='true'] > .oa-tcard {
+  animation-name: oa-fade-in;
+  animation-delay: 0ms;
+}
+:root[data-motion='off'] .oa-tcard:active:not(:disabled) .oa-tcard-thumb {
+  transform: none;
+}
+/* On a phone the start row is one row that scrolls sideways (native scrolling, snapping to a
+   card), so ten cards do not push Recent five screens down. It bleeds to the panel's edge. */
+@media (max-width: 760px) {
+  .oa-tgrid[data-row='true'] {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 148px;
+    margin: 0 -14px;
+    padding: 0 14px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding: 0 14px;
+    scrollbar-width: none;
+  }
+  .oa-tgrid[data-row='true'] > .oa-tcard {
+    scroll-snap-align: start;
+  }
+}
+.oa-tcard-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.oa-tcard-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-1);
+}
+.oa-tcard-kind {
+  font-size: 12px;
+  color: var(--fg-3);
+}
+.oa-tile {
+  display: grid;
+  place-items: center;
+  background: var(--app-50);
+  color: var(--app-600);
+}
+
+/* ── Documents: cards ────────────────────────────────────────────────────── */
+
+.oa-cgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+}
+.oa-rcard {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow:
+    0 1px 0 rgba(40, 28, 45, 0.04),
+    0 0 0 1px rgba(40, 28, 45, 0.05);
+}
+.oa-rcard-thumb {
+  height: 128px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px 10px 0 0;
+  background: var(--field);
+}
+.oa-rcard-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px 14px;
+}
+.oa-rcard-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-1);
+}
+.oa-rcard-link {
+  color: var(--fg-1);
+}
+.oa-rcard-link:hover {
+  color: var(--fg-1);
+}
+/* The whole card is the link's target. */
+.oa-rcard .oa-rcard-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+}
+.oa-rcard-link:focus-visible {
+  box-shadow: none;
+}
+.oa-rcard:has(.oa-rcard-link:focus-visible) {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.oa-rcard-meta {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--fg-3);
+}
+.oa-kind {
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--app-600);
+  color: #fff;
+}
+.oa-mark {
+  color: var(--fg-4);
+}
+.oa-rcard-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.oa-rcard:hover .oa-rcard-actions,
+.oa-rcard:focus-within .oa-rcard-actions,
+.oa-rcard-actions[data-pinned='true'] {
+  opacity: 1;
+}
+@media (hover: none) {
+  .oa-rcard-actions {
+    opacity: 1;
+  }
+}
+.oa-card-star {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--fg-3);
+  box-shadow: 0 0 0 1px rgba(40, 28, 45, 0.06);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.oa-card-star:hover {
+  color: var(--fg-1);
+}
+.oa-card-star[data-on='true'] {
+  color: var(--warning-500);
+}
+
+/* A card or row that is going: it fades and shrinks, and the rest slide up. */
+.oa-rcard[data-leaving='true'],
+.oa-lrow[data-leaving='true'] {
+  pointer-events: none;
+  animation: oa-pop-out var(--dur-base) cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .oa-rcard[data-leaving='true'],
+  .oa-lrow[data-leaving='true'] {
+    animation-name: oa-fade-out;
+  }
+}
+:root[data-motion='off'] .oa-rcard[data-leaving='true'],
+:root[data-motion='off'] .oa-lrow[data-leaving='true'] {
+  animation-name: oa-fade-out;
+}
+
+/* ── Documents: rows ─────────────────────────────────────────────────────── */
+
+.oa-clist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.oa-lrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.oa-lrow-tile {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--app-50);
+  color: var(--app-600);
+}
+.oa-lrow-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.oa-lrow-cell {
+  flex: none;
+  font-size: 13.5px;
+  color: var(--fg-3);
+}
+.oa-lrow-mono {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--fg-4);
+}
+.oa-lrow-actions {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.oa-lrow .oa-card-star {
+  background: transparent;
+  box-shadow: none;
+  color: var(--fg-4);
+}
+.oa-lrow .oa-card-star[data-on='true'] {
+  color: var(--warning-500);
+}
+@media (max-width: 900px) {
+  .oa-col-owner {
+    display: none !important;
+  }
+}
+@media (max-width: 600px) {
+  .oa-col-date,
+  .oa-col-size {
+    display: none !important;
+  }
+}
+
+/* ── Loading, the footer, the drop ───────────────────────────────────────── */
+
+.oa-skel-card {
+  height: 200px;
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow:
+    0 1px 0 rgba(40, 28, 45, 0.04),
+    0 0 0 1px rgba(40, 28, 45, 0.05);
+}
+.oa-home-foot {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 18px;
+  font-size: 12px;
+  color: var(--fg-3);
+}
+.oa-home-drop {
+  position: fixed;
+  inset: 12px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 2px dashed var(--accent-600);
+  border-radius: 16px;
+  background: rgba(240, 238, 254, 0.88);
+  color: var(--accent-700);
+  font-size: 16px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* ── Phone width ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .oa-home-hd {
+    gap: 10px;
+    padding: 8px 12px 4px;
+  }
+  .oa-home-search {
+    order: 5;
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+  .oa-home-body {
+    padding: 0 12px;
+  }
+  .oa-rail {
+    display: none;
+  }
+  .oa-home-views {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .oa-home-views .oa-chip {
+    flex: none;
+  }
+  .oa-home-panel {
+    padding: 16px 14px 18px;
+  }
+  .oa-home-h {
+    font-size: 24px;
+  }
+  .oa-cgrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}

@@ -1,0 +1,296 @@
+{
+  "column_styles": {
+    "Formats!H": {
+      "bold": true,
+      "fill": "#e8f5e9"
+    }
+  },
+  "drops": [
+    "gradient"
+  ],
+  "formulas": [],
+  "row_styles": {
+    "Formats!26": {
+      "fill": "#e3f2fd"
+    }
+  },
+  "styles": {
+    "Formats!A1": {
+      "numFmt": "0.00"
+    },
+    "Formats!A10": {
+      "numFmt": "# ?/?"
+    },
+    "Formats!A11": {
+      "numFmt": "\"£\"#,##0;[Red]-\"£\"#,##0"
+    },
+    "Formats!A12": {
+      "numFmt": "0.0\" kg\""
+    },
+    "Formats!A13": {
+      "numFmt": "@"
+    },
+    "Formats!A2": {
+      "numFmt": "#,##0"
+    },
+    "Formats!A3": {
+      "numFmt": "0%"
+    },
+    "Formats!A4": {
+      "numFmt": "0.00E+00"
+    },
+    "Formats!A5": {
+      "numFmt": "\"$\"#,##0.00"
+    },
+    "Formats!A6": {
+      "numFmt": "[Red]-0.00;0.00"
+    },
+    "Formats!A7": {
+      "numFmt": "yyyy-mm-dd"
+    },
+    "Formats!A8": {
+      "numFmt": "dd/mm/yyyy hh:mm"
+    },
+    "Formats!A9": {
+      "numFmt": "h:mm AM/PM"
+    },
+    "Formats!B15": {
+      "bold": true,
+      "font": "Arial",
+      "size": 14
+    },
+    "Formats!B17": {
+      "fill": "#fff2cc"
+    },
+    "Formats!B19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "thin"
+      },
+      "borderLeft": {
+        "line": "thin"
+      },
+      "borderRight": {
+        "line": "thin"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "thin"
+      }
+    },
+    "Formats!B21": {
+      "h": "left",
+      "v": "top"
+    },
+    "Formats!B26": {},
+    "Formats!C15": {
+      "color": "#c0392b",
+      "italic": true
+    },
+    "Formats!C17": {
+      "fill": "near:#e6b9b8"
+    },
+    "Formats!C19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "medium"
+      },
+      "borderLeft": {
+        "line": "medium"
+      },
+      "borderRight": {
+        "line": "medium"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "medium"
+      }
+    },
+    "Formats!C21": {
+      "h": "center",
+      "wrap": true
+    },
+    "Formats!D15": {
+      "strike": true,
+      "underline": true
+    },
+    "Formats!D17": {
+      "fill": "#ffff00"
+    },
+    "Formats!D19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "thick"
+      },
+      "borderLeft": {
+        "line": "thick"
+      },
+      "borderRight": {
+        "line": "thick"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "thick"
+      }
+    },
+    "Formats!D21": {
+      "h": "right",
+      "indent": 3,
+      "v": "bottom"
+    },
+    "Formats!E15": {
+      "color": "near:#95b3d7",
+      "font": "Courier New",
+      "size": 9
+    },
+    "Formats!E17": {},
+    "Formats!E19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "dashed"
+      },
+      "borderLeft": {
+        "line": "dashed"
+      },
+      "borderRight": {
+        "line": "dashed"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "dashed"
+      }
+    },
+    "Formats!E21": {
+      "h": "left"
+    },
+    "Formats!F15": {},
+    "Formats!F17": {},
+    "Formats!F19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "dotted"
+      },
+      "borderLeft": {
+        "line": "dotted"
+      },
+      "borderRight": {
+        "line": "dotted"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "dotted"
+      }
+    },
+    "Formats!F21": {},
+    "Formats!G19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "double"
+      },
+      "borderLeft": {
+        "line": "double"
+      },
+      "borderRight": {
+        "line": "double"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "double"
+      }
+    },
+    "Formats!H19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "dotted"
+      },
+      "borderLeft": {
+        "line": "dotted"
+      },
+      "borderRight": {
+        "line": "dotted"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "dotted"
+      }
+    },
+    "Formats!H23": {},
+    "Formats!H24": {
+      "numFmt": "0.0"
+    },
+    "Formats!I19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "medium"
+      },
+      "borderLeft": {
+        "line": "medium"
+      },
+      "borderRight": {
+        "line": "medium"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "medium"
+      }
+    },
+    "Formats!J19": {
+      "borderBottom": {
+        "color": "#123456",
+        "line": "dashed"
+      },
+      "borderLeft": {
+        "line": "dashed"
+      },
+      "borderRight": {
+        "line": "dashed"
+      },
+      "borderTop": {
+        "color": "#123456",
+        "line": "dashed"
+      }
+    }
+  },
+  "values": {
+    "Formats!A1": 1234.5,
+    "Formats!A10": 0.75,
+    "Formats!A11": -1234,
+    "Formats!A12": 72.5,
+    "Formats!A13": "text",
+    "Formats!A2": 1234567,
+    "Formats!A3": 0.256,
+    "Formats!A4": 12345.678,
+    "Formats!A5": 1234.5,
+    "Formats!A6": -5.5,
+    "Formats!A7": 45356.0,
+    "Formats!A8": 45356.604166666664,
+    "Formats!A9": 0.6041666666666666,
+    "Formats!B15": "font 0",
+    "Formats!B17": "fill 0",
+    "Formats!B19": "thin",
+    "Formats!B21": "align 0",
+    "Formats!B26": "in a formatted row",
+    "Formats!C15": "font 1",
+    "Formats!C17": "fill 1",
+    "Formats!C19": "medium",
+    "Formats!C21": "align 1",
+    "Formats!D15": "font 2",
+    "Formats!D17": "fill 2",
+    "Formats!D19": "thick",
+    "Formats!D21": "align 2",
+    "Formats!E15": "font 3",
+    "Formats!E17": "fill 3",
+    "Formats!E19": "dashed",
+    "Formats!E21": "align 3",
+    "Formats!F15": "font 4",
+    "Formats!F17": "fill 4",
+    "Formats!F19": "dotted",
+    "Formats!F21": "align 4",
+    "Formats!G19": "double",
+    "Formats!H19": "hair",
+    "Formats!H23": "in a formatted column",
+    "Formats!H24": "with a format of its own",
+    "Formats!I19": "mediumDashed",
+    "Formats!J19": "dashDot"
+  }
+}

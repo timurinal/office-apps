@@ -1,0 +1,21 @@
+/* ── spacing ─────────────────────────────────────────────────
+   Not a strict 4pt grid: the brand board uses 6 / 9 / 10 / 22 / 44 freely.
+   Token name == px value so the source values survive verbatim. */
+:root{
+  --space-2:2px;  --space-4:4px;  --space-6:6px;  --space-8:8px;
+  --space-9:9px;  --space-10:10px; --space-12:12px; --space-16:16px;
+  --space-18:18px; --space-20:20px; --space-22:22px; --space-24:24px;
+  --space-28:28px; --space-30:30px; --space-32:32px; --space-40:40px;
+  --space-44:44px; --space-48:48px; --space-56:56px; --space-64:64px;
+  --space-80:80px; --space-96:96px; --space-120:120px;
+
+  /* Semantic */
+  --pad-card:40px 44px;
+  --pad-card-compact:20px 22px;
+  --pad-control-x:18px;
+  --pad-control-y:10px;
+  --gap-stack:20px;
+  --gap-grid:16px;
+  --gap-inline:12px;
+  --gap-tight:6px;
+}

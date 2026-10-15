@@ -1,0 +1,239 @@
+/*
+ * The page, and the typography of what is typed on it.
+ *
+ * It is ProseMirror's DOM, which has no component to style, so this is CSS. The
+ * numbers are the DocsShell board's: 14.5px on 1.6, a 28px title, 18px headings,
+ * the table's header on slate-100.
+ *
+ * Loaded with the editor's chunk, so Home does not carry it.
+ */
+
+/* ── The paper ───────────────────────────────────────────────────────────── */
+
+.oa-paper {
+  position: relative;
+  width: 816px;
+  max-width: 100%;
+  min-height: 1056px;
+  flex: none;
+  padding: 78px 84px 96px;
+  background: var(--paper);
+  color: var(--fg-1);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 2px rgba(40, 28, 45, 0.06),
+    0 0 0 1px rgba(40, 28, 45, 0.05),
+    0 8px 24px rgba(40, 28, 45, 0.06);
+  /* The shell's zoom slider. Percent, as a number: 1 is 100%. */
+  zoom: var(--page-zoom, 1);
+}
+@media (max-width: 760px) {
+  .oa-paper {
+    padding: 40px 20px 60px;
+    min-height: 70vh;
+  }
+}
+
+/* ── What is typed ───────────────────────────────────────────────────────── */
+
+.oa-doc-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--text-quiet);
+  pointer-events: none;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.oa-doc .ProseMirror {
+  outline: none;
+  min-height: 60vh;
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--fg-1);
+  caret-color: var(--fg-1);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+/* The global focus ring is for controls; the page being typed in is not one. */
+.oa-doc .ProseMirror:focus-visible {
+  box-shadow: none;
+}
+/* Blocks sit 12px apart, as the board's flex gap has them, and a heading adds its own on
+   top. `.ProseMirror.ProseMirror` is there for specificity only: the reset below is
+   (0,2,1), and the gap has to beat it for a paragraph that follows a heading. */
+.oa-doc .ProseMirror p {
+  margin: 0;
+}
+.oa-doc .ProseMirror.ProseMirror > * + * {
+  margin-top: 12px;
+}
+.oa-doc .ProseMirror h1,
+.oa-doc .ProseMirror h2,
+.oa-doc .ProseMirror h3 {
+  font-family: inherit;
+  color: var(--fg-1);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.oa-doc .ProseMirror h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.oa-doc .ProseMirror h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.oa-doc .ProseMirror h3 {
+  margin: 0;
+  font-size: 15.5px;
+}
+.oa-doc .ProseMirror.ProseMirror > h2 {
+  margin-top: 26px;
+}
+.oa-doc .ProseMirror.ProseMirror > h3 {
+  margin-top: 24px;
+}
+.oa-doc .ProseMirror.ProseMirror > :first-child {
+  margin-top: 0;
+}
+.oa-doc .ProseMirror ul,
+.oa-doc .ProseMirror ol {
+  padding-left: 22px;
+  margin: 0;
+}
+.oa-doc .ProseMirror li > p {
+  margin: 0;
+}
+.oa-doc .ProseMirror li + li {
+  margin-top: 4px;
+}
+.oa-doc .ProseMirror blockquote {
+  margin: 0;
+  padding: 0.1em 0 0.1em 1em;
+  border-left: 3px solid var(--app-300);
+  color: var(--fg-3);
+}
+.oa-doc .ProseMirror code {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+  background: var(--field);
+  padding: 0.1em 0.35em;
+  border-radius: 6px;
+}
+.oa-doc .ProseMirror pre {
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  background: var(--surface-code);
+  color: #e9e9ed;
+  padding: 14px 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+.oa-doc .ProseMirror pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+.oa-doc .ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--bd);
+  margin: 1.2em 0;
+}
+.oa-doc .ProseMirror a {
+  color: var(--app-600);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.oa-doc .ProseMirror a:hover {
+  color: var(--app-700);
+}
+.oa-doc .ProseMirror ::selection {
+  background: var(--selection-bg);
+}
+/* A person mentioned: a 50 pill with 700 text. */
+.oa-doc .ProseMirror .mention {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--app-50);
+  color: var(--app-700);
+  font-weight: 500;
+}
+.oa-doc .ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13.5px;
+}
+.oa-doc .ProseMirror th,
+.oa-doc .ProseMirror td {
+  padding: 7px 10px;
+  border: 1px solid var(--bd-soft);
+  text-align: left;
+  vertical-align: top;
+}
+.oa-doc .ProseMirror th {
+  background: var(--field);
+  font-weight: 600;
+}
+
+/* ── Other people ────────────────────────────────────────────────────────────
+   Someone else's caret and selection, from CollaborationCaret. The colour of each
+   is set inline from the person's hash (core/color.ts). The caret is an inline
+   block, which is what lets it take a transform: docs/caretGlide.ts moves it. */
+.collaboration-carets__caret {
+  position: relative;
+  display: inline-block;
+  width: 0;
+  height: 1.15em;
+  vertical-align: text-bottom;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid;
+  border-right: 1px solid;
+  word-break: normal;
+  pointer-events: none;
+}
+.collaboration-carets__label {
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  padding: 3px 5px;
+  border-radius: 4px 4px 4px 0;
+  color: #fff;
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* A reader who may not copy: nothing to select, and nothing printed. */
+.oa-no-download .ProseMirror {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media print {
+  .oa-paper {
+    width: auto;
+    min-height: 0;
+    padding: 0;
+    box-shadow: none;
+    background: #fff;
+    zoom: 1;
+  }
+  .oa-doc .ProseMirror {
+    color: #000;
+  }
+  /* A document the link does not let you download is not printed either. */
+  .oa-no-download {
+    display: none;
+  }
+}

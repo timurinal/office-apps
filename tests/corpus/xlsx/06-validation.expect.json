@@ -1,0 +1,148 @@
+{
+  "formulas": [],
+  "validations": [
+    {
+      "check": {
+        "items": [
+          "red",
+          "green",
+          "blue"
+        ],
+        "kind": "list"
+      },
+      "message": "Pick a colour.",
+      "ranges": [
+        "A2:A10"
+      ],
+      "strict": true
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "kind": "listRange",
+        "range": "H1:H2",
+        "sheet": "Rules"
+      },
+      "ranges": [
+        "B2:B10"
+      ]
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "kind": "listRange",
+        "range": "A1:A4",
+        "sheet": "Lists"
+      },
+      "ranges": [
+        "C2:C10"
+      ],
+      "strict": true
+    },
+    {
+      "check": {
+        "a": 1,
+        "b": 10,
+        "kind": "integer",
+        "op": "between"
+      },
+      "ranges": [
+        "D2:D10"
+      ]
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "a": 0.5,
+        "kind": "number",
+        "op": "ge"
+      },
+      "ranges": [
+        "E2:E10"
+      ],
+      "strict": true
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "a": 45000,
+        "kind": "date",
+        "op": "gt"
+      },
+      "ranges": [
+        "F2:F10"
+      ],
+      "strict": true
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "a": 5,
+        "kind": "textLength",
+        "op": "le"
+      },
+      "ranges": [
+        "G2:G10"
+      ]
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "f": "=AND(I2>0,I2<100)",
+        "kind": "formula"
+      },
+      "ranges": [
+        "I2:I10"
+      ],
+      "strict": true
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "items": [
+          "yes",
+          "no"
+        ],
+        "kind": "list"
+      },
+      "ranges": [
+        "J2:J1000"
+      ],
+      "strict": true
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "a": 5,
+        "b": 6,
+        "kind": "integer",
+        "op": "notBetween"
+      },
+      "ranges": [
+        "K2:K4"
+      ],
+      "strict": true
+    },
+    {
+      "allowBlank": false,
+      "check": {
+        "a": 5,
+        "b": 6,
+        "kind": "integer",
+        "op": "notBetween"
+      },
+      "ranges": [
+        "K8"
+      ],
+      "strict": true
+    }
+  ],
+  "values": {
+    "Lists!A1": "north",
+    "Lists!A2": "south",
+    "Lists!A3": "east",
+    "Lists!A4": "west",
+    "Rules!H1": "x",
+    "Rules!H2": "y"
+  }
+}

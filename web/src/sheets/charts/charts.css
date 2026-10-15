@@ -1,0 +1,300 @@
+/*
+ * Charts over the grid, and the chart pane. Loaded with the Sheets chunk.
+ *
+ * The card is white whatever the theme (a chart is also a picture that is pasted and printed), radius 16
+ * as the board draws it, with the board's shadow and hairline. Only transform and opacity ever
+ * animate: the card's position comes from script (grid/layer.ts), the enter and leave are `oa-pop`,
+ * and the options button and handles show with an opacity change.
+ */
+
+.oac-layer {
+  position: absolute;
+  inset: 0;
+  /* Under the cell editor (3) and the validation list (5), over the selection. */
+  z-index: 2;
+  pointer-events: none;
+}
+
+.oac-card {
+  --z: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--cw, 0px);
+  height: var(--ch, 0px);
+  pointer-events: auto;
+  outline: none;
+  will-change: transform;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.oac-card[data-editable='true'] {
+  cursor: grab;
+}
+.oac-card[data-editable='true']:active {
+  cursor: grabbing;
+}
+.oac-card:has(.oac-in[data-state='closed']) {
+  pointer-events: none;
+}
+
+.oac-in {
+  position: absolute;
+  inset: 0;
+}
+
+.oac-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: calc(16px * var(--z));
+  background: #ffffff;
+  box-shadow:
+    0 10px 30px rgba(40, 28, 45, 0.12),
+    0 0 0 1px rgba(40, 28, 45, 0.08);
+}
+.oac-card[data-selected='true'] .oac-clip {
+  box-shadow:
+    0 10px 30px rgba(40, 28, 45, 0.14),
+    0 0 0 2px var(--app-600, #1e8255);
+}
+.oac-card:focus-visible .oac-clip {
+  box-shadow:
+    0 10px 30px rgba(40, 28, 45, 0.14),
+    0 0 0 2px var(--app-600, #1e8255),
+    0 0 0 5px color-mix(in srgb, var(--app-600, #1e8255) 28%, transparent);
+}
+
+.oac-scale {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  transform: scale(var(--z));
+}
+.oac-plot {
+  position: relative;
+}
+.oac-plot > svg {
+  display: block;
+}
+
+/* The corner button: shown on hover and focus and while the chart is selected. */
+.oac-opts {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #75798c;
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    opacity var(--dur-fast, 120ms) var(--ease-out, ease-out),
+    background-color var(--dur-fast, 120ms) var(--ease-out, ease-out);
+}
+.oac-card:hover .oac-opts,
+.oac-card[data-selected='true'] .oac-opts,
+.oac-opts:focus-visible,
+.oac-opts[aria-expanded='true'] {
+  opacity: 1;
+}
+.oac-opts:hover {
+  background: rgba(40, 28, 45, 0.07);
+}
+.oac-opts:focus-visible {
+  outline: 2px solid var(--app-600, #1e8255);
+  outline-offset: 1px;
+}
+
+/* Eight handles on a selected chart, drawn the size of the grid's own fill handle plus a little. */
+.oac-h {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  box-sizing: border-box;
+  border: 2px solid var(--app-600, #1e8255);
+  border-radius: 3px;
+  background: #ffffff;
+}
+.oac-h[data-h='nw'] { left: 0; top: 0; cursor: nwse-resize; }
+.oac-h[data-h='n'] { left: 50%; top: 0; cursor: ns-resize; }
+.oac-h[data-h='ne'] { left: 100%; top: 0; cursor: nesw-resize; }
+.oac-h[data-h='e'] { left: 100%; top: 50%; cursor: ew-resize; }
+.oac-h[data-h='se'] { left: 100%; top: 100%; cursor: nwse-resize; }
+.oac-h[data-h='s'] { left: 50%; top: 100%; cursor: ns-resize; }
+.oac-h[data-h='sw'] { left: 0; top: 100%; cursor: nesw-resize; }
+.oac-h[data-h='w'] { left: 0; top: 50%; cursor: ew-resize; }
+/* A larger target than the square drawn, for a pointer that is not a pixel. */
+.oac-h::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+/* The readout under a pointer. It is placed by script and never animated. */
+.oac-tip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  min-width: 96px;
+  max-width: 220px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #595d6c;
+  font: 12px/1.35 var(--font-body, Inter), 'Helvetica Neue', Arial, sans-serif;
+  box-shadow:
+    0 6px 18px rgba(40, 28, 45, 0.14),
+    0 0 0 1px rgba(40, 28, 45, 0.08);
+  pointer-events: none;
+  will-change: transform;
+}
+.oac-tip[hidden] {
+  display: none;
+}
+.oac-tip-title {
+  margin-bottom: 4px;
+  font-weight: 600;
+  color: #292b31;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.oac-tip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.oac-tip-row strong {
+  color: #292b31;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.oac-tip-row span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.oac-tip-key {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* The menu is a portal under its own data-app, at the point it was opened. */
+.oac-menu {
+  position: fixed;
+  z-index: 200;
+}
+.oac-menu .oa-popover {
+  position: static;
+}
+
+/* ── The chart pane ──────────────────────────────────────────────────────── */
+
+.oac-pane {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 14px 16px;
+}
+.oac-pane-empty {
+  padding: 18px 14px;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+.oac-group {
+  display: grid;
+  gap: 10px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--bd-faint);
+}
+.oac-group:last-child {
+  border-bottom: 0;
+}
+.oac-group > h3 {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-4);
+}
+.oac-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--fg-2);
+}
+.oac-row > span:first-child {
+  flex: 1;
+}
+.oac-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.oac-colors {
+  display: grid;
+  gap: 6px;
+}
+.oac-color {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.oac-color > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--fg-2);
+}
+.oac-swatches {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+.oac-swatch {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(40, 28, 45, 0.14);
+}
+.oac-swatch[aria-pressed='true'] {
+  box-shadow:
+    0 0 0 2px var(--paper, #ffffff),
+    0 0 0 4px var(--app-600, #1e8255);
+}
+.oac-swatch:focus-visible {
+  outline: 2px solid var(--app-600, #1e8255);
+  outline-offset: 2px;
+}
+.oac-custom {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}

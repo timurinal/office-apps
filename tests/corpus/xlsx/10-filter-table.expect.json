@@ -1,0 +1,50 @@
+{
+  "filter": {
+    "Filtered": "A1:C6",
+    "hiddenRows": [
+      2,
+      4,
+      5
+    ]
+  },
+  "formulas": [],
+  "table": "Table",
+  "values": {
+    "Filtered!A1": "name",
+    "Filtered!A2": "Ada",
+    "Filtered!A3": "Ben",
+    "Filtered!A4": "Cy",
+    "Filtered!A5": "Di",
+    "Filtered!A6": "Ed",
+    "Filtered!B1": "team",
+    "Filtered!B2": "red",
+    "Filtered!B3": "blue",
+    "Filtered!B4": "red",
+    "Filtered!B5": "green",
+    "Filtered!B6": "blue",
+    "Filtered!C1": "score",
+    "Filtered!C2": 91,
+    "Filtered!C3": 78,
+    "Filtered!C4": 64,
+    "Filtered!C5": 85,
+    "Filtered!C6": 52,
+    "Table!A1": "name",
+    "Table!A2": "Ada",
+    "Table!A3": "Ben",
+    "Table!A4": "Cy",
+    "Table!A5": "Di",
+    "Table!A6": "Ed",
+    "Table!B1": "team",
+    "Table!B2": "red",
+    "Table!B3": "blue",
+    "Table!B4": "red",
+    "Table!B5": "green",
+    "Table!B6": "blue",
+    "Table!C1": "score",
+    "Table!C2": 91,
+    "Table!C3": 78,
+    "Table!C4": 64,
+    "Table!C5": 85,
+    "Table!C6": 52
+  }
+}

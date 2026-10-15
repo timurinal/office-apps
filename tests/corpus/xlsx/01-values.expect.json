@@ -1,0 +1,54 @@
+{
+  "formulas": [],
+  "values": {
+    "Values!A1": 0,
+    "Values!A10": 0.30000000000000004,
+    "Values!A11": 0.3333333333333333,
+    "Values!A12": 255,
+    "Values!A13": 1e+21,
+    "Values!A14": 9007199254740992,
+    "Values!A2": 1,
+    "Values!A3": -1,
+    "Values!A4": 42,
+    "Values!A5": 3.14159,
+    "Values!A6": 1e-07,
+    "Values!A7": 1500000000000.0,
+    "Values!A8": 123456789012345,
+    "Values!A9": -0.5,
+    "Values!B1": "plain",
+    "Values!B10": "say \"hi\"",
+    "Values!B11": "<tag> & more",
+    "Values!B12": "שלום",
+    "Values!B13": "emoji 😀🚀",
+    "Values!B14": "=not a formula",
+    "Values!B2": "Ünïcödé — ✓ ☕",
+    "Values!B3": "日本語のテキスト",
+    "Values!B4": "  leading and trailing  ",
+    "Values!B5": "line1\nline2",
+    "Values!B6": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "Values!B7": "007",
+    "Values!B8": "'quoted",
+    "Values!B9": "a, b; c",
+    "Values!C1": true,
+    "Values!C2": false,
+    "Values!D1": 45356.0,
+    "Values!D2": 45356.60434027778,
+    "Values!D3": 0.3333333333333333,
+    "Values!D4": 61.0,
+    "Values!D5": 401768.0,
+    "Values!D6": 36526.00001157408,
+    "Values!E1": {
+      "error": "#N/A"
+    },
+    "Values!E2": {
+      "error": "#DIV/0!"
+    },
+    "Values!E3": {
+      "error": "#REF!"
+    },
+    "Values!F1": "123",
+    "Values!F2": "1.5",
+    "Values!F3": "TRUE",
+    "Values!F4": "2024-03-05"
+  }
+}

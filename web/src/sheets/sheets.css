@@ -1,0 +1,73 @@
+/*
+ * What the Sheets page draws that the shell, the grid and the ribbon do not: the surface the grid
+ * sits on, and the skeleton that is over it until the cells have arrived. Loaded with the Sheets
+ * chunk, so Home does not carry it.
+ */
+
+/* The grid's surface. It fills the shell's bleed area (core/shell/shell.css) under the banner,
+   and is what Home's card grows into: it carries `data-doc-page` like Docs' paper. */
+.oa-sheet-page {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--paper, #ffffff);
+}
+
+/* Over the grid until the workbook has come: the outline of the skeleton the page shows before its
+   chunk has (`oa-skel-lines`, pages/skeleton.css), so one becomes the other unseen. */
+.oa-sheet-skel {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* How far a sheet that takes a moment to open has got: a line along the top of the grid, filled from the left in the
+   app's colour. Only a transform moves; under reduced motion it jumps to each new length. */
+.oa-sheet-opening {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 4;
+  height: 3px;
+  pointer-events: none;
+  background: var(--app-200, #b7e6cd);
+}
+.oa-sheet-opening > span {
+  display: block;
+  height: 100%;
+  background: var(--app-600, #1e8255);
+  transform-origin: left center;
+  transition: transform var(--dur-slow, 280ms) var(--ease-out, ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .oa-sheet-opening > span {
+    transition: none;
+  }
+}
+:root[data-motion='off'] .oa-sheet-opening > span {
+  transition: none;
+}
+
+/* On a phone the footer's left half is the sheet tabs, and the zoom slider takes the room they
+   need: the tab for the sheet on screen was cut to "eet1". A pinch is the zoom there. */
+@media (max-width: 760px) {
+  .oa-shell[data-app='sheets'] .oa-zoom {
+    display: none;
+  }
+}
+
+/* A notice over the grid (trashed, stopped, a version being looked at) rises in as it arrives, like
+   everything else that appears; under reduced motion it keeps the fade (styles.css, "Motion"). */
+.oa-bleed-notices .oa-notice {
+  animation: oa-rise-in var(--dur-base) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .oa-bleed-notices .oa-notice {
+    animation-name: oa-fade-in;
+  }
+}
+:root[data-motion='off'] .oa-bleed-notices .oa-notice {
+  animation-name: oa-fade-in;
+}

@@ -1,0 +1,302 @@
+{
+  "source": "ironcalc 0.8.3, crates.io (https://crates.io/crates/ironcalc/0.8.3), upstream https://github.com/ironcalc/IronCalc",
+  "licence": "MIT OR Apache-2.0, as the crate's Cargo.toml says",
+  "files": [
+    {
+      "file": "SUMIFS.xlsx",
+      "upstream": "tests/calc_tests/MATH_AND_TRIGONOMETRY/SUMIFS.xlsx",
+      "sha256": "19d7c5cdc45635fe56dcb9b0d571b6b439a6e367683547fc5527c101b8ba2146",
+      "bytes": 14499,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "ROUND.xlsx",
+      "upstream": "tests/calc_tests/MATH_AND_TRIGONOMETRY/ROUND.xlsx",
+      "sha256": "91331a4d5ab6fbf3c82d867ef7f7419f1faf54726e01a79b70552434e0434ef1",
+      "bytes": 13069,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "LOG_LOG10_LN.xlsx",
+      "upstream": "tests/calc_tests/MATH_AND_TRIGONOMETRY/LOG_LOG10_LN.xlsx",
+      "sha256": "e7f77bccac0ecb09ddfcc30c52718670301f157f14fa80dc5bf86f52c6f1bcb6",
+      "bytes": 13094,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "ATAN2_POWER.xlsx",
+      "upstream": "tests/calc_tests/MATH_AND_TRIGONOMETRY/ATAN2_POWER.xlsx",
+      "sha256": "0a15dfcf9a924faca1d92b756bac303f42bda349a1a9204c701119174c756c55",
+      "bytes": 10620,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "AVERAGE.xlsx",
+      "upstream": "tests/calc_tests/STATISTICAL/AVERAGE.xlsx",
+      "sha256": "02da01001ff166852559633742fb29a50599aeec53ae4b3bbf0d3db105f2ffe3",
+      "bytes": 12065,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "COUNT.xlsx",
+      "upstream": "tests/calc_tests/STATISTICAL/COUNT.xlsx",
+      "sha256": "e4d5248dc099979118b9c9fcef55587eede601a554fd40c5448c8f9853dce1b7",
+      "bytes": 11114,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "GEOMEAN.xlsx",
+      "upstream": "tests/calc_tests/STATISTICAL/GEOMEAN.xlsx",
+      "sha256": "3b21c943d6f8a6ed3e61e23a0b8612ebeaf8b621e081dbc80bdeb46a60658ebd",
+      "bytes": 13322,
+      "producer": "unknown (the file carries no marker)",
+      "kind": "calc"
+    },
+    {
+      "file": "SMALL_LARGE.xlsx",
+      "upstream": "tests/calc_tests/STATISTICAL/SMALL_LARGE.xlsx",
+      "sha256": "de9a0eb13c83a51685b3ec985fb97116a73077bdd095e39cae5efdff5db82ce0",
+      "bytes": 9417,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "RANK_EQ_RANK_AVG.xlsx",
+      "upstream": "tests/calc_tests/STATISTICAL/RANK_EQ_RANK_AVG.xlsx",
+      "sha256": "8e633347b197661323aa21e65470b0105cc40435394c6e06ce718f8fe51710f8",
+      "bytes": 9281,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "IFS.xlsx",
+      "upstream": "tests/calc_tests/LOGICAL/IFS.xlsx",
+      "sha256": "e45bbf01b7252386f735382e494cef8d59dc86687aeb0b5d9dd48343ed4d6e96",
+      "bytes": 10415,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "CONCAT.xlsx",
+      "upstream": "tests/calc_tests/TEXT/CONCAT.xlsx",
+      "sha256": "20305f4950842b5680d9bd07333c220b37f6e8640e2cf14ecf80c1bf5ad56ba6",
+      "bytes": 10729,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "CONCATENATE.xlsx",
+      "upstream": "tests/calc_tests/TEXT/CONCATENATE.xlsx",
+      "sha256": "8ecf30bfb65d02390d5c83c50a5fecada396c2361664eedd640fdd356766fb66",
+      "bytes": 10777,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "PV.xlsx",
+      "upstream": "tests/calc_tests/FINANCIAL/PV.xlsx",
+      "sha256": "d9f8f40ea62f8e5ceedd8c31959bef3870add624ec66fe0163a7fa32ace78f1c",
+      "bytes": 10732,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "NPER.xlsx",
+      "upstream": "tests/calc_tests/FINANCIAL/NPER.xlsx",
+      "sha256": "b196543e9b721df2d54f1525de08aa29c54143d6b2c41aaf833778b6a75dc831",
+      "bytes": 10667,
+      "producer": "Microsoft Excel",
+      "kind": "calc"
+    },
+    {
+      "file": "XLOOKUP.xlsx",
+      "upstream": "tests/calc_tests/LOOKUP_AND_REFERENCE/XLOOKUP.xlsx",
+      "sha256": "10af43589194e722ad58a82223f45bb40029d207757cd1d169f8f2a9a629fdc8",
+      "bytes": 27383,
+      "producer": "Microsoft Excel",
+      "kind": "gaps"
+    },
+    {
+      "file": "HVLOOKUP.xlsx",
+      "upstream": "tests/calc_tests/LOOKUP_AND_REFERENCE/HVLOOKUP.xlsx",
+      "sha256": "fafe04dd164e13dfbe76c440a75627fc23c822342c60c67ac2bad6ef4545f9fc",
+      "bytes": 13990,
+      "producer": "Microsoft Excel",
+      "kind": "gaps"
+    },
+    {
+      "file": "DAYS_DAYS360.xlsx",
+      "upstream": "tests/calc_tests/DATE_AND_TIME/DAYS_DAYS360.xlsx",
+      "sha256": "1c23bbb7443fbc151e3966c4fe1ccab6b483463870b1771d5397ea957652c7d8",
+      "bytes": 13893,
+      "producer": "Microsoft Excel",
+      "kind": "gaps"
+    },
+    {
+      "file": "SUMIF_AVERAGE_IF.xlsx",
+      "upstream": "tests/calc_tests/MATH_AND_TRIGONOMETRY/SUMIF_AVERAGE_IF.xlsx",
+      "sha256": "62666c82ed33ebf59bd1cfc6c765b1a0b3a784152b39b688aa2fa6c603c1b37e",
+      "bytes": 9931,
+      "producer": "Microsoft Excel",
+      "kind": "gaps"
+    },
+    {
+      "file": "freeze.xlsx",
+      "upstream": "tests/freeze.xlsx",
+      "sha256": "88a3ca6d8ecad5953dc82b08230b056b1263c4c6cabf7b3e2894cfe4cdcd5755",
+      "bytes": 8595,
+      "producer": "Microsoft Excel",
+      "kind": "features"
+    },
+    {
+      "file": "split.xlsx",
+      "upstream": "tests/split.xlsx",
+      "sha256": "0afc38b7b8e9fe2b5bebf0c14c873ce2bc40d7960d4a79865d8fd7df7d12ff97",
+      "bytes": 8561,
+      "producer": "Microsoft Excel",
+      "kind": "features"
+    },
+    {
+      "file": "custom_theme_colors.xlsx",
+      "upstream": "tests/custom_theme_colors.xlsx",
+      "sha256": "43d177a5a164774dd010810070dafab821083b3e00f2f6f311e774a5bbb58e51",
+      "bytes": 13081,
+      "producer": "Microsoft Excel",
+      "kind": "features"
+    },
+    {
+      "file": "cf_tests.xlsx",
+      "upstream": "tests/conditional_formatting/cf_tests.xlsx",
+      "sha256": "6d47b1be1937274929ba7ed1239deae3c2ac0bf9781037c4190e605110508888",
+      "bytes": 20377,
+      "producer": "Microsoft Excel",
+      "kind": "features"
+    },
+    {
+      "file": "libreoffice_888_example.xlsx",
+      "upstream": "tests/libreoffice_888_example.xlsx",
+      "sha256": "5e87be8a402033de7c514162f49071ab3b3acdd3ff49504a036e4a881c393c2d",
+      "bytes": 11273,
+      "producer": "LibreOffice Calc",
+      "kind": "features"
+    },
+    {
+      "file": "openpyxl_example.xlsx",
+      "upstream": "tests/openpyxl_example.xlsx",
+      "sha256": "f33914b87aaf76ad49622499b5ce48bf07646456a40d6b559db4cede6ece7b1a",
+      "bytes": 4879,
+      "producer": "openpyxl",
+      "kind": "features"
+    },
+    {
+      "file": "shared_formula_volatile.xlsx",
+      "upstream": "tests/shared_formula_volatile.xlsx",
+      "sha256": "014491e448750e458f9a7a239876d87a1ff77222ae9e9188ac74cd00e8342e26",
+      "bytes": 5077,
+      "producer": "unknown (the file carries no marker)",
+      "kind": "features"
+    },
+    {
+      "file": "missing_r_on_row.xlsx",
+      "upstream": "tests/missing_r_on_row.xlsx",
+      "sha256": "9de7a98a91b60a51cb52d745f193d6d44f11ad16ac2a2b07da5466544cd726c1",
+      "bytes": 5688,
+      "producer": "unknown (the file carries no marker)",
+      "kind": "features"
+    },
+    {
+      "file": "optional_xf_id.xlsx",
+      "upstream": "tests/optional_xf_id.xlsx",
+      "sha256": "1fa8f71de1056696578cf77e184c606696cd72887ee5b05b34f8d82bfa1645f4",
+      "bytes": 6353,
+      "producer": "unknown (the file carries no marker)",
+      "kind": "features"
+    },
+    {
+      "file": "example.xlsx",
+      "upstream": "tests/example.xlsx",
+      "sha256": "35010189f3dbd9ec1881749cb1995d55fe35b7f3a9c07d6198abc55218bbc445",
+      "bytes": 41197,
+      "producer": "Microsoft Excel",
+      "kind": "features"
+    },
+    {
+      "file": "tables.xlsx",
+      "upstream": "tests/calc_test_no_export/tables.xlsx",
+      "sha256": "d603afdea61b0809f92561a55b202956f8b46f80235652cf6ef702f995993615",
+      "bytes": 35787,
+      "producer": "Microsoft Excel",
+      "kind": "features"
+    },
+    {
+      "file": "NoGrid.xlsx",
+      "upstream": "tests/NoGrid.xlsx",
+      "sha256": "76501cecd5cde8d8968e8fefb4a359fd8d8728f42e9c870b43d974fb6bc1d3c8",
+      "bytes": 10923,
+      "producer": "Microsoft Excel",
+      "kind": "features"
+    },
+    {
+      "file": "basic_text.xlsx",
+      "upstream": "tests/basic_text.xlsx",
+      "sha256": "a916fdfcd4f3e5558b8e77d986140e7c20c541e5b63b5cabe25d7adad5af8d5c",
+      "bytes": 10336,
+      "producer": "unknown (the file carries no marker)",
+      "kind": "features"
+    },
+    {
+      "file": "invoice.xlsx",
+      "upstream": "tests/templates/invoice.xlsx",
+      "sha256": "7879d312f90fafb497b0f45115186a23730a92d44d1e914b8c2c492460ffcd39",
+      "bytes": 15552,
+      "producer": "Microsoft Excel",
+      "kind": "documents"
+    },
+    {
+      "file": "weekly_timesheet.xlsx",
+      "upstream": "tests/templates/weekly_timesheet.xlsx",
+      "sha256": "4deed2bd9a9fb330d5285709da903320880c54c198783cfcb00643c2e6145364",
+      "bytes": 15307,
+      "producer": "Microsoft Excel",
+      "kind": "documents"
+    },
+    {
+      "file": "travel_expenses_tracker.xlsx",
+      "upstream": "tests/templates/travel_expenses_tracker.xlsx",
+      "sha256": "829e06370ddab439610be9456580f0f01c40ce8bd42949a6ce220bafbf55a05d",
+      "bytes": 21288,
+      "producer": "Microsoft Excel",
+      "kind": "documents"
+    },
+    {
+      "file": "gantt_project_tracker.xlsx",
+      "upstream": "tests/templates/gantt_project_tracker.xlsx",
+      "sha256": "771c40af914a51f11633ae24fa3f365549a4d32bac83c7c189e15f36c9310927",
+      "bytes": 36981,
+      "producer": "Microsoft Excel",
+      "kind": "documents"
+    },
+    {
+      "file": "yearly_calendar.xlsx",
+      "upstream": "tests/templates/yearly_calendar.xlsx",
+      "sha256": "e0887f733ff6262890f16bce11ff4920d88b1b9f0646a8be9ca257c82ac12f40",
+      "bytes": 17796,
+      "producer": "Microsoft Excel",
+      "kind": "documents"
+    },
+    {
+      "file": "event_calendar.xlsx",
+      "upstream": "tests/templates/event_calendar.xlsx",
+      "sha256": "2d2aadbbb7f2e91278e5d225c040497e2c7d05445cc38ae36c01d551df74fdc7",
+      "bytes": 33957,
+      "producer": "Microsoft Excel",
+      "kind": "documents"
+    }
+  ]
+}
