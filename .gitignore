@@ -9,3 +9,4 @@ __pycache__/
 shell/build/
 shell/dist/
 test-results/
+build/
