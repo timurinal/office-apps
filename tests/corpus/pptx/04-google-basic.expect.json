@@ -1,0 +1,107 @@
+{
+ "dialect": "google",
+ "size": "16:9",
+ "slides": 3,
+ "layouts": [
+  "Title slide",
+  "Section header",
+  "Title and body",
+  "Title and two columns",
+  "Title only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title slide",
+  "Title and body",
+  "Blank"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "ctrTitle",
+    "box": [
+     65.45,
+     156.34,
+     1049.87,
+     430.99
+    ],
+    "text": "Launch plan"
+   },
+   {
+    "kind": "shape",
+    "ph": "subTitle",
+    "box": [
+     65.45,
+     595.09,
+     1049.87,
+     166.43
+    ],
+    "text": "Team offsite"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     65.45,
+     156.34,
+     1789.1,
+     120.25
+    ],
+    "text": "What we will do"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     65.45,
+     329.13,
+     1789.1,
+     629.98
+    ],
+    "text": "Plan the week\nShip the thing\nA sub point"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     65.45,
+     881.89,
+     839.9,
+     83.99
+    ],
+    "text": "Footnote in Arial"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "box": [
+     629.92,
+     314.96,
+     419.95,
+     419.95
+    ],
+    "text": "Round"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

@@ -1,0 +1,58 @@
+/*
+ * The marks for equal gaps, over the slide while a box is moved: a line across the gap with a short
+ * tick at each end, in the guide colour the dashed lines wear (editor.css, --sl-guide). Placed by
+ * guides.tsx in screen px. Never animated: they follow the drag.
+ */
+
+.sl-gap {
+  position: absolute;
+  pointer-events: none;
+  --gap-colour: var(--sl-guide, var(--teal-500));
+}
+
+.sl-gap[data-axis='x'] {
+  height: 0;
+  border-top: 1px solid var(--gap-colour);
+}
+
+.sl-gap[data-axis='y'] {
+  width: 0;
+  border-left: 1px solid var(--gap-colour);
+}
+
+.sl-gap::before,
+.sl-gap::after {
+  content: '';
+  position: absolute;
+  background: var(--gap-colour);
+}
+
+.sl-gap[data-axis='x']::before,
+.sl-gap[data-axis='x']::after {
+  top: -4px;
+  width: 1px;
+  height: 9px;
+}
+
+.sl-gap[data-axis='x']::before {
+  left: -1px;
+}
+
+.sl-gap[data-axis='x']::after {
+  right: -1px;
+}
+
+.sl-gap[data-axis='y']::before,
+.sl-gap[data-axis='y']::after {
+  left: -4px;
+  height: 1px;
+  width: 9px;
+}
+
+.sl-gap[data-axis='y']::before {
+  top: -1px;
+}
+
+.sl-gap[data-axis='y']::after {
+  bottom: -1px;
+}

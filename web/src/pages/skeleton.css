@@ -38,3 +38,64 @@
     0 26px;
   background-repeat: no-repeat, no-repeat, repeat, repeat;
 }
+
+/*
+ * Slides' skeleton, where slides/editor/editor.css puts the real thing: the slide list 176px wide
+ * from 6px under the banner, its thumbnails 146px with their numbers before them, and the slide
+ * fitted to the room beside it (24px clear each side, 12px above and below) over notes 103px tall.
+ */
+.oa-skel-slides {
+  position: absolute;
+  inset: 152px 16px 62px;
+  display: flex;
+  gap: 20px;
+}
+.oa-skel-rail {
+  flex: 0 0 176px;
+  box-sizing: border-box;
+  padding: 6px 6px 6px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+.oa-skel-thumb,
+.oa-skel-slide {
+  flex: none;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  background: rgba(233, 233, 237, 0.07);
+}
+.oa-skel-thumb {
+  width: 146px;
+}
+.oa-skel-main {
+  flex: 1;
+  min-width: 0;
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  /* The fitted slide's width: the room less 48px across, or less 24px down after the notes. */
+  --skel-slide-w: min(calc(100cqw - 48px), calc((100cqh - 141px) * 16 / 9));
+}
+.oa-skel-desk {
+  flex: 1;
+  align-self: stretch;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.oa-skel-slide {
+  width: var(--skel-slide-w);
+}
+.oa-skel-notes {
+  flex: none;
+  width: var(--skel-slide-w);
+  max-width: calc(100% - 32px);
+  height: 103px;
+  border-radius: 12px;
+  background: #1b1d2b;
+}

@@ -1,0 +1,160 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 1,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only"
+ ],
+ "hidden": [
+  false
+ ],
+ "notes": [
+  null
+ ],
+ "transitions": [
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Groups"
+   },
+   {
+    "kind": "group",
+    "box": [
+     144,
+     288,
+     576,
+     288
+    ],
+    "text": "a\nb",
+    "children": [
+     {
+      "kind": "shape",
+      "box": [
+       0,
+       0,
+       144,
+       144
+      ],
+      "text": "a"
+     },
+     {
+      "kind": "shape",
+      "box": [
+       144,
+       0,
+       144,
+       144
+      ],
+      "text": "b"
+     }
+    ]
+   },
+   {
+    "kind": "group",
+    "box": [
+     864,
+     288,
+     288,
+     288
+    ],
+    "text": "deep\nouter",
+    "children": [
+     {
+      "kind": "group",
+      "box": [
+       0,
+       0,
+       144,
+       144
+      ],
+      "text": "deep",
+      "children": [
+       {
+        "kind": "shape",
+        "box": [
+         0,
+         0,
+         72,
+         72
+        ],
+        "text": "deep"
+       }
+      ]
+     },
+     {
+      "kind": "shape",
+      "box": [
+       72,
+       72,
+       72,
+       72
+      ],
+      "text": "outer"
+     }
+    ]
+   },
+   {
+    "kind": "group",
+    "box": [
+     1296,
+     576,
+     288,
+     144
+    ],
+    "text": "flipped",
+    "children": [
+     {
+      "kind": "shape",
+      "box": [
+       0,
+       0,
+       144,
+       144
+      ],
+      "text": "flipped"
+     }
+    ]
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [],
+ "groupChildren": [
+  {
+   "slide": 0,
+   "element": 0,
+   "children": [
+    [
+     914400,
+     1828800,
+     1828800,
+     1828800
+    ],
+    [
+     2743200,
+     1828800,
+     1828800,
+     1828800
+    ]
+   ]
+  }
+ ]
+}

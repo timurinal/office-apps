@@ -1,0 +1,132 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 1,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title and Content"
+ ],
+ "hidden": [
+  false
+ ],
+ "notes": [
+  null
+ ],
+ "transitions": [
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Theme colours"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     288,
+     288,
+     144
+    ],
+    "text": "accent1"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     460.8,
+     288,
+     288,
+     144
+    ],
+    "text": "lighter 40%"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     777.6,
+     288,
+     288,
+     144
+    ],
+    "text": "darker 25%"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1094.4,
+     288,
+     288,
+     144
+    ],
+    "text": "half clear"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     489.6,
+     288,
+     144
+    ],
+    "text": "hex, 40%"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     460.8,
+     489.6,
+     288,
+     144
+    ],
+    "text": "hex darker"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     777.6,
+     489.6,
+     288,
+     144
+    ],
+    "text": "bg1 on dark"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1094.4,
+     489.6,
+     288,
+     144
+    ],
+    "text": "system"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     691.2,
+     288,
+     144
+    ],
+    "text": "tint"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

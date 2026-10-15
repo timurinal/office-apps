@@ -1,0 +1,192 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 6,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Slide",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank",
+  "Title and Content"
+ ],
+ "hidden": [
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "ctrTitle",
+    "box": [
+     240,
+     176.75,
+     1440,
+     376
+    ],
+    "text": "A title slide"
+   },
+   {
+    "kind": "shape",
+    "ph": "subTitle",
+    "box": [
+     240,
+     567.25,
+     1440,
+     260.75
+    ],
+    "text": "With a subtitle"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Part one"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "What comes first"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Two columns"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     816,
+     685.25
+    ],
+    "text": "Left one\nLeft two"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     972,
+     287.5,
+     816,
+     685.25
+    ],
+    "text": "Right one\nRight two"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Only a title"
+   }
+  ],
+  [],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "With a footer and a number"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Content"
+   },
+   {
+    "kind": "shape",
+    "ph": "ftr",
+    "box": [
+     636,
+     1001,
+     648,
+     57.5
+    ],
+    "text": "Confidential"
+   },
+   {
+    "kind": "shape",
+    "ph": "sldNum",
+    "box": [
+     1356,
+     1001,
+     432,
+     57.5
+    ],
+    "text": "‹#›"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

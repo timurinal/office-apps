@@ -37,14 +37,21 @@
  *   element and another resizing it both land; `text` is a Y.XmlFragment (TextDoc), a table's
  *   cells are Y.XmlFragments, and a group's children are elements of the same `els` map listed in
  *   the group's own `kids: Y.Array<string>` (back to front) and absent from the slide's `z`.
+ *   An element's `id` is the key it is filed under in `els`, and is not stored again in its map.
+ *   A table's `rows` are `Y.Array<Y.Map { h, cells: Y.Array<Y.Map { text: Y.XmlFragment, fill?,
+ *   rowSpan?, colSpan?, merged?, anchor? }> }>`, so two people typing in two cells both land.
  *
  * A move of a slide or of an element in `z` is a delete and an insert, so two people moving the
  * same one leave it twice. Readers take the **first** occurrence and ignore the rest, and the next
  * step by anyone removes the repeats (as Sheets' `fixRepeats` does). An id in `order` with no entry
- * in `slides`, or in `z` with none in `els`, is skipped, never an error.
+ * in `slides`, or in `z` with none in `els`, is skipped, never an error. An element in both `z` and
+ * a group's `kids` (one person grouped it while another moved it) is drawn once, where a walk of
+ * `z` back to front, entering each group's `kids` where the group is met, first meets it.
  *
  * Every change is one Yjs transaction with a step origin, one undo entry. Undo is a
  * `Y.UndoManager` over `order` and `slides` that tracks only this client's step origins.
+ * It covers `deck` too, so a change of theme or layouts is undone with the rest, and it tracks the
+ * text editor's origin (`ySyncPluginKey`), so typing and steps on the canvas are one history.
  *
  * ── Text ────────────────────────────────────────────────────────────────────
  * A text body is ProseMirror JSON in the **slide text schema**, which the model defines and the
@@ -54,7 +61,11 @@
  *   doc        content: paragraph+
  *   paragraph  attrs: align ('left'|'center'|'right'|'justify', default null = inherit),
  *              level (0 to 8), bullet (Bullet | null = inherit, `{ kind: 'none' }` = off),
- *              spaceBefore, spaceAfter (pt, null = inherit), lineHeight (multiple, null = inherit)
+ *              spaceBefore, spaceAfter (pt, null = inherit), lineHeight (multiple, null = inherit),
+ *              indent, bulletIndent (px, as a `TextStyle`'s; null = inherit; set only where a pptx
+ *              paragraph states its own margin)
+ *              A null or absent level is 0, so a plain paragraph stores no attribute. A lineHeight
+ *              multiple is of PowerPoint's single spacing, 1.2 times the font size (`LINE_FACTOR`).
  *   text, hardBreak
  *   marks      bold, italic, underline, strike, link { href }, textStyle { color: Color | null,
  *              fontSize: pt | null, fontFamily: string | null }, highlight { color }, sup, sub
@@ -86,7 +97,8 @@ export type Color = string | { theme: ThemeSlot; lum?: number; alpha?: number };
 
 export type Fill =
   | { kind: 'none' }
-  | { kind: 'solid'; color: Color }
+  /** `alpha` (0 to 1) fades a `#rrggbb` colour, which has no alpha of its own; a theme colour carries its own. */
+  | { kind: 'solid'; color: Color; alpha?: number }
   /** `angle` in degrees, 0 is left to right. Stops at 0 to 1. */
   | { kind: 'gradient'; angle: number; stops: { at: number; color: Color }[] }
   /** An image from the document's assets. `fit` is how it fills the shape. */
@@ -158,6 +170,7 @@ export interface TextStyle {
   /** px from the shape's left inset to the text, and to the bullet. */
   indent?: number;
   bulletIndent?: number;
+  /** pt, as a paragraph's own `spaceBefore` and `spaceAfter` are. */
   spaceBefore?: number;
   spaceAfter?: number;
   lineHeight?: number;
@@ -173,6 +186,13 @@ export interface Placeholder {
   /** Tells two placeholders of one type apart on a layout (two content columns). */
   idx?: number;
 }
+
+/**
+ * What a slide-number placeholder holds: this text, in one paragraph. A renderer draws the slide's
+ * own number in its place, and a pptx writer writes it as a `slidenum` field (`<a:fld>`), as the
+ * reader turns such a field into it. The text schema has no field node.
+ */
+export const SLIDE_NUMBER_TEXT = '‹#›';
 
 interface Base {
   /** Unique in its slide. The model makes one when absent. */
@@ -190,6 +210,8 @@ interface Base {
   /** A placeholder from the layout. Its geometry is the element's own; its text style is inherited. */
   ph?: Placeholder;
   locked?: boolean;
+  /** Resizing from the Format pane keeps the shape's proportions (pptx `noChangeAspect`). A picture starts with it on. */
+  lockAspect?: boolean;
 }
 
 /**
@@ -269,11 +291,17 @@ export type ElementJSON = ShapeElement | ImageElement | LineElement | TableEleme
 
 // ── slides, layouts, master, theme ──────────────────────────────────────────
 
+/**
+ * What plays when the show arrives at the slide that carries it (going back, the one being left
+ * plays its own the other way round). A slide with none stores no `transition` at all; `kind:
+ * 'none'` is what a file may say. The show plays it with transform and opacity only
+ * (`slides/present/transitions.ts`), and a viewer asking for reduced motion gets a fade.
+ */
 export interface Transition {
   kind: 'none' | 'fade' | 'push' | 'wipe' | 'zoom';
-  /** ms */
+  /** ms. 700 when absent; the Duration field keeps it between 100 and 10,000. */
   duration?: number;
-  /** For push and wipe. */
+  /** For push and wipe: the side the new slide comes from. `right` when absent, as in pptx. */
   from?: 'left' | 'right' | 'top' | 'bottom';
 }
 
@@ -284,6 +312,8 @@ export interface SlideJSON {
   /** Overrides the layout's and the master's background. */
   bg?: Fill;
   hidden?: boolean;
+  /** `false` draws neither the master's elements nor the layout's decorations on this slide (pptx `showMasterSp`). */
+  showMaster?: boolean;
   transition?: Transition;
   notes?: TextDoc;
   /** Back to front. */
@@ -295,6 +325,8 @@ export interface LayoutJSON {
   /** As the Layout menu shows it: "Title and content". */
   name: string;
   bg?: Fill;
+  /** `false` draws none of the master's elements on slides with this layout (pptx `showMasterSp`). */
+  showMaster?: boolean;
   /**
    * Placeholders (elements with `ph`, usually text-less shapes whose `text` is the prompt, such as
    * "Click to add title"), and decorations drawn on every slide with this layout, behind the

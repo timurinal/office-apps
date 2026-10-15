@@ -1,0 +1,42 @@
+/*
+ * What the Insert module draws over the slide: the drawing tool's catcher and its ghost, the cell of
+ * a table with the caret in it, and the cells chosen for a merge. Slide px inside `.sl-logical`,
+ * screen px elsewhere in `.sl-overlay`. Nothing here animates: a drag follows the pointer.
+ */
+
+.sl-draw {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.sl-ghost {
+  position: absolute;
+  overflow: visible;
+  pointer-events: none;
+  color: var(--sl-sel, #c0501c);
+}
+
+.sl-tbl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* The rendered text of the cell being typed in is the editor's to draw. */
+.sl-cell[data-cell-editing] .sl-text {
+  visibility: hidden;
+}
+
+.sl-cellsel {
+  position: absolute;
+  box-sizing: border-box;
+  pointer-events: none;
+  box-shadow: 0 0 0 1.5px var(--sl-sel, #c0501c);
+  background: rgba(192, 80, 28, 0.1);
+}
+.sl-cellsel[data-single] {
+  background: transparent;
+}

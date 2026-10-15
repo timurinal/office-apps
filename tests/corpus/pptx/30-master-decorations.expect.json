@@ -1,0 +1,116 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 3,
+ "layouts": [
+  "With logo",
+  "No logo"
+ ],
+ "slideLayouts": [
+  "With logo",
+  "No logo",
+  "With logo"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Logo shows"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "On the master"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Layout hides it"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "The layout draws its own bar"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide hides it"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Slide-level"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [],
+ "showMaster": {
+  "layouts": {
+   "No logo": false
+  },
+  "slides": [
+   null,
+   null,
+   false
+  ]
+ },
+ "masterElements": 1
+}

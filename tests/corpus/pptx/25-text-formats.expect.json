@@ -1,0 +1,109 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 2,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Runs"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     288,
+     1152,
+     144
+    ],
+    "text": "x2 and H2O\nTheme major theme minor Georgia\nhighlighted and a line\nafter a break"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     576,
+     432,
+     144
+    ],
+    "text": "Vertical"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     720,
+     576,
+     432,
+     144
+    ],
+    "text": "Anchored bottom, tight insets"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     576,
+     288,
+     144
+    ],
+    "text": "Page ‹#›"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Spacing"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     288,
+     1152,
+     432
+    ],
+    "text": "Line spacing 90%\nSpace before 12pt\nSpace after 6pt\nIndented"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

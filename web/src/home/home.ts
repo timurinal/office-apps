@@ -62,7 +62,7 @@ export const BLANKS: { kind: DocKind; title: string }[] = [
 // ── files ───────────────────────────────────────────────────────────────────
 
 /** What the file picker offers. */
-export const IMPORT_ACCEPT = '.docx,.md,.markdown,.html,.htm,.xlsx,.csv,.tsv,.pptx';
+export const IMPORT_ACCEPT = '.docx,.md,.markdown,.html,.htm,.xlsx,.csv,.tsv,.pptx,.ppsx,.potx';
 
 const IMPORT_KINDS: Record<string, DocKind> = {
   docx: 'docs',
@@ -73,7 +73,10 @@ const IMPORT_KINDS: Record<string, DocKind> = {
   xlsx: 'sheets',
   csv: 'sheets',
   tsv: 'sheets',
-  pptx: 'slides'
+  pptx: 'slides',
+  // A show and a template are the same package as a deck.
+  ppsx: 'slides',
+  potx: 'slides'
 };
 
 /** Which editor a file would open in, by its extension; null for any other file. */
@@ -83,11 +86,14 @@ export function importKindFor(fileName: string): DocKind | null {
   return IMPORT_KINDS[fileName.slice(dot + 1).toLowerCase()] ?? null;
 }
 
-/** Whether the file is one Docs opens today. Slides reads its own when it is built. */
+/** Whether the file is one Docs opens: a Word document, Markdown or a web page. */
 export const isDocsFile = (fileName: string): boolean => importKindFor(fileName) === 'docs';
 
 /** Whether the file is one Sheets opens: a workbook, or comma or tab separated text. */
 export const isSheetsFile = (fileName: string): boolean => importKindFor(fileName) === 'sheets';
+
+/** Whether the file is one Slides opens: a deck, a show or a template. */
+export const isSlidesFile = (fileName: string): boolean => importKindFor(fileName) === 'slides';
 
 // ── rows ────────────────────────────────────────────────────────────────────
 

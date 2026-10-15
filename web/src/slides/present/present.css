@@ -1,0 +1,607 @@
+/*
+ * The slide show, the presenter's view, and the transitions' gallery and preview.
+ *
+ * `sp-` is this folder's. Only transform and opacity animate: the transitions themselves run from
+ * script (transitions.ts), and the few CSS animations here are the gallery's small previews, on
+ * hover. Reduced motion (the media query or `data-motion="off"` on the root) leaves them as fades.
+ */
+
+/* ── The show ────────────────────────────────────────────────────────────── */
+
+.sp-root {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: #000000;
+  color: var(--fg-1);
+  outline: none;
+}
+
+.sp-root:focus-visible,
+.sp-console:focus-visible {
+  box-shadow: none;
+}
+
+.sp-surface {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #000000;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.sp-surface[data-idle],
+.sp-surface[data-laser] {
+  cursor: none;
+}
+
+.sp-slide {
+  position: relative;
+  flex: none;
+}
+
+.sp-box {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+}
+
+.sp-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.sp-layer[data-role='in'],
+.sp-layer[data-role='out'],
+.sp-layer[data-role='in'] > .sp-inner {
+  will-change: transform, opacity;
+}
+
+.sp-inner {
+  position: absolute;
+  inset: 0;
+}
+
+.sp-laser {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff3b30 0 38%, rgba(255, 59, 48, 0.55) 62%, rgba(255, 59, 48, 0) 72%);
+  box-shadow: 0 0 14px 4px rgba(255, 59, 48, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.sp-laser[data-on='true'] {
+  opacity: 1;
+}
+
+/* Black, white and the end of the show: a screen over the slide, faded in. */
+.sp-screen {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast, 120ms) var(--ease-out, ease-out);
+}
+
+.sp-screen[data-screen='black'],
+.sp-screen[data-screen='end'] {
+  opacity: 1;
+  background: #000000;
+}
+
+.sp-screen[data-screen='white'] {
+  opacity: 1;
+  background: #ffffff;
+}
+
+.sp-screen p {
+  margin: 0;
+  color: #9a9aa6;
+  font-size: 18px;
+}
+
+.sp-chip {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  max-width: calc(100% - 32px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(30, 30, 38, 0.86);
+  color: #e9e9ed;
+  font-size: 14px;
+  pointer-events: none;
+  animation: oa-fade-in var(--dur-base, 180ms) var(--ease-out, ease-out);
+}
+
+.sp-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The audience's window before the deck has come: the shape of a slide, on black. */
+.sp-wait {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #000000;
+}
+
+.sp-skel-slide {
+  width: min(86vw, 152vh);
+  max-width: none;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+}
+
+.sp-wait-note {
+  position: absolute;
+  inset: auto 16px 24px;
+  margin: 0;
+  text-align: center;
+  color: var(--fg-3);
+  font-size: 14px;
+}
+
+/* ── The presenter's view ────────────────────────────────────────────────── */
+
+.sp-console {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-desk);
+  color: var(--fg-1);
+  font-size: 14px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.sp-bar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--bd-soft);
+}
+
+.sp-bar-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-grow {
+  flex: 1;
+}
+
+.sp-time {
+  min-width: 4.2ch;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+}
+
+.sp-clock,
+.sp-where {
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-where {
+  color: var(--fg-2);
+  font-weight: 600;
+}
+
+.sp-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 32vw, 560px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+.sp-main,
+.sp-side {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sp-cur {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #000000;
+  box-shadow: 0 0 0 1px var(--bd-soft);
+}
+
+.sp-cur-note {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 1;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(30, 30, 38, 0.86);
+  color: #e9e9ed;
+  font-size: 12.5px;
+  pointer-events: none;
+}
+
+.sp-controls {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sp-card {
+  border: 1px solid var(--bd-soft);
+  border-radius: 10px;
+  background: var(--paper);
+  padding: 12px;
+}
+
+.sp-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.sp-card-head h2 {
+  flex: 1;
+  margin: 0;
+  color: var(--fg-3);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sp-next {
+  flex: none;
+}
+
+.sp-next-box {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #000000;
+  box-shadow: 0 0 0 1px var(--bd-soft);
+}
+
+.sp-next-end {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #9a9aa6;
+  font-size: 14px;
+}
+
+.sp-notes {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sp-notes-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  color: var(--fg-1);
+  line-height: 1.45;
+}
+
+.sp-notes-body p {
+  display: flex;
+  gap: 0.5em;
+  margin: 0 0 0.6em;
+}
+
+.sp-notes-body .sp-bullet {
+  flex: none;
+  min-width: 1.2em;
+  color: var(--fg-3);
+}
+
+.sp-notes-body .sp-line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sp-notes-empty {
+  margin: 0;
+  color: var(--fg-3);
+}
+
+.sp-size {
+  min-width: 2.6em;
+  text-align: center;
+  color: var(--fg-3);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-split {
+  display: inline-flex;
+}
+
+.sp-split > .oa-btn,
+.sp-split .oa-pop-wrap > .oa-btn {
+  border-radius: 8px 0 0 8px;
+}
+
+.sp-split .oa-pop-wrap > .oa-btn {
+  margin-left: -1px;
+  padding: 0 8px;
+  border-radius: 0 8px 8px 0;
+}
+
+@media (max-width: 900px) {
+  .sp-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+
+  .sp-next {
+    display: none;
+  }
+}
+
+/* ── The Transitions tab ─────────────────────────────────────────────────── */
+
+.sp-gallery {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.sp-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 11.5px;
+}
+
+.sp-opt:hover:not(:disabled) {
+  background: var(--app-hover);
+}
+
+.sp-opt:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sp-opt[aria-checked='true'] {
+  color: var(--app-text);
+}
+
+.sp-opt[aria-checked='true'] .sp-tile {
+  box-shadow: 0 0 0 2px var(--app-solid);
+}
+
+/* A tile is two small slides, the old one grey and the new one in the app's colour, each with a bar
+   so that a push moves something and a wipe visibly holds it still. */
+.sp-tile {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #3a3d4c;
+  box-shadow: 0 0 0 1px var(--bd-soft);
+  contain: paint;
+}
+
+.sp-tile > i {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.sp-tile .a {
+  background: #6c7088;
+}
+
+.sp-tile .b {
+  background: var(--app-300, #f9a874);
+}
+
+.sp-tile i > b {
+  position: absolute;
+  left: 8px;
+  top: 11px;
+  width: 26px;
+  height: 5px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.sp-tile .b > b {
+  left: 20px;
+  top: 16px;
+  background: rgba(42, 22, 11, 0.7);
+}
+
+/* None shows the old slide alone. */
+.sp-tile[data-kind='none'] .b {
+  display: none;
+}
+
+@keyframes sp-t-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sp-t-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes sp-t-out {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes sp-t-back {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes sp-t-zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sp-opt:hover:not(:disabled) .sp-tile[data-kind='fade'] .b,
+.sp-opt:focus-visible .sp-tile[data-kind='fade'] .b {
+  animation: sp-t-fade 1s ease-in-out infinite alternate;
+}
+
+.sp-opt:hover:not(:disabled) .sp-tile[data-kind='push'] .b,
+.sp-opt:focus-visible .sp-tile[data-kind='push'] .b,
+.sp-opt:hover:not(:disabled) .sp-tile[data-kind='wipe'] .b,
+.sp-opt:focus-visible .sp-tile[data-kind='wipe'] .b {
+  animation: sp-t-in 1s ease-in-out infinite alternate;
+}
+
+.sp-opt:hover:not(:disabled) .sp-tile[data-kind='push'] .a,
+.sp-opt:focus-visible .sp-tile[data-kind='push'] .a {
+  animation: sp-t-out 1s ease-in-out infinite alternate;
+}
+
+/* A wipe: the new slide's mask comes in, and what is inside it goes back by as much. */
+.sp-opt:hover:not(:disabled) .sp-tile[data-kind='wipe'] .b > b,
+.sp-opt:focus-visible .sp-tile[data-kind='wipe'] .b > b {
+  animation: sp-t-back 1s ease-in-out infinite alternate;
+}
+
+.sp-opt:hover:not(:disabled) .sp-tile[data-kind='zoom'] .b,
+.sp-opt:focus-visible .sp-tile[data-kind='zoom'] .b {
+  animation: sp-t-zoom 1s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-opt .sp-tile[data-kind] .a,
+  .sp-opt .sp-tile[data-kind] .b > b {
+    animation: none !important;
+  }
+
+  .sp-opt:hover:not(:disabled) .sp-tile[data-kind]:not([data-kind='none']) .b,
+  .sp-opt:focus-visible .sp-tile[data-kind]:not([data-kind='none']) .b {
+    animation: sp-t-fade 1s ease-in-out infinite alternate;
+  }
+}
+
+:root[data-motion='off'] .sp-opt .sp-tile[data-kind] .a,
+:root[data-motion='off'] .sp-opt .sp-tile[data-kind] .b > b {
+  animation: none !important;
+}
+
+:root[data-motion='off'] .sp-opt:hover:not(:disabled) .sp-tile[data-kind]:not([data-kind='none']) .b,
+:root[data-motion='off'] .sp-opt:focus-visible .sp-tile[data-kind]:not([data-kind='none']) .b {
+  animation: sp-t-fade 1s ease-in-out infinite alternate;
+}
+
+.sp-duration {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px;
+  color: var(--fg-2);
+  font-size: 12.5px;
+}
+
+.sp-duration input {
+  width: 64px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--fg-1);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.sp-duration input:disabled {
+  opacity: 0.5;
+}
+
+/* The preview on the canvas: the old slide leaving and the chosen one arriving, over the slide. */
+.sp-preview {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000000;
+  pointer-events: none;
+}

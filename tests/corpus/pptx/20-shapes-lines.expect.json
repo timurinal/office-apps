@@ -1,0 +1,241 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 2,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Presets"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     72,
+     273.6,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     345.6,
+     273.6,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     619.2,
+     273.6,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     892.8,
+     273.6,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1166.4,
+     273.6,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1440,
+     273.6,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     72,
+     518.4,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     345.6,
+     518.4,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     619.2,
+     518.4,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     892.8,
+     518.4,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1166.4,
+     518.4,
+     216,
+     187.2
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1440,
+     518.4,
+     216,
+     187.2
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Lines"
+   },
+   {
+    "kind": "line",
+    "box": [
+     144,
+     288,
+     576,
+     0
+    ],
+    "text": null
+   },
+   {
+    "kind": "line",
+    "box": [
+     144,
+     432,
+     576,
+     288
+    ],
+    "text": null
+   },
+   {
+    "kind": "line",
+    "box": [
+     864,
+     432,
+     432,
+     288
+    ],
+    "text": null
+   },
+   {
+    "kind": "line",
+    "box": [
+     864,
+     288,
+     432,
+     72
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     288,
+     763.2,
+     288,
+     144
+    ],
+    "text": "rotated"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     864,
+     763.2,
+     288,
+     144
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [
+  "drawn as a straight line"
+ ]
+}

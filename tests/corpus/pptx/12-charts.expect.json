@@ -1,0 +1,318 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 3,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Column and bar"
+   },
+   {
+    "kind": "chart",
+    "box": [
+     144,
+     259.2,
+     720,
+     576
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     936,
+     259.2,
+     720,
+     576
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Line and pie"
+   },
+   {
+    "kind": "chart",
+    "box": [
+     144,
+     259.2,
+     720,
+     576
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     936,
+     259.2,
+     720,
+     576
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Scatter, area, doughnut"
+   },
+   {
+    "kind": "chart",
+    "box": [
+     72,
+     259.2,
+     518.4,
+     504
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     619.2,
+     259.2,
+     518.4,
+     504
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     1166.4,
+     259.2,
+     518.4,
+     504
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [
+  {
+   "chart": "column",
+   "categories": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4"
+   ],
+   "series": [
+    {
+     "name": "North",
+     "values": [
+      10,
+      12,
+      9,
+      15
+     ]
+    },
+    {
+     "name": "South",
+     "values": [
+      7,
+      8,
+      11,
+      6
+     ]
+    }
+   ],
+   "title": "By quarter"
+  },
+  {
+   "chart": "bar",
+   "categories": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4"
+   ],
+   "series": [
+    {
+     "name": "North",
+     "values": [
+      10,
+      12,
+      9,
+      15
+     ]
+    },
+    {
+     "name": "South",
+     "values": [
+      7,
+      8,
+      11,
+      6
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "line",
+   "categories": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4"
+   ],
+   "series": [
+    {
+     "name": "North",
+     "values": [
+      10,
+      12,
+      9,
+      15
+     ]
+    },
+    {
+     "name": "South",
+     "values": [
+      7,
+      8,
+      11,
+      6
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "pie",
+   "categories": [
+    "A",
+    "B",
+    "C"
+   ],
+   "series": [
+    {
+     "name": "Share",
+     "values": [
+      50,
+      30,
+      20
+     ]
+    }
+   ],
+   "title": "Share"
+  },
+  {
+   "chart": "scatter",
+   "categories": [
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "series": [
+    {
+     "name": "y",
+     "values": [
+      2,
+      4,
+      3,
+      8
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "line",
+   "categories": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4"
+   ],
+   "series": [
+    {
+     "name": "North",
+     "values": [
+      10,
+      12,
+      9,
+      15
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "pie",
+   "categories": [
+    "X",
+    "Y"
+   ],
+   "series": [
+    {
+     "name": "Split",
+     "values": [
+      3,
+      1
+     ]
+    }
+   ],
+   "title": null
+  }
+ ],
+ "warnings": [
+  "area chart is drawn as a line chart",
+  "doughnut chart is drawn as a pie chart"
+ ]
+}

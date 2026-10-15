@@ -11,15 +11,24 @@ import type { CreateDocumentRequest, DocKind } from '@shared/api';
 import { findDocsTemplate, PREDEFINED_PREFIX } from './index';
 
 export async function createRequest(kind: DocKind, templateId?: string): Promise<CreateDocumentRequest> {
-  const predefined = templateId?.startsWith(PREDEFINED_PREFIX) ? findDocsTemplate(templateId) : undefined;
-  if (predefined) {
+  const predefined = templateId?.startsWith(PREDEFINED_PREFIX);
+  // A Slides template is a deck written into a new document's Yjs state, as a Docs one is. The
+  // decks are not in Home's chunk either (slides/templates/summaries.ts).
+  if (predefined && kind === 'slides') {
+    const [{ findSlidesTemplate }, { slidesTemplateBase64 }] = await Promise.all([import('../../slides/templates'), import('../../slides/templates/state')]);
+    const deck = findSlidesTemplate(templateId!);
+    if (deck) return { kind, title: deck.title, state: slidesTemplateBase64(deck) };
+  }
+  const page = predefined && kind === 'docs' ? findDocsTemplate(templateId!) : undefined;
+  if (page) {
     const { templateBase64 } = await import('./state');
-    return { kind, title: predefined.title, state: templateBase64(predefined) };
+    return { kind, title: page.title, state: templateBase64(page) };
   }
   return { kind, ...(templateId ? { templateId } : {}) };
 }
 
 /** Start loading what `createRequest` will need, for a pointer that has reached a card. */
-export function warmTemplates(): void {
-  void import('./state').catch(() => undefined);
+export function warmTemplates(kind: DocKind = 'docs'): void {
+  const loads = kind === 'slides' ? [import('../../slides/templates'), import('../../slides/templates/state')] : [import('./state')];
+  for (const load of loads) void load.catch(() => undefined);
 }

@@ -1,0 +1,132 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 4,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Blank",
+  "Title and Content",
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Zero and hidden"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     288,
+     0,
+     0
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     432,
+     288,
+     144,
+     144
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Off the slide"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     -288,
+     -144,
+     432,
+     288
+    ],
+    "text": "partly outside"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1584,
+     864,
+     576,
+     432
+    ],
+    "text": "also outside"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

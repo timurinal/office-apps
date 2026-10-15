@@ -69,10 +69,17 @@ async function withBlankSheet(body: CreateDocumentRequest): Promise<CreateDocume
   return { ...body, ...blankSheetRequest() };
 }
 
+/** A presentation likewise: an empty document has no theme and no slide, so a blank one is the default theme's title slide. */
+async function withBlankDeck(body: CreateDocumentRequest): Promise<CreateDocumentRequest> {
+  if (body.kind !== 'slides' || body.state !== undefined || body.templateId !== undefined) return body;
+  const { blankDeckRequest } = await import('./slides/blank');
+  return { ...body, ...blankDeckRequest() };
+}
+
 export const documents = {
   list: (q: ListDocumentsQuery = {}) =>
     get<ListDocumentsResponse>(`${PATHS.documents}${queryString({ ...q })}`),
-  create: async (body: CreateDocumentRequest) => send<DocumentMeta>('POST', PATHS.documents, await withBlankSheet(body)),
+  create: async (body: CreateDocumentRequest) => send<DocumentMeta>('POST', PATHS.documents, await withBlankDeck(await withBlankSheet(body))),
   get: (id: string) => get<DocumentMeta>(PATHS.document(id)),
   rename: (id: string, title: string) =>
     send<DocumentMeta>('PATCH', PATHS.document(id), { title } satisfies RenameDocumentRequest),

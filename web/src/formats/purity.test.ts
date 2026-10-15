@@ -54,3 +54,25 @@ describe('the converters', () => {
     });
   }
 });
+
+describe('the pptx converters', () => {
+  const dir = join(DIR, 'pptx');
+  const files = sources(dir);
+
+  it('are scanned: every source file in pptx/ is among the converters\' files', () => {
+    const all = new Set(sources(DIR).map((f) => relative(DIR, f)));
+    expect(files.length).toBeGreaterThan(15);
+    for (const f of files) expect(all.has(relative(DIR, f)), relative(DIR, f)).toBe(true);
+  });
+
+  // The import worker bundles this code. What it may reach is short, and each is pure: the deck's contract,
+  // the two page-free helpers Docs' converters already use, the shared API limits, and the formats' own files.
+  const ALLOWED = /^(?:\.\/[A-Za-z]+|\.\.\/(?:errors|images|limits|types|xml|zip|docx\/package)|\.\.\/\.\.\/slides\/model\/deck|\.\.\/\.\.\/docs\/core\/(?:fonts|links)|@shared\/api|fflate)$/;
+
+  for (const file of files) {
+    it(`${relative(DIR, file)} imports only what a worker may`, () => {
+      const imports = [...readFileSync(file, 'utf8').matchAll(/(?:^|\n)\s*(?:import|export)\s[^;]*?from\s+'([^']+)'/g)].map((m) => m[1]!);
+      for (const spec of imports) expect(ALLOWED.test(spec), `imports ${spec}`).toBe(true);
+    });
+  }
+});

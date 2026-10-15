@@ -572,3 +572,136 @@ describe('a csv', () => {
     expect(() => readCsv(strToU8('x\n'.repeat(1_100_000)))).toThrowError(expect.objectContaining({ code: 'sheet_too_large' }));
   });
 });
+
+// ── a pptx ──────────────────────────────────────────────────────────────────
+
+describe('a pptx', () => {
+  const pptx = async () => ({ ...(await import('./pptx/read')), ...(await import('./pptx/testing')) });
+  const refused = async (bytes: Uint8Array) => {
+    const { readPptx } = await import('./pptx/read');
+    return refusal(() => readPptx(bytes));
+  };
+
+  it('that is a zip bomb is refused on what its directory says, before anything is inflated', async () => {
+    const bomb = zipSync({ 'ppt/slides/slide1.xml': new Uint8Array(MAX_UNZIPPED_BYTES + 1024 * 1024) });
+    expect(bomb.length).toBeLessThan(200_000);
+    expect(await refused(bomb)).toMatchObject({ code: 'zip_limit', message: 'That file is too large to open.' });
+  });
+
+  it('that is not a presentation is told so in plain words', async () => {
+    expect(await refused(strToU8('plain text pretending to be a presentation, long enough to pass a length test'))).toMatchObject({ code: 'not_pptx', message: 'That is not a presentation.' });
+    expect(await refused(makeDocx({ body: p(r('a Word document')) }))).toMatchObject({ code: 'not_pptx' });
+  });
+
+  it('with a DOCTYPE anywhere is refused, and the file it names is never read', async () => {
+    const { makePptx } = await pptx();
+    const xxe = '<?xml version="1.0"?><!DOCTYPE s [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">&xxe;</p:sld>';
+    const readSpy = vi.spyOn(globalThis, 'fetch');
+    expect((await refused(makePptx({ slides: [''], files: { 'ppt/slides/slide1.xml': xxe } }))).code).toBe('xml_unsafe');
+    const laughs = '<!ENTITY a "ha"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;"><!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;&b;&b;">';
+    expect((await refused(makePptx({ slides: [''], files: { 'ppt/presentation.xml': `<!DOCTYPE p [${laughs}]><p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">&c;</p:presentation>` } }))).code).toBe('xml_unsafe');
+    expect(readSpy).not.toHaveBeenCalled();
+  });
+
+  it('nested past anything a slide has is refused', async () => {
+    const { makePptx } = await pptx();
+    const deep = `<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">${'<p:x>'.repeat(MAX_XML_DEPTH + 10)}${'</p:x>'.repeat(MAX_XML_DEPTH + 10)}</p:sld>`;
+    expect((await refused(makePptx({ slides: [''], files: { 'ppt/slides/slide1.xml': deep } }))).code).toBe('zip_limit');
+  });
+
+  it('with too many parts is refused', async () => {
+    const { makePptx } = await pptx();
+    const files: Record<string, Uint8Array> = {};
+    for (let i = 0; i <= MAX_ZIP_ENTRIES; i++) files[`ppt/media/${i}.png`] = new Uint8Array(1);
+    expect((await refused(makePptx({ slides: [''], files }))).code).toBe('zip_limit');
+  });
+
+  it('with links to places a person should never be sent keeps none of them', async () => {
+    const { makePptx, sp, readPptx } = await pptx();
+    const targets = ['javascript:alert(1)', ' javascript:alert(2)', 'JAVASCRIPT:x', 'data:text/html;base64,PHNjcmlwdD4=', 'vbscript:x', 'file:///etc/passwd', 'ftp://example.com', 'blob:https://example.com/x', 'about:blank', 'http://example.com/ok'];
+    const body = targets.map((_, i) => `<a:p><a:r><a:rPr><a:hlinkClick r:id="rId${i + 5}"/></a:rPr><a:t>l${i}</a:t></a:r></a:p>`).join('');
+    const out = readPptx(makePptx({ slides: [sp({ body })], slideRels: { 1: targets.map((target, i) => ({ id: `rId${i + 5}`, type: 'hyperlink', target, external: true })) } }));
+    const all = JSON.stringify(out.deck);
+    expect(all).not.toMatch(/javascript|vbscript|data:|file:|ftp:|blob:|about:/i);
+    expect(all).toContain('http://example.com/ok');
+    expect(out.warnings.join(' ')).toMatch(/9 links to places other than web and mail addresses were left out/);
+  });
+
+  it('with a relationship that points outside the file follows none of them', async () => {
+    const { makePptx, readPptx } = await pptx();
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    const pic = (id: string) => `<p:pic><p:nvPicPr><p:cNvPr id="2" name="P"/><p:cNvPicPr/><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="${id}"/></p:blipFill><p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="1000" cy="1000"/></a:xfrm></p:spPr></p:pic>`;
+    const out = readPptx(
+      makePptx({
+        slides: [pic('rId5') + pic('rId6') + pic('rId7')],
+        slideRels: { 1: [{ id: 'rId5', type: 'image', target: 'http://169.254.169.254/latest', external: true }, { id: 'rId6', type: 'image', target: '../../../../../../etc/passwd' }, { id: 'rId7', type: 'image', target: '/etc/shadow' }] }
+      })
+    );
+    expect(out.deck.slides[0]!.elements).toEqual([]);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('with a picture that lies about its type: it is its bytes', async () => {
+    const { makePptx, readPptx } = await pptx();
+    const { PNG_1PX } = await import('./testing');
+    const pic = (n: number) => `<p:pic><p:nvPicPr><p:cNvPr id="${n + 1}" name="P"/><p:cNvPicPr/><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="rId${n + 4}"/></p:blipFill><p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="1000" cy="1000"/></a:xfrm></p:spPr></p:pic>`;
+    const files = {
+      'ppt/media/a.png': strToU8('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'),
+      'ppt/media/b.png': strToU8('<html><script>alert(2)</script></html>'),
+      'ppt/media/c.png': Uint8Array.from([0x4d, 0x5a, 0x90, 0, 3, 0, 0, 0]),
+      'ppt/media/d.svg': PNG_1PX
+    };
+    const out = readPptx(makePptx({ slides: [[1, 2, 3, 4].map(pic).join('')], slideRels: { 1: ['a.png', 'b.png', 'c.png', 'd.svg'].map((f, i) => ({ id: `rId${i + 5}`, type: 'image', target: `../media/${f}` })) }, files }));
+    // Three are not pictures. The fourth is a PNG with a name that says otherwise, and is one.
+    expect(out.deck.slides[0]!.elements.map((e) => (e as { asset: { mime: string } }).asset.mime)).toEqual(['image/png']);
+    expect(JSON.stringify(out.deck)).not.toMatch(/script|alert/);
+  });
+
+  it('with dimensions that are not dimensions reads in no time, with numbers a slide can hold', async () => {
+    const { makePptx, readPptx } = await pptx();
+    const cols = Array.from({ length: 6000 }, () => '<a:gridCol w="9000000000000000"/>').join('');
+    const table = `<p:graphicFrame><p:nvGraphicFramePr><p:cNvPr id="3" name="T"/><p:cNvGraphicFramePr/><p:nvPr/></p:nvGraphicFramePr><p:xfrm><a:off x="0" y="0"/><a:ext cx="1" cy="1"/></p:xfrm><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/table"><a:tbl><a:tblPr/><a:tblGrid>${cols}</a:tblGrid><a:tr h="9000000000000000"><a:tc gridSpan="2147483647"><a:txBody><a:bodyPr/><a:lstStyle/><a:p/></a:txBody><a:tcPr/></a:tc></a:tr></a:tbl></a:graphicData></a:graphic></p:graphicFrame>`;
+    const t0 = performance.now();
+    const out = readPptx(makePptx({ slides: [table], size: { cx: 51206400, cy: 51206400 } }));
+    expect(performance.now() - t0).toBeLessThan(2000);
+    const el = out.deck.slides[0]!.elements[0] as { cols: number[]; rows: { h: number; cells: { colSpan?: number }[] }[]; w: number; h: number };
+    expect(el.cols.length).toBeLessThanOrEqual(2500);
+    expect(el.w).toBeLessThanOrEqual(2500 * 20000);
+    expect(el.rows[0]!.h).toBeLessThanOrEqual(20000);
+    expect(el.rows[0]!.cells[0]!.colSpan).toBeLessThanOrEqual(el.cols.length);
+  });
+
+  it('with fifty thousand shapes on a slide reads in under two seconds and keeps four hundred', async () => {
+    const { makePptx, readPptx, sp } = await pptx();
+    const shapes = Array.from({ length: 50_000 }, (_, i) => sp({ id: i + 2 })).join('');
+    const t0 = performance.now();
+    const out = readPptx(makePptx({ slides: [shapes] }));
+    expect(performance.now() - t0).toBeLessThan(2000);
+    expect(out.deck.slides[0]!.elements).toHaveLength(400);
+  });
+
+  it('with more text than a deck holds is refused, rather than made into a document the room would refuse', async () => {
+    const { makePptx, sp, para } = await pptx();
+    const slides = Array.from({ length: 5 }, () => sp({ body: para('x'.repeat(1_000_000)) }));
+    expect((await refused(makePptx({ slides }))).code).toBe('deck_too_large');
+  });
+
+  it('as we write it, holds no link but a web or mail address and no character XML forbids', async () => {
+    const { readPptx } = await pptx();
+    const { writePptx } = await import('./pptx/write');
+    const { unzipSync, strFromU8 } = await import('fflate');
+    const text = { type: 'doc' as const, content: [{ type: 'paragraph', content: [{ type: 'text', text: 'x\u0000y\u0008z', marks: [{ type: 'link', attrs: { href: 'javascript:alert(1)' } }] }] }] };
+    const deck = {
+      v: 1 as const,
+      size: '16:9' as const,
+      theme: { id: 't', name: 'T', colors: { dk1: '#000000', lt1: '#ffffff', dk2: '#000000', lt2: '#ffffff', accent1: '#000000', accent2: '#000000', accent3: '#000000', accent4: '#000000', accent5: '#000000', accent6: '#000000', hlink: '#000000' }, fonts: { major: 'Arial', minor: 'Arial' } },
+      master: { elements: [], styles: { title: {}, body: [], other: {} } },
+      layouts: [{ id: 'l', name: 'L', elements: [] }],
+      slides: [{ layout: 'l', elements: [{ type: 'shape' as const, shape: 'rect' as const, x: 0, y: 0, w: 10, h: 10, text }] }]
+    };
+    const bytes = await writePptx(deck, async () => null);
+    const all = Object.values(unzipSync(bytes)).map((v) => strFromU8(v)).join('');
+    expect(all).not.toMatch(/javascript/);
+    expect(JSON.stringify(readPptx(bytes).deck)).toContain('xyz');
+  });
+});

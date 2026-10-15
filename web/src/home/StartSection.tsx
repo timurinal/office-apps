@@ -23,6 +23,7 @@ import { PREDEFINED_PREFIX, sketchFor } from '../docs/templates';
 import type { Sketch } from '../docs/templates/sketch';
 import { BLANKS, KIND_LABEL } from './home';
 import { SketchThumb } from './SketchThumb';
+import { SlideSketchThumb } from './SlideSketchThumb';
 import { Thumb } from './Thumb';
 
 export interface Entry {
@@ -34,6 +35,8 @@ export interface Entry {
   description?: string | null;
   /** A predefined template's own page. */
   sketch?: Sketch | null;
+  /** A predefined Slides template, whose own slide the card draws once it has loaded. */
+  slide?: string | null;
 }
 
 /** With the three blanks, a row of seven cards: what the Home board draws at 1440px. */
@@ -46,7 +49,8 @@ export const fromTemplate = (t: TemplateSummary): Entry => ({
   blank: false,
   templateId: t.id,
   description: t.description,
-  sketch: t.scope === 'predefined' ? sketchFor(t.id) : null
+  sketch: t.scope === 'predefined' && t.kind === 'docs' ? sketchFor(t.id) : null,
+  slide: t.scope === 'predefined' && t.kind === 'slides' ? t.id : null
 });
 
 export function TemplateGrid({
@@ -84,7 +88,7 @@ export function TemplateGrid({
 /** Pointing at a card starts what pressing it needs: the editor's code, and the template's builder. */
 function warm(entry: Entry): void {
   prefetchEditor(entry.kind);
-  if (entry.templateId?.startsWith(PREDEFINED_PREFIX)) warmTemplates();
+  if (entry.templateId?.startsWith(PREDEFINED_PREFIX)) warmTemplates(entry.kind);
 }
 
 function Card({ entry, index, busy, onPick }: { entry: Entry; index: number; busy: boolean; onPick: () => void }) {
@@ -109,6 +113,8 @@ function Card({ entry, index, busy, onPick }: { entry: Entry; index: number; bus
           <Spinner size={22} />
         ) : entry.sketch ? (
           <SketchThumb sketch={entry.sketch} />
+        ) : entry.slide ? (
+          <SlideSketchThumb templateId={entry.slide} kind={entry.kind} />
         ) : (
           <Thumb kind={entry.kind} variant="template" blank={entry.blank} />
         )}

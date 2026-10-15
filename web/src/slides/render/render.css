@@ -1,0 +1,129 @@
+/*
+ * A slide, drawn. Everything inside `.sl-stage` is in the slide's own logical px (1920 wide) and
+ * scaled by the stage's transform; nothing here depends on the page's theme, because a slide looks
+ * the same in a light and a dark editor.
+ */
+
+.sl-view {
+  position: relative;
+  overflow: hidden;
+  contain: layout paint;
+  flex: none;
+}
+
+.sl-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  transform-origin: 0 0;
+  /* The slide's own type: nothing from the page above it. */
+  color: #000000;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 36px;
+  line-height: 1.2;
+  text-align: left;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
+}
+
+.sl-el {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.sl-geom {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.sl-shadow {
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.28));
+}
+
+.sl-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.sl-text {
+  flex: none;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  transform-origin: 0 0;
+}
+
+.sl-nowrap {
+  white-space: pre;
+}
+
+.sl-fit {
+  position: relative;
+  flex: none;
+}
+
+.sl-text .sl-p {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.sl-text a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+.sl-prompt {
+  opacity: 0.45;
+}
+
+.sl-image {
+  overflow: hidden;
+}
+
+.sl-image img {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+}
+
+.sl-missing {
+  position: absolute;
+  inset: 0;
+  background: #e7e7ef;
+}
+
+.sl-grid {
+  display: grid;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sl-cell {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 7.2px 14.4px;
+  box-sizing: border-box;
+}
+
+.sl-chart {
+  transform-origin: 0 0;
+}
+
+.sl-chart-wait {
+  position: absolute;
+  inset: 0;
+  background: rgba(127, 127, 140, 0.12);
+  border-radius: 8px;
+}
+
+.sl-thumb-wait {
+  background: #fbfaff;
+}
