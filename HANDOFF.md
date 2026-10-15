@@ -17,9 +17,14 @@ shell with one window per document and a Start window.
 | `--self-test` under Xvfb | 10 of 10: save, autosave, reopen, template, docx import with pictures and export, sheet formula save and xlsx/csv export, Qt keyboard into the grid, print to PDF, clipboard, the close prompt, no network |
 | The PyInstaller build of `shell/packaging/office.spec` on Linux, self-test inside it | 10 of 10; 421 MB (Qt WebEngine is 195 MB of it) |
 
-**The workflows are not switched on.** The session that wrote them had no GitHub `workflow`
-permission, so `ci.yml` and `macos.yml` wait in `ci/workflows/` (`ci/README.md` says how to move
-them into `.github/workflows/`). Until then nothing runs in CI.
+**CI.** `ci.yml` (Linux: typecheck, tests, build, the browser walk, the shell's tests and self-test) is
+green on GitHub. Sessions here cannot push to `.github/workflows/` (no `workflow` permission); the
+owner moves workflow changes in by hand.
+
+**The first macOS run** stopped in `vite build`: `web/src/docs/core/` has `Picker.tsx` and `picker.ts`,
+and on a case-insensitive disk `import './Picker'` found `picker.ts`. `vite.exact-case.ts` resolves
+relative imports by their exact case, in the page's bundle and the workers'. Its next run is the
+first to reach PyInstaller on macOS.
 
 **Not yet seen on a Mac.** `macos.yml` builds `Office.app` with PyInstaller on `macos-15`, signs it
 ad hoc, runs the self-test inside it and makes the dmg; its first run is the first time any of that

@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import license from 'rollup-plugin-license';
 import { fileURLToPath, URL } from 'node:url';
+import { exactCase } from './vite.exact-case';
 
 /**
  * The page's policy, as a <meta> in the built index.html. Only at build time: the dev
@@ -52,7 +53,7 @@ function noApi(): Plugin {
 
 export default defineConfig({
   root: 'web',
-  plugins: [react(), csp(), noApi()],
+  plugins: [exactCase(), react(), csp(), noApi()],
   resolve: {
     alias: {
       '@web': fileURLToPath(new URL('./web/src', import.meta.url)),
@@ -62,7 +63,8 @@ export default defineConfig({
   // The import worker builds a document with the editor's own schema, and the module
   // list that schema comes from has lazy dialogs in it. A worker with code in more than
   // one chunk has to be an ES module.
-  worker: { format: 'es' },
+  // Workers are bundled with their own plugins; the import worker reaches the same editor modules.
+  worker: { format: 'es', plugins: () => [exactCase()] },
   build: {
     outDir: '../dist/web',
     emptyOutDir: true,

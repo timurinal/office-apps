@@ -69,6 +69,9 @@ unless the person chooses to keep their version.
 
 When running as root on Linux, QtWebEngine needs `QTWEBENGINE_DISABLE_SANDBOX=1`.
 
+A Mac's disk ignores case and Linux's does not: `vite.exact-case.ts` makes `./Picker` mean
+`Picker.tsx` and never `picker.ts` on both. Keep it in `plugins` and in `worker.plugins`.
+
 ## Copy
 
 Sentence case; verbs on buttons; say it once. No product names but Office, Docs, Sheets and Slides.
