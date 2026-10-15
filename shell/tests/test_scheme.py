@@ -35,6 +35,7 @@ def test_kinds():
     assert classify("/a/b.OADOC") == (KINDS["docs"], True)
     assert classify("report.docx") == (KINDS["docs"], False)
     assert classify("book.csv") == (KINDS["sheets"], False)
-    assert classify("deck.pptx") is None
-    assert classify("deck.oadeck") is None  # Slides is not built yet
+    assert classify("deck.pptx") == (KINDS["slides"], False)
+    assert classify("deck.oadeck") == (KINDS["slides"], True)
+    assert classify("deck.key") is None
     assert open_filter().startswith("Documents (*.oadoc")

@@ -1,5 +1,6 @@
 """
-A window: the Start page, or one document in its editor.
+A window: the Start page, one document in its editor, or the audience's half of a presenter's
+view of a presentation (opened by that presentation's window, and fed by it).
 
 The page talks to the window through `Bridge` (`js_*` below). The window owns what only it can
 do: the file on disk, the save panel, its title and edited dot, and closing, which waits for the
@@ -14,7 +15,7 @@ import sys
 import uuid
 from typing import TYPE_CHECKING, Any
 
-from PySide6.QtCore import QByteArray, QEvent, QPoint, QSettings, Qt, QTimer, QUrl
+from PySide6.QtCore import QByteArray, QEvent, QPoint, QSettings, Qt, QTimer, QUrl, QUrlQuery
 from PySide6.QtGui import QAction, QCloseEvent, QDesktopServices
 from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEnginePermission, QWebEngineScript
@@ -67,6 +68,8 @@ class Page(QWebEnginePage):
         self.started = False
         self.permissionRequested.connect(self._on_permission)
         self.newWindowRequested.connect(self._on_new_window)
+        self.fullScreenRequested.connect(self._on_full_screen)
+        self.windowCloseRequested.connect(self._on_close_requested)
 
     def acceptNavigationRequest(self, url: QUrl, nav_type, is_main_frame: bool) -> bool:  # noqa: N802
         scheme = url.scheme()
@@ -98,8 +101,31 @@ class Page(QWebEnginePage):
 
     def _on_new_window(self, request) -> None:
         url = request.requestedUrl()
-        if url.scheme() in EXTERNAL:
+        if is_audience_url(url) and self.win.kind == "slides" and not self.win.audience:
+            self.win.manager.open_audience(request, self.win)
+        elif url.scheme() in EXTERNAL:
             QDesktopServices.openUrl(url)
+
+    def _on_full_screen(self, request) -> None:
+        # A slide show asks for the screen; leaving it (Escape, or the page's own button) asks back.
+        request.accept()
+        self.win.set_page_full_screen(request.toggleOn())
+
+    def _on_close_requested(self) -> None:
+        # Only a window a script opened may close itself: the audience's, when the show ends.
+        if self.win.audience:
+            self.win.force_close = True
+            self.win.close()
+
+
+def is_audience_url(url: QUrl) -> bool:
+    """The audience's window of a presenter's view: `app://local/slides?...&present=audience`."""
+    return (
+        url.scheme() == "app"
+        and url.host() == "local"
+        and url.path() == "/slides"
+        and QUrlQuery(url).queryItemValue("present") == "audience"
+    )
 
 
 class View(QWebEngineView):
@@ -132,13 +158,15 @@ class View(QWebEngineView):
 
 
 class DocumentWindow(QMainWindow):
-    def __init__(self, manager: "Manager", open_request: dict | None):
+    def __init__(self, manager: "Manager", open_request: dict | None, audience: bool = False):
         super().__init__()
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.manager = manager
         self.window_id = uuid.uuid4().hex[:12]
         self.open_request = open_request
-        self.kind: str | None = open_request["kind"] if open_request else None
+        # An audience window has no document of its own: the page is loaded by the window that opened it.
+        self.audience = audience
+        self.kind: str | None = "slides" if audience else (open_request["kind"] if open_request else None)
         self.path: str | None = os.path.abspath(open_request["path"]) if open_request and open_request.get("source") == "file" else None
         self.import_dir: str | None = os.path.dirname(open_request["path"]) if open_request and open_request.get("source") == "import" else None
         self.known_mtime: int | None = None
@@ -147,6 +175,8 @@ class DocumentWindow(QMainWindow):
         self.force_close = False
         self.close_timer: QTimer | None = None
         self.menu_actions: dict[str, QAction] = {}
+        self.page_full_screen = False
+        self.was_maximised = False
 
         self.view = View(self)
         self.page = Page(manager.profile, self)
@@ -175,6 +205,9 @@ class DocumentWindow(QMainWindow):
         if self.path:
             self.setWindowFilePath(self.path)
 
+        if audience:
+            self.page.titleChanged.connect(self._audience_title)
+            return
         route = f"/{self.kind}?w={self.window_id}" if self.kind else "/"
         self.page.load(QUrl(ORIGIN + route))
 
@@ -188,7 +221,7 @@ class DocumentWindow(QMainWindow):
         self.bridge.send(name, args)
 
     def _settings_key(self) -> str:
-        return f"geometry/{self.kind or 'start'}"
+        return "geometry/audience" if self.audience else f"geometry/{self.kind or 'start'}"
 
     def _restore_geometry(self) -> None:
         geo = QSettings().value(self._settings_key())
@@ -200,7 +233,32 @@ class DocumentWindow(QMainWindow):
             return
         self.resize(1280 if self.kind else 1100, 820 if self.kind else 760)
 
+    def _audience_title(self, title: str) -> None:
+        self.state["title"] = title or APP_NAME
+        self.setWindowTitle(self.state["title"])
+
+    def set_page_full_screen(self, on: bool) -> None:
+        if on == self.page_full_screen:
+            return
+        self.page_full_screen = on
+        if on:
+            self.was_maximised = self.isMaximized()
+            if sys.platform != "darwin":
+                self.menuBar().hide()
+            self.showFullScreen()
+        else:
+            self.menuBar().show()
+            if self.was_maximised:
+                self.showMaximized()
+            else:
+                self.showNormal()
+
     def changeEvent(self, event) -> None:  # noqa: N802
+        if event.type() == QEvent.Type.WindowStateChange and self.page_full_screen and not self.isFullScreen():
+            # Out of full screen another way (the green button): the show leaves it too.
+            self.page_full_screen = False
+            self.menuBar().show()
+            self.page.triggerAction(QWebEnginePage.WebAction.ExitFullScreen)
         if event.type() == QEvent.Type.ActivationChange:
             if self.isActiveWindow():
                 self.manager.window_activated(self)
