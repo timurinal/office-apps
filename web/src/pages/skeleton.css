@@ -1,0 +1,40 @@
+/*
+ * Sheets' skeleton: what the editor looks like before its chunk has loaded. Drawn in the main
+ * chunk, so it is on screen the frame a card is pressed, and it is Home's card that morphs into it
+ * (View Transitions land on `data-doc-page`).
+ *
+ * The numbers are the real page's, measured: a banner 170px tall with its formula bar (12px from
+ * the top), and the grid starting 190px down, as the Sheets board draws it. The grid's own
+ * drawing is 46px of row numbers, a 26px band of column letters, 112px columns and 26px rows. The
+ * real page puts the same outline over its grid until its cells have come (`oa-skel-lines` on
+ * sheets/SheetsEditor's `oa-sheet-skel`), so one becomes the other without a jump.
+ */
+.oa-skel-banner-sheets {
+  height: 170px;
+}
+.oa-skel-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 190px;
+  bottom: 0;
+}
+.oa-skel-lines {
+  background-color: var(--paper, #ffffff);
+  background-image:
+    linear-gradient(#f3f5fe, #f3f5fe),
+    linear-gradient(#f3f5fe, #f3f5fe),
+    linear-gradient(to right, #eceef7 1px, transparent 1px),
+    linear-gradient(to bottom, #eceef7 1px, transparent 1px);
+  background-size:
+    46px 100%,
+    100% 26px,
+    112px 100%,
+    100% 26px;
+  background-position:
+    0 0,
+    0 0,
+    46px 0,
+    0 26px;
+  background-repeat: no-repeat, no-repeat, repeat, repeat;
+}

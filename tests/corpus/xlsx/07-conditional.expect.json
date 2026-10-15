@@ -1,0 +1,288 @@
+{
+  "cf": {
+    "Rules": [
+      {
+        "ranges": [
+          "A1:A10"
+        ],
+        "style": {
+          "bold": true,
+          "color": "#9c0006",
+          "fill": "#ffc7ce"
+        },
+        "when": {
+          "a": 7,
+          "kind": "cell",
+          "op": "gt"
+        }
+      },
+      {
+        "ranges": [
+          "A1:A10"
+        ],
+        "style": {
+          "color": "#006100",
+          "italic": true
+        },
+        "when": {
+          "a": 2,
+          "b": 4,
+          "kind": "cell",
+          "op": "between"
+        }
+      },
+      {
+        "ranges": [
+          "A1:A10"
+        ],
+        "style": {
+          "fill": "#ffeb9c"
+        },
+        "when": {
+          "f": "=A1=$D$1",
+          "kind": "formula"
+        }
+      },
+      {
+        "ranges": [
+          "B1:B10"
+        ],
+        "style": {
+          "bold": true,
+          "color": "#9c0006",
+          "fill": "#ffc7ce"
+        },
+        "when": {
+          "kind": "text",
+          "op": "contains",
+          "text": "an"
+        }
+      },
+      {
+        "ranges": [
+          "B1:B10"
+        ],
+        "when": {
+          "kind": "text",
+          "op": "begins",
+          "text": "a"
+        }
+      },
+      {
+        "ranges": [
+          "B1:B10"
+        ],
+        "when": {
+          "kind": "text",
+          "op": "ends",
+          "text": "e"
+        }
+      },
+      {
+        "ranges": [
+          "B1:B10"
+        ],
+        "when": {
+          "kind": "duplicate"
+        }
+      },
+      {
+        "ranges": [
+          "C1:C10"
+        ],
+        "style": {
+          "fill": "#eeeeee"
+        },
+        "when": {
+          "f": "=MOD(ROW(),2)=0",
+          "kind": "formula"
+        }
+      },
+      {
+        "ranges": [
+          "E1:E10"
+        ],
+        "when": {
+          "kind": "top",
+          "n": 3
+        }
+      },
+      {
+        "ranges": [
+          "E1:E10"
+        ],
+        "when": {
+          "bottom": true,
+          "kind": "top",
+          "n": 20,
+          "percent": true
+        }
+      },
+      {
+        "ranges": [
+          "F1:F10"
+        ],
+        "when": {
+          "kind": "average"
+        }
+      },
+      {
+        "ranges": [
+          "F1:F10"
+        ],
+        "when": {
+          "below": true,
+          "kind": "average"
+        }
+      },
+      {
+        "ranges": [
+          "G1:G10"
+        ],
+        "when": {
+          "kind": "scale",
+          "max": "#63be7b",
+          "min": "#ffffff"
+        }
+      },
+      {
+        "ranges": [
+          "H1:H10"
+        ],
+        "when": {
+          "kind": "scale",
+          "max": "#63be7b",
+          "mid": "#ffeb84",
+          "min": "#f8696b"
+        }
+      },
+      {
+        "ranges": [
+          "I1:I10"
+        ],
+        "when": {
+          "color": "#638ec6",
+          "kind": "bar"
+        }
+      },
+      {
+        "ranges": [
+          "K1:K10"
+        ],
+        "when": {
+          "kind": "blank"
+        }
+      },
+      {
+        "ranges": [
+          "L1:L10"
+        ],
+        "when": {
+          "kind": "error"
+        }
+      },
+      {
+        "ranges": [
+          "M1:M10"
+        ],
+        "when": {
+          "kind": "unique"
+        }
+      }
+    ]
+  },
+  "formulas": [],
+  "left_out": [
+    "icon set"
+  ],
+  "values": {
+    "Rules!A1": 1,
+    "Rules!A10": 10,
+    "Rules!A2": 2,
+    "Rules!A3": 3,
+    "Rules!A4": 4,
+    "Rules!A5": 5,
+    "Rules!A6": 6,
+    "Rules!A7": 7,
+    "Rules!A8": 8,
+    "Rules!A9": 9,
+    "Rules!B1": "apple",
+    "Rules!B10": "lime",
+    "Rules!B2": "Banana",
+    "Rules!B3": "cherry",
+    "Rules!B4": "date",
+    "Rules!B5": "apple",
+    "Rules!B6": "fig",
+    "Rules!B7": "grape",
+    "Rules!B8": "Apple",
+    "Rules!B9": "kiwi",
+    "Rules!D1": 3,
+    "Rules!E1": 7,
+    "Rules!E10": 4,
+    "Rules!E2": 3,
+    "Rules!E3": 10,
+    "Rules!E4": 6,
+    "Rules!E5": 2,
+    "Rules!E6": 9,
+    "Rules!E7": 5,
+    "Rules!E8": 1,
+    "Rules!E9": 8,
+    "Rules!F1": 1,
+    "Rules!F10": 10,
+    "Rules!F2": 2,
+    "Rules!F3": 3,
+    "Rules!F4": 4,
+    "Rules!F5": 5,
+    "Rules!F6": 6,
+    "Rules!F7": 7,
+    "Rules!F8": 8,
+    "Rules!F9": 9,
+    "Rules!G1": 1,
+    "Rules!G10": 100,
+    "Rules!G2": 4,
+    "Rules!G3": 9,
+    "Rules!G4": 16,
+    "Rules!G5": 25,
+    "Rules!G6": 36,
+    "Rules!G7": 49,
+    "Rules!G8": 64,
+    "Rules!G9": 81,
+    "Rules!H1": 3,
+    "Rules!H10": 30,
+    "Rules!H2": 6,
+    "Rules!H3": 9,
+    "Rules!H4": 12,
+    "Rules!H5": 15,
+    "Rules!H6": 18,
+    "Rules!H7": 21,
+    "Rules!H8": 24,
+    "Rules!H9": 27,
+    "Rules!I1": 1,
+    "Rules!I10": 10,
+    "Rules!I2": 2,
+    "Rules!I3": 3,
+    "Rules!I4": 4,
+    "Rules!I5": 5,
+    "Rules!I6": 6,
+    "Rules!I7": 7,
+    "Rules!I8": 8,
+    "Rules!I9": 9,
+    "Rules!J1": 1,
+    "Rules!J10": 10,
+    "Rules!J2": 2,
+    "Rules!J3": 3,
+    "Rules!J4": 4,
+    "Rules!J5": 5,
+    "Rules!J6": 6,
+    "Rules!J7": 7,
+    "Rules!J8": 8,
+    "Rules!J9": 9,
+    "Rules!K1": 1,
+    "Rules!K10": 10,
+    "Rules!K2": 2,
+    "Rules!K4": 4,
+    "Rules!K5": 5,
+    "Rules!K7": 7,
+    "Rules!K8": 8
+  }
+}

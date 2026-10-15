@@ -1,0 +1,649 @@
+/*
+ * The grid, the formula bar and the sheet tabs. Every number is from the Sheets board
+ * (docs/design/boards/Sheets.dc.html); where the board and the README differ the README wins.
+ *
+ * Colours come from the app tokens (`--app-*`, set by `data-app="sheets"`), so nothing here
+ * says green. The `--sg-*` properties are what the canvas reads: it cannot see a stylesheet, so
+ * theme.ts reads these once and again when the theme changes.
+ *
+ * Only transform and opacity ever animate here: the selection and other people's cursors
+ * glide on transform (set from script, overlays.ts), and an element that appears or leaves
+ * uses the shared `oa-*` classes.
+ */
+
+.sg-root {
+  --sg-paper: var(--paper, #ffffff);
+  --sg-ink: var(--fg-1, #292b31);
+  --sg-line: #eceef7;
+  --sg-head-bg: #f3f5fe;
+  --sg-head-line: #e4e7f5;
+  --sg-head-ink: var(--fg-4, #75798c);
+  --sg-head-on-bg: var(--app-50, #e7f5ee);
+  --sg-head-on-ink: var(--app-text, #176842);
+  --sg-head-solid: var(--app-600, #1e8255);
+  --sg-head-solid-ink: #ffffff;
+  --sg-accent: var(--app-600, #1e8255);
+  --sg-frozen: #b2b6ca;
+  --sg-danger: #d1423b;
+  --sg-comment: #e8a23a;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  outline: none;
+  background: var(--sg-paper);
+  color: var(--sg-ink);
+  font-family: var(--font-body), Inter, 'Helvetica Neue', Arial, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  contain: layout paint;
+}
+[data-theme='dark'] .sg-root {
+  --sg-line: rgba(233, 233, 237, 0.08);
+  --sg-head-bg: #1b1d2c;
+  --sg-head-line: rgba(233, 233, 237, 0.12);
+  --sg-head-ink: #9397ab;
+  --sg-head-on-bg: rgba(249, 168, 116, 0.14);
+  --sg-frozen: #4a4d63;
+}
+
+.sg-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  pointer-events: none;
+}
+
+/* Native scrolling, over the canvas: the wheel, touch, the scrollbars and Page Up are the
+   browser's own, so none of them is intercepted or lags a frame. */
+.sg-scroller {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  cursor: cell;
+}
+.sg-spacer {
+  pointer-events: none;
+}
+
+/* The overlay layer begins where the cells do, and ends before the scrollbars. */
+.sg-cells {
+  position: absolute;
+  right: var(--sg-sbw, 0px);
+  bottom: var(--sg-sbh, 0px);
+  overflow: hidden;
+  pointer-events: none;
+}
+.sg-pool {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sg-pool > div {
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ── Selection and what rides on it ────────────────────────────────────── */
+
+.sg-sel {
+  box-shadow: inset 0 0 0 2px var(--app-600, #1e8255);
+  background: color-mix(in srgb, var(--app-600, #1e8255) 8%, transparent);
+}
+.sg-sel-one,
+.sg-sel-editing {
+  background: transparent;
+}
+.sg-sel-editing {
+  box-shadow: none;
+}
+.sg-handle {
+  background: var(--app-600, #1e8255);
+  border: 1px solid #ffffff;
+}
+.sg-peer {
+  box-shadow: inset 0 0 0 2px var(--peer);
+  background: color-mix(in srgb, var(--peer) 10%, transparent);
+}
+.sg-flag {
+  position: absolute;
+  left: -1px;
+  top: -17px;
+  padding: 3px 5px;
+  border-radius: 4px 4px 4px 0;
+  background: var(--peer);
+  color: #ffffff;
+  font: 600 10px/1 var(--font-body), Inter, sans-serif;
+  white-space: nowrap;
+}
+.sg-pool > [data-flag='in'] > .sg-flag {
+  left: 0;
+  top: 0;
+  border-radius: 0 0 4px 0;
+}
+.sg-ref {
+  box-shadow: inset 0 0 0 1px var(--ref);
+  background: color-mix(in srgb, var(--ref) 12%, transparent);
+}
+.sg-clip {
+  border: 2px dashed var(--app-600, #1e8255);
+}
+.sg-fillprev {
+  border: 1px dashed var(--app-600, #1e8255);
+  background: color-mix(in srgb, var(--app-600, #1e8255) 6%, transparent);
+}
+.sg-guide {
+  background: var(--app-600, #1e8255);
+}
+.sg-guide-move {
+  border-radius: 1px;
+}
+.sg-guide > .sg-flag {
+  --peer: var(--fg-1, #292b31);
+  left: 8px;
+  top: 8px;
+  border-radius: 4px;
+}
+
+/* ── The editor over a cell ──────────────────────────────────────────── */
+
+.sg-anchor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--cw, 0px);
+  height: var(--ch, 0px);
+  pointer-events: none;
+}
+.sg-editor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  min-width: var(--cw, 0px);
+  min-height: var(--ch, 0px);
+  max-width: min(640px, 100%);
+  background: var(--sg-paper);
+  color: var(--sg-ink);
+  line-height: 1.25;
+  box-shadow:
+    inset 0 0 0 2px var(--app-600, #1e8255),
+    0 6px 18px rgba(40, 28, 45, 0.16);
+  pointer-events: auto;
+}
+/* Closed, it is still there to be focused, so a typed key can be delivered into it. */
+.sg-editor[data-open='false'] {
+  min-width: 0;
+  min-height: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  box-shadow: none;
+  pointer-events: none;
+}
+
+.sg-field {
+  position: relative;
+  display: block;
+}
+.sg-mirror {
+  box-sizing: border-box;
+  min-height: var(--ch, 0px);
+  padding: var(--pad-y, 0px) var(--pad-x, 0px);
+  font: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  visibility: hidden;
+  pointer-events: none;
+}
+.sg-mirror[data-shown='true'] {
+  visibility: visible;
+}
+.sg-ta {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: var(--pad-y, 0px) var(--pad-x, 0px);
+  border: 0;
+  outline: 0;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  caret-color: var(--sg-ink);
+  user-select: text;
+  -webkit-user-select: text;
+}
+.sg-ta[data-colored='true'] {
+  color: transparent;
+}
+.sg-ta::selection {
+  background: color-mix(in srgb, var(--app-600, #1e8255) 25%, transparent);
+}
+
+/* Their own rings: the editor has the cell's, and the formula bar has its own below. The global
+   focus ring is a 3px halo outside the control, which a field inside another box cannot have. */
+.sg-ta:focus-visible {
+  box-shadow: none;
+}
+.sg-fwrap:focus-within {
+  border-radius: 0 9px 9px 0;
+  box-shadow: inset 0 0 0 2px var(--app-600, #1e8255);
+}
+.sg-name:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--app-600, #1e8255);
+}
+
+/* One row, as in the formula bar: the mirror scrolls with the textarea. */
+.sg-field:not([data-grow]) {
+  width: 100%;
+  height: 100%;
+}
+.sg-field:not([data-grow]) > .sg-mirror {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+  padding: 0 10px;
+  white-space: pre;
+  overflow: hidden;
+  line-height: 34px;
+}
+.sg-field:not([data-grow]) > .sg-ta {
+  padding: 0 10px;
+  white-space: pre;
+  overflow: auto hidden;
+  line-height: 34px;
+  scrollbar-width: none;
+}
+
+/* ── Completions, choices and the error's note ─────────────────────────── */
+
+.sg-suggest,
+.sg-choices {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 5;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  min-width: 200px;
+  max-width: 340px;
+  border-radius: 10px;
+  background: var(--ctrl, #ffffff);
+  color: var(--fg-2, #3f424d);
+  box-shadow:
+    0 10px 30px rgba(40, 28, 45, 0.14),
+    0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07));
+  font: 500 12.5px/1 var(--font-body), Inter, sans-serif;
+  pointer-events: auto;
+  outline: none;
+}
+.sg-choices {
+  top: 4px;
+  max-height: 240px;
+  overflow: auto;
+}
+.sg-suggest:focus-visible,
+.sg-choices:focus-visible,
+.sg-tabmenu:focus-visible {
+  box-shadow:
+    0 10px 30px rgba(40, 28, 45, 0.14),
+    0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07));
+}
+.sg-suggest li,
+.sg-choices li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sg-suggest li[data-lit='true'],
+.sg-choices li[data-lit='true'] {
+  background: var(--app-hover);
+  color: var(--app-text);
+}
+.sg-sug-detail {
+  margin-left: auto;
+  color: var(--fg-4, #75798c);
+  font-size: 11px;
+}
+.sg-anchor-list {
+  height: 0;
+}
+.sg-arrow {
+  position: absolute;
+  inset: 2px 2px 2px auto;
+  width: calc(var(--cw, 18px) - 2px);
+  max-width: 100%;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: var(--sg-paper);
+  color: var(--fg-3, #595d6c);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.sg-arrow:hover:not(:disabled) {
+  background: var(--app-hover);
+  color: var(--app-text);
+}
+.sg-tip {
+  position: absolute;
+  z-index: 6;
+  max-width: 280px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--fg-1, #292b31);
+  color: #ffffff;
+  font: 500 12px/1.35 var(--font-body), Inter, sans-serif;
+  /* A validation prompt has a title line over its message. */
+  white-space: pre-line;
+  pointer-events: none;
+}
+.sg-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── The formula bar ─────────────────────────────────────────────────────── */
+
+.sg-fbar {
+  position: relative;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  border-radius: 9px;
+  background: var(--sg-paper, #ffffff);
+  box-shadow: 0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07));
+  font: 400 12.5px/1 var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  color: var(--fg-1, #292b31);
+}
+.sg-name {
+  width: 96px;
+  height: 100%;
+  flex: none;
+  padding: 0 10px;
+  border: 0;
+  border-right: 1px solid var(--bd-soft, #e4e7f5);
+  border-radius: 9px 0 0 9px;
+  background: transparent;
+  color: var(--fg-1, #292b31);
+  font: 500 12.5px/1 var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  outline: none;
+}
+.sg-name[aria-invalid='true'] {
+  color: var(--sg-danger, #d1423b);
+}
+.sg-fbtns {
+  height: 100%;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  border-right: 1px solid var(--bd-soft, #e4e7f5);
+}
+.sg-fbtn {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-3, #595d6c);
+}
+.sg-fbtn:hover:not(:disabled) {
+  background: var(--app-hover);
+}
+.sg-fbtn:disabled {
+  color: #b2b6ca;
+}
+.sg-fbtn-fx {
+  font: italic 400 13px/1 Georgia, serif;
+}
+.sg-fwrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+.sg-fwrap .sg-ta {
+  caret-color: var(--fg-1, #292b31);
+}
+/* A monospace face keeps its advance at every weight, so the references can be heavier without
+   moving the caret off the text under it. */
+.sg-fbar .sg-mirror span {
+  font-weight: 500;
+}
+.sg-ftrail {
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding-right: 4px;
+}
+
+/* ── The sheet tabs, in the footer ────────────────────────────────────── */
+
+.sg-tabs {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.sg-tabs-nav {
+  display: flex;
+  flex: none;
+}
+.sg-tabnav {
+  width: 26px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-3, #595d6c);
+}
+.sg-tabnav:hover:not(:disabled) {
+  background: var(--app-hover);
+}
+.sg-tabnav:disabled {
+  color: #b2b6ca;
+}
+.sg-tablist {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 30px;
+  min-width: 0;
+  margin-left: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.sg-tablist::-webkit-scrollbar {
+  display: none;
+}
+.sg-tab {
+  position: relative;
+  flex: none;
+  height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--fg-2, #3f424d);
+  font: 500 13px/1 var(--font-body), Inter, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.sg-tab:hover {
+  background: var(--app-hover);
+}
+.sg-tab[aria-selected='true'] {
+  background: var(--sg-paper, #ffffff);
+  color: var(--app-text);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07));
+}
+.sg-tab[data-colored='true']:not([aria-selected='true']) {
+  box-shadow: inset 0 -2px 0 var(--tab-color);
+}
+.sg-tab[data-dragging='true'] {
+  z-index: 2;
+  box-shadow:
+    0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07)),
+    0 6px 16px rgba(40, 28, 45, 0.18);
+  cursor: grabbing;
+}
+.sg-tab[data-state='closed'] {
+  pointer-events: none;
+}
+.sg-tablist > .oa-ind-x {
+  bottom: 0;
+}
+.sg-tabname {
+  width: 9ch;
+  min-width: 4ch;
+  height: 30px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: var(--sg-paper, #ffffff);
+  color: var(--app-text);
+  font: 600 13px/1 var(--font-body), Inter, sans-serif;
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--app-600, #1e8255);
+}
+.sg-tabadd {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fg-2, #3f424d);
+}
+.sg-tabadd:hover {
+  background: var(--app-hover);
+}
+.sg-tabmenu {
+  position: fixed;
+  z-index: 60;
+  min-width: 176px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--ctrl, #ffffff);
+  color: var(--fg-2, #3f424d);
+  box-shadow:
+    0 14px 40px rgba(40, 28, 45, 0.18),
+    0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07));
+  font: 500 13px/1 var(--font-body), Inter, sans-serif;
+  outline: none;
+}
+.sg-tabmenu button[role='menuitem'] {
+  width: 100%;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.sg-tabmenu button[role='menuitem']:hover:not(:disabled),
+.sg-tabmenu button[role='menuitem'][data-lit='true'] {
+  background: var(--app-hover);
+}
+.sg-tabmenu button[role='menuitem']:disabled {
+  color: #b2b6ca;
+  cursor: default;
+}
+.sg-tabmenu hr {
+  height: 1px;
+  margin: 6px 4px;
+  border: 0;
+  background: var(--rule, rgba(40, 28, 45, 0.1));
+}
+.sg-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 10px 8px;
+}
+.sg-swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--swatch);
+  cursor: pointer;
+}
+.sg-swatch[aria-checked='true'] {
+  box-shadow:
+    0 0 0 2px var(--ctrl, #ffffff),
+    0 0 0 4px var(--swatch);
+}
+.sg-swatch[data-none='true'] {
+  background: var(--field, #eef0f8);
+  box-shadow: inset 0 0 0 1px var(--bd, #cfd3e5);
+}
+
+.sg-status {
+  height: 24px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fg-1, #292b31);
+  font: 400 12px/1 var(--font-body), Inter, sans-serif;
+  white-space: nowrap;
+}
+.sg-status:hover {
+  background: var(--app-hover);
+}
+
+@media (max-width: 760px) {
+  .sg-tabnav {
+    display: none;
+  }
+}

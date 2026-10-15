@@ -1,0 +1,24 @@
+{
+  "formulas": [],
+  "left_out": {
+    "charts": 1,
+    "links": 4,
+    "notes": true
+  },
+  "values": {
+    "Carried!A1": 3,
+    "Carried!A2": 6,
+    "Carried!A3": 9,
+    "Carried!A4": 12,
+    "Carried!A5": 15,
+    "Carried!B1": "label 1",
+    "Carried!B2": "label 2",
+    "Carried!B3": "label 3",
+    "Carried!B4": "label 4",
+    "Carried!B5": "label 5",
+    "Carried!C1": "web",
+    "Carried!C2": "script",
+    "Carried!C3": "mail",
+    "Carried!C4": "inside"
+  }
+}

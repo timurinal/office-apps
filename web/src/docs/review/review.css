@@ -1,0 +1,371 @@
+/*
+ * Review: suggestions and comments in the page, and their cards.
+ *
+ * The colours and the card are the DocsFocus board's: a suggestion is violet (#886193),
+ * underlined when inserted and struck when deleted, with a bar in the margin beside its
+ * paragraph; commented text is amber. Cards move by transform only (ReviewHost.tsx
+ * writes the transform; the transition here makes it a slide).
+ *
+ * Loaded with the editor's chunk.
+ */
+
+:root {
+  --rv-sugg: #886193;
+  --rv-sugg-tint: rgba(136, 97, 147, 0.14);
+  --rv-accept: #0d8f86;
+  --rv-anc: rgba(232, 163, 61, 0.22);
+  --rv-anc-on: rgba(232, 163, 61, 0.42);
+  --rv-anc-line: #e8a33d;
+}
+[data-theme='dark'] {
+  --rv-sugg: #c9a3d6;
+  --rv-sugg-tint: rgba(201, 163, 214, 0.16);
+  --rv-accept: #3dbdb3;
+  --rv-anc: rgba(232, 163, 61, 0.2);
+  --rv-anc-on: rgba(232, 163, 61, 0.36);
+}
+
+/* ── In the page ─────────────────────────────────────────────────────────── */
+
+.oa-doc ins.oa-ins {
+  color: var(--rv-sugg);
+  text-decoration: none;
+  border-bottom: 2px solid var(--rv-sugg);
+}
+.oa-doc del.oa-del {
+  color: var(--rv-sugg);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+.oa-doc .oa-anc {
+  background: var(--rv-anc);
+  border-bottom: 2px solid var(--rv-anc-line);
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.oa-doc .oa-anc.is-active {
+  background: var(--rv-anc-on);
+}
+.oa-doc .oa-sugg-active {
+  background: var(--rv-sugg-tint);
+  border-radius: 2px;
+}
+
+/* A bar beside each block that holds a change, as Word draws it. */
+.oa-doc .ProseMirror > :is(p, h1, h2, h3, h4, h5, h6, pre, ul, ol, blockquote):has(.oa-ins, .oa-del),
+.oa-doc .ProseMirror [data-suggest] {
+  position: relative;
+}
+.oa-doc .ProseMirror > :is(p, h1, h2, h3, h4, h5, h6, pre, ul, ol, blockquote):has(.oa-ins, .oa-del)::before,
+.oa-doc .ProseMirror > [data-suggest]::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 3px;
+  bottom: 3px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--rv-sugg);
+  pointer-events: none;
+}
+
+/* A paragraph break suggested in (split) or out (join): a pilcrow where the break is. */
+.oa-doc .ProseMirror :is([data-suggest='split'], [data-suggest='join'])::after {
+  content: '¶';
+  position: absolute;
+  left: -14px;
+  top: 0;
+  font-size: 12px;
+  line-height: inherit;
+  color: var(--rv-sugg);
+  pointer-events: none;
+}
+.oa-doc .ProseMirror [data-suggest='join']::after {
+  text-decoration: line-through;
+}
+
+/* A picture, a rule or another object suggested in or out. */
+.oa-doc .ProseMirror :is(img, hr, div, figure)[data-suggest='ins'] {
+  outline: 2px solid var(--rv-sugg);
+  outline-offset: 2px;
+}
+.oa-doc .ProseMirror :is(img, hr, div, figure)[data-suggest='del'] {
+  outline: 2px dashed var(--rv-sugg);
+  outline-offset: 2px;
+  opacity: 0.45;
+}
+
+/* No markup: the page as if every change were accepted. */
+.oa-doc .ProseMirror[data-markup='none'] del.oa-del,
+.oa-doc .ProseMirror[data-markup='none'] [data-suggest='del'] {
+  display: none;
+}
+.oa-doc .ProseMirror[data-markup='none'] ins.oa-ins {
+  color: inherit;
+  border-bottom: 0;
+}
+.oa-doc .ProseMirror[data-markup='none'] > :is(p, h1, h2, h3, h4, h5, h6, pre, ul, ol, blockquote):has(.oa-ins, .oa-del)::before,
+.oa-doc .ProseMirror[data-markup='none'] > [data-suggest]::before,
+.oa-doc .ProseMirror[data-markup='none'] [data-suggest]::after {
+  content: none;
+}
+.oa-doc .ProseMirror[data-markup='none'] [data-suggest='ins'] {
+  outline: 0;
+}
+
+/* ── The margin ──────────────────────────────────────────────────────────── */
+
+.oa-paper[data-review-margin='on'] {
+  margin-right: 304px;
+}
+.rv-margin {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 24px);
+  width: 280px;
+  height: 0;
+  z-index: 5;
+}
+.rv-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 280px;
+}
+.rv-slot[data-placed='yes'] {
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.rv-slot[data-placed='none'] {
+  visibility: hidden;
+}
+.rv-slot[data-on='true'] {
+  z-index: 2;
+}
+.rv-slot[data-state='closed'] {
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rv-slot[data-placed='yes'] {
+    transition: none;
+  }
+}
+:root[data-motion='off'] .rv-slot[data-placed='yes'] {
+  transition: none;
+}
+
+/* ── A card ──────────────────────────────────────────────────────────────── */
+
+.rv-card {
+  background: var(--paper);
+  border-radius: 10px;
+  box-shadow:
+    0 1px 0 rgba(40, 28, 45, 0.04),
+    0 0 0 1px rgba(40, 28, 45, 0.06);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--fg-2);
+  text-align: left;
+  transition: box-shadow var(--dur-fast) var(--ease-out);
+}
+[data-theme='dark'] .rv-card {
+  background: var(--ring-bg);
+  box-shadow: 0 0 0 1px var(--bd-soft);
+}
+.rv-card[data-active='true']:is([data-kind='thread'], [data-kind='draft']) {
+  box-shadow:
+    0 4px 14px rgba(40, 28, 45, 0.08),
+    0 0 0 1px rgba(232, 163, 61, 0.55);
+}
+.rv-card[data-active='true'][data-kind='suggestion'] {
+  box-shadow:
+    0 4px 14px rgba(40, 28, 45, 0.08),
+    0 0 0 1px var(--rv-sugg);
+}
+.rv-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.rv-who {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  flex: 1;
+  min-width: 0;
+}
+.rv-who b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.rv-who span {
+  font-size: 11.5px;
+  color: var(--fg-3);
+}
+.rv-reply {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bd-faint);
+}
+.rv-reply .rv-who {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 8px;
+}
+.rv-body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--fg-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.rv-body b {
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.rv-mention {
+  color: var(--app-text);
+  font-weight: 500;
+}
+.rv-quote {
+  font-size: 12.5px;
+  color: var(--fg-3);
+  border-left: 3px solid var(--rv-anc-line);
+  padding-left: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rv-card[data-kind='suggestion'] .rv-quote {
+  border-left-color: var(--rv-sugg);
+}
+.rv-note {
+  font-size: 12px;
+  color: var(--fg-4);
+}
+.rv-card .rv-resolve {
+  color: var(--app-solid);
+}
+.rv-card .rv-accept {
+  color: var(--rv-accept);
+}
+.rv-card .rv-reject {
+  color: var(--fg-4);
+}
+.rv-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ── The box and the @ picker ────────────────────────────────────────────── */
+
+.rv-input-wrap {
+  position: relative;
+}
+.rv-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 34px;
+  max-height: 180px;
+  field-sizing: content;
+  border-radius: 8px;
+  border: 1px solid var(--bd);
+  background: var(--field);
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--fg-1);
+  resize: none;
+  outline: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.rv-input[data-multiline='true'] {
+  min-height: 60px;
+}
+.rv-input:focus {
+  border-color: var(--app-400);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.rv-people {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 20;
+  max-height: 240px;
+  overflow: auto;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--ctrl);
+  box-shadow:
+    0 0 0 1px var(--bd-soft),
+    0 10px 30px rgba(40, 28, 45, 0.14);
+}
+.rv-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg-1);
+  text-align: left;
+  cursor: pointer;
+}
+.rv-person[aria-selected='true'],
+.rv-person:hover {
+  background: var(--app-hover);
+}
+.rv-handle {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--fg-4);
+}
+
+/* ── The pane ────────────────────────────────────────────────────────────── */
+
+.rv-pane {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rv-pane .rv-card {
+  cursor: default;
+}
+.rv-pane .rv-card:not([data-active='true']):hover {
+  box-shadow:
+    0 1px 0 rgba(40, 28, 45, 0.04),
+    0 0 0 1px var(--bd);
+}
+
+@media print {
+  .rv-margin {
+    display: none;
+  }
+  .oa-paper[data-review-margin='on'] {
+    margin-right: 0;
+  }
+  .oa-doc .oa-anc {
+    background: none;
+    border-bottom: 0;
+  }
+}

@@ -1,0 +1,447 @@
+/*
+ * The page view (docs/pagination). Print layout draws sheets of paper under the body and
+ * pushes the body onto them with spacers; web layout is the plain page Phase 1 had.
+ *
+ * Every measure is a variable on the article, written by chrome.ts from the page setup:
+ * --pg-w, --pg-h, the four margins, the header and footer distances, --pg-n pages. The
+ * desk between sheets is --pg-gap; it must match GAP in setup.ts, and print sets it to 0
+ * so the printed pages fall where the screen's do.
+ */
+
+[data-pg] {
+  --pg-gap: 28px;
+  --pg-period: calc(var(--pg-h) + var(--pg-gap));
+}
+
+/* ── Spacers ─────────────────────────────────────────────────────────────────
+   The breaks, as widgets in the body. They must be exactly as tall as the layout says,
+   so nothing may give them a margin, a border or a bullet. */
+
+.pg-sp {
+  display: block;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+span.pg-sp-inline {
+  line-height: 0;
+  font-size: 0;
+}
+li.pg-sp {
+  list-style: none;
+}
+li.pg-sp::marker {
+  content: none;
+}
+tr.pg-sp {
+  display: table-row;
+}
+tr.pg-sp-row > td {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+/* ── Print layout ────────────────────────────────────────────────────────────
+   The article stops being the paper and becomes the desk the sheets sit on. */
+
+.oa-stage-inner > .oa-paper[data-pg='paged'] {
+  width: auto;
+  max-width: none;
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  align-self: safe center;
+}
+/* A sheet wider than the space beside the panes scrolls sideways rather than squeezing. */
+.oa-stage:has(> .oa-stage-inner > .oa-paper[data-pg='paged']) {
+  overflow-x: auto;
+}
+
+.pg-host {
+  position: relative;
+}
+.pg-host > .ProseMirror.pg-paged {
+  box-sizing: border-box;
+  width: var(--pg-w);
+  min-height: calc(var(--pg-n, 1) * var(--pg-period) - var(--pg-gap)) !important;
+  padding: var(--pg-top) var(--pg-right) 0 var(--pg-left) !important;
+  position: relative;
+  z-index: 1;
+}
+/* A picture never runs off its page, as Word fits one on insert. */
+.pg-host > .ProseMirror.pg-paged img {
+  max-height: var(--pg-content-h);
+  object-fit: contain;
+}
+.oa-paper[data-pg='paged'] .oa-doc-hint {
+  top: var(--pg-top);
+  left: var(--pg-left);
+  z-index: 2;
+}
+
+.pg-pages {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pg-w);
+  height: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.pg-page {
+  position: absolute;
+  left: 0;
+  width: var(--pg-w);
+  height: var(--pg-h);
+  background: var(--paper);
+  border-radius: 3px;
+  box-shadow:
+    0 1px 2px rgba(40, 28, 45, 0.06),
+    0 0 0 1px rgba(40, 28, 45, 0.05),
+    0 8px 24px rgba(40, 28, 45, 0.06);
+  /* A sheet off screen is not painted, nor are its header and footer. */
+  content-visibility: auto;
+  contain-intrinsic-size: var(--pg-w) var(--pg-h);
+}
+
+/* ── Headers and footers ─────────────────────────────────────────────────── */
+
+.pg-hf {
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--fg-3);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.pg-hf p {
+  margin: 0;
+}
+.pg-hf[data-empty='true'] {
+  display: none;
+}
+.pg-page > .pg-header {
+  position: absolute;
+  top: var(--pg-hd);
+  left: var(--pg-left);
+  right: var(--pg-right);
+}
+.pg-page > .pg-footer {
+  position: absolute;
+  bottom: var(--pg-fd);
+  left: var(--pg-left);
+  right: var(--pg-right);
+}
+
+/* The one being edited, over its page, with the body dimmed under it. */
+.pg-hf-live {
+  position: absolute;
+  left: var(--pg-left);
+  width: var(--pg-content-w);
+  z-index: 3;
+  color: var(--fg-1);
+  outline: 1px dashed var(--app-300);
+  outline-offset: 6px;
+  border-radius: 2px;
+}
+.pg-footer-live {
+  transform: translateY(-100%);
+}
+.pg-hf-live::after {
+  position: absolute;
+  left: -6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--app-50);
+  color: var(--app-text);
+  font-size: 11px;
+  line-height: 16px;
+  pointer-events: none;
+}
+.pg-header-live::after {
+  content: 'Header';
+  top: calc(100% + 10px);
+}
+.pg-footer-live::after {
+  content: 'Footer';
+  bottom: calc(100% + 10px);
+}
+.pg-hf-live .pg-hf-body {
+  outline: none;
+  min-height: 1.45em;
+  caret-color: var(--fg-1);
+}
+.pg-host > .ProseMirror {
+  transition: opacity var(--dur-base, 180ms) var(--ease-out, ease-out);
+}
+.pg-host.pg-hf-editing > .ProseMirror {
+  opacity: 0.4;
+  pointer-events: none;
+}
+/* A note and the header being edited are editors inside the page's editor, so doc.css's
+   rules for the page (60vh tall, 14.5px, blocks 12px apart) reach them. They are set as
+   their printed copies are. */
+.oa-doc .ProseMirror.pg-note-body,
+.oa-doc .ProseMirror.pg-hf-body {
+  min-height: 1.45em;
+  font: inherit;
+  color: inherit;
+}
+.oa-doc .ProseMirror.ProseMirror.pg-note-body > * + *,
+.oa-doc .ProseMirror.ProseMirror.pg-hf-body > * + * {
+  margin-top: 0;
+}
+.pg-field-live {
+  border-radius: 3px;
+  background: var(--field);
+  padding: 0 2px;
+}
+
+/* ── Manual page break ───────────────────────────────────────────────────── */
+
+.pg-break {
+  position: relative;
+  height: 18px;
+  user-select: none;
+}
+.pg-break::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  border-top: 1px dashed var(--bd);
+}
+.pg-break::after {
+  content: 'Page break';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0 8px;
+  background: var(--paper);
+  color: var(--text-quiet);
+  font-size: 11px;
+  line-height: 1;
+}
+/* In print layout the next page is the break; the marker shrinks to a hairline on its page. */
+.pg-paged .pg-break {
+  height: 10px;
+  opacity: 0.6;
+}
+.pg-break.ProseMirror-selectednode::before {
+  border-top-color: var(--app-solid);
+  border-top-style: solid;
+}
+
+/* ── Footnotes ───────────────────────────────────────────────────────────── */
+
+.pg-fn-ref {
+  font-size: 0.72em;
+  line-height: 0;
+  vertical-align: super;
+  padding: 0 1px;
+  color: var(--app-600);
+  cursor: default;
+}
+.pg-fn-ref.ProseMirror-selectednode {
+  outline: 2px solid var(--app-300);
+  border-radius: 2px;
+}
+.pg-notes-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pg-w);
+  height: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+/* Its padding is NOTE_SEP in setup.ts: the space the layout keeps for the rule. */
+.pg-notes {
+  position: absolute;
+  left: var(--pg-left);
+  width: var(--pg-content-w);
+  padding-top: 16px;
+  transform: translateY(-100%);
+  pointer-events: auto;
+}
+.pg-notes::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: min(33%, 160px);
+  border-top: 1px solid var(--bd);
+}
+.pg-note {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--fg-1);
+  border-radius: 3px;
+}
+.pg-note-n {
+  flex: none;
+  min-width: 1.1em;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+.pg-note-text {
+  flex: 1;
+  min-width: 0;
+}
+.pg-note-body {
+  outline: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  min-height: 1.45em;
+}
+.pg-note-on {
+  background: var(--app-50);
+}
+.pg-endnotes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px solid var(--bd);
+}
+.pg-endnotes[hidden] {
+  display: none;
+}
+
+/* Measured, never seen. Zero height, so it adds nothing to the page or to print. */
+.pg-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ── Table of contents ───────────────────────────────────────────────────── */
+
+.pg-toc {
+  padding: 2px 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pg-toc-title {
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.pg-toc-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 1px 4px;
+  margin: 0 -4px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.pg-toc-row[data-level='2'] {
+  padding-left: 22px;
+}
+.pg-toc-row[data-level='3'] {
+  padding-left: 40px;
+}
+@media (hover: hover) {
+  .pg-toc-row:hover {
+    background: var(--app-hover);
+  }
+}
+.pg-toc-leader {
+  flex: 1;
+  min-width: 16px;
+  border-bottom: 1px dotted var(--bd);
+  transform: translateY(-4px);
+}
+.pg-toc-page {
+  min-width: 1.5em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.pg-toc-empty {
+  color: var(--text-quiet);
+}
+.pg-toc.ProseMirror-selectednode {
+  outline: 2px solid var(--app-300);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* ── Print ───────────────────────────────────────────────────────────────────
+   The sheets on screen are the printed pages: no desk between them, no shadows, and
+   the `@page` rule chrome.ts writes makes the printer's page the layout's. */
+
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+  }
+  [data-pg] {
+    --pg-gap: 0px;
+  }
+  .oa-notices {
+    display: none !important;
+  }
+  .oa-stage-inner:has(> .oa-paper[data-pg='paged']) {
+    display: block;
+    min-height: 0;
+  }
+  .oa-stage-inner > .oa-paper[data-pg='paged'] {
+    margin: 0;
+    zoom: 1;
+  }
+  /* A pixel short of the page, so rounding never starts a blank one at the end. */
+  .pg-page {
+    height: calc(var(--pg-h) - 1px);
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    content-visibility: visible;
+  }
+  /* The copy under a header being edited is hidden on screen; on paper it is the header. */
+  .pg-page > .pg-hf {
+    visibility: visible !important;
+  }
+  .pg-host > .ProseMirror.pg-paged {
+    min-height: calc(var(--pg-n, 1) * var(--pg-period) - 1px) !important;
+    orphans: 1;
+    widows: 1;
+  }
+  /* The layout has already moved what follows a manual break; the browser must not again. */
+  .pg-host > .ProseMirror.pg-paged .pg-break {
+    break-after: auto !important;
+  }
+  .pg-break::before,
+  .pg-break::after,
+  .pg-hf-live,
+  .pg-ghost {
+    display: none;
+  }
+  .pg-host.pg-hf-editing > .ProseMirror {
+    opacity: 1;
+  }
+  .pg-fn-ref,
+  .pg-note,
+  .pg-hf {
+    color: #000;
+  }
+}

@@ -1,0 +1,696 @@
+/*
+ * What the core module draws: the styles, lists, tables and pictures in the page, and its
+ * own floating panels (find, link, the @ picker).
+ *
+ * The page's base typography is docs/doc.css. This adds to it and never restyles it, so a
+ * change to the base is a change in one place. Loaded with the editor's chunk.
+ *
+ * Only `transform` and `opacity` animate (docs/design/README.md, Motion). Nothing here
+ * transitions a size or a position, and nothing animates under a drag.
+ */
+
+/* ── Named paragraph styles ──────────────────────────────────────────────────
+   Heading 1 to 3 are doc.css's. The rest are Word's names, in the board's scale. */
+
+.oa-doc .ProseMirror h4 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.oa-doc .ProseMirror h5 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.oa-doc .ProseMirror h6 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--fg-3);
+}
+.oa-doc .ProseMirror.ProseMirror > h4,
+.oa-doc .ProseMirror.ProseMirror > h5,
+.oa-doc .ProseMirror.ProseMirror > h6 {
+  margin-top: 20px;
+}
+/* The outline jumps to a heading, and the banner floats over the top of the page. */
+.oa-doc .ProseMirror :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: calc(var(--shell-top, 150px) + 16px);
+}
+
+.oa-doc .ProseMirror p[data-style='title'] {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+.oa-doc .ProseMirror p[data-style='subtitle'] {
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--fg-3);
+}
+/* No spacing: no gap above it, so a run of them reads as one block of lines. */
+.oa-doc .ProseMirror.ProseMirror > p[data-style='nospacing'] {
+  margin-top: 0;
+}
+.oa-doc .ProseMirror sub,
+.oa-doc .ProseMirror sup {
+  line-height: 0;
+}
+
+/* The format painter is armed: the page says so where the pointer is. */
+.oa-doc .ProseMirror.oa-painting {
+  cursor: copy;
+}
+
+/* ── Lists ───────────────────────────────────────────────────────────────────
+   A numbered list restarts in the next style each level down (1. a. i.), and a bulleted
+   one in the next mark. A legal list (1. then 1.1.) is drawn with counters from the
+   outermost list's `data-format`, because a nested list made later has no attribute. */
+
+.oa-doc .ProseMirror ul {
+  list-style-type: disc;
+}
+.oa-doc .ProseMirror ul ul {
+  list-style-type: circle;
+}
+.oa-doc .ProseMirror ul ul ul {
+  list-style-type: square;
+}
+.oa-doc .ProseMirror ol {
+  list-style-type: decimal;
+}
+.oa-doc .ProseMirror ol ol {
+  list-style-type: lower-alpha;
+}
+.oa-doc .ProseMirror ol ol ol {
+  list-style-type: lower-roman;
+}
+.oa-doc .ProseMirror ol ol ol ol {
+  list-style-type: decimal;
+}
+.oa-doc .ProseMirror ol ol ol ol ol {
+  list-style-type: lower-alpha;
+}
+.oa-doc .ProseMirror ol ol ol ol ol ol {
+  list-style-type: lower-roman;
+}
+.oa-doc .ProseMirror li ul,
+.oa-doc .ProseMirror li ol {
+  margin-top: 4px;
+}
+
+.oa-doc .ProseMirror ol[data-format='legal'],
+.oa-doc .ProseMirror ol[data-format='legal'] ol {
+  list-style: none;
+  counter-reset: oa-legal;
+  padding-left: 30px;
+}
+.oa-doc .ProseMirror ol[data-format='legal'] li {
+  position: relative;
+  counter-increment: oa-legal;
+}
+.oa-doc .ProseMirror ol[data-format='legal'] li::before {
+  content: counters(oa-legal, '.') '.';
+  position: absolute;
+  right: 100%;
+  margin-right: 6px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* A checklist: the box, then the item, which wraps under itself rather than the box. */
+.oa-doc .ProseMirror ul[data-type='taskList'] {
+  list-style: none;
+  padding-left: 2px;
+}
+.oa-doc .ProseMirror ul[data-type='taskList'] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.oa-doc .ProseMirror ul[data-type='taskList'] li > label {
+  flex: none;
+  margin-top: 0.3em;
+  user-select: none;
+}
+.oa-doc .ProseMirror ul[data-type='taskList'] li > div {
+  flex: 1;
+  min-width: 0;
+}
+.oa-doc .ProseMirror ul[data-type='taskList'] input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--app-solid);
+  cursor: pointer;
+}
+.oa-doc .ProseMirror ul[data-type='taskList'] li[data-checked='true'] > div {
+  color: var(--fg-4);
+  text-decoration: line-through;
+  text-decoration-color: var(--bd);
+}
+.oa-doc .ProseMirror ul[data-type='taskList'] ul[data-type='taskList'] {
+  margin-top: 4px;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────────
+   doc.css draws the grid and the header. This adds what editing needs: the cells
+   that are selected, and the edge a column is dragged by. */
+
+.oa-doc .ProseMirror table {
+  table-layout: fixed;
+  margin: 0;
+  overflow: hidden;
+}
+.oa-doc .ProseMirror td,
+.oa-doc .ProseMirror th {
+  position: relative;
+  min-width: 48px;
+  min-height: 32px;
+  box-sizing: border-box;
+}
+.oa-doc .ProseMirror td > *:first-child,
+.oa-doc .ProseMirror th > *:first-child {
+  margin-top: 0;
+}
+.oa-doc .ProseMirror td > p,
+.oa-doc .ProseMirror th > p {
+  margin: 0;
+}
+.oa-doc .ProseMirror td > p + p,
+.oa-doc .ProseMirror th > p + p {
+  margin-top: 6px;
+}
+.oa-doc .ProseMirror .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--app-hover);
+  pointer-events: none;
+}
+.oa-doc .ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -1px;
+  width: 4px;
+  background: var(--app-solid);
+  pointer-events: none;
+}
+.oa-doc .ProseMirror.resize-cursor {
+  cursor: col-resize;
+}
+.oa-doc .ProseMirror .tableWrapper {
+  overflow-x: auto;
+}
+
+/* ── Pictures ────────────────────────────────────────────────────────────────
+   The resize wrapper is a flex row and `data-align` moves the picture in it. The handles
+   show only on a selected picture, and only while the page can be edited. */
+
+.oa-doc .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+.oa-doc .ProseMirror [data-resize-container] {
+  max-width: 100%;
+}
+.oa-doc .ProseMirror [data-resize-wrapper] {
+  max-width: 100%;
+  line-height: 0;
+}
+.oa-doc .ProseMirror [data-resize-handle] {
+  display: none;
+  width: 10px;
+  height: 10px;
+  background: var(--paper);
+  border: 2px solid var(--app-solid);
+  border-radius: 3px;
+  z-index: 2;
+}
+.oa-doc .ProseMirror [data-resize-handle='top-left'] {
+  left: -5px;
+  top: -5px;
+  cursor: nwse-resize;
+}
+.oa-doc .ProseMirror [data-resize-handle='top-right'] {
+  right: -5px;
+  top: -5px;
+  cursor: nesw-resize;
+}
+.oa-doc .ProseMirror [data-resize-handle='bottom-left'] {
+  left: -5px;
+  bottom: -5px;
+  cursor: nesw-resize;
+}
+.oa-doc .ProseMirror [data-resize-handle='bottom-right'] {
+  right: -5px;
+  bottom: -5px;
+  cursor: nwse-resize;
+}
+.oa-doc .ProseMirror .ProseMirror-selectednode [data-resize-handle],
+.oa-doc .ProseMirror [data-resize-state='true'] [data-resize-handle] {
+  display: block;
+}
+.oa-doc .ProseMirror .ProseMirror-selectednode img {
+  outline: 2px solid var(--app-solid);
+  outline-offset: 1px;
+}
+
+/* A picture still being stored. It is this tab's alone: nobody else's page has it. */
+.oa-img-pending {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  margin: 2px 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--app-50);
+  color: var(--app-700);
+  font-size: 12.5px;
+  line-height: 1.3;
+  user-select: none;
+}
+.oa-img-pending-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--app-solid);
+  animation: oa-img-pulse 1s ease-in-out infinite;
+}
+@keyframes oa-img-pulse {
+  50% {
+    opacity: 0.3;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .oa-img-pending-dot {
+    animation: none;
+  }
+}
+:root[data-motion='off'] .oa-img-pending-dot {
+  animation: none;
+}
+
+/* ── Find ────────────────────────────────────────────────────────────────────
+   Decorations: nothing in the document says a word was found. */
+
+.oa-doc .ProseMirror .oa-find {
+  background: rgba(255, 213, 79, 0.55);
+  border-radius: 2px;
+  color: inherit;
+}
+.oa-doc .ProseMirror .oa-find-current {
+  background: rgba(255, 152, 0, 0.7);
+  box-shadow: 0 0 0 1px rgba(214, 120, 0, 0.8);
+}
+[data-theme='dark'] .oa-doc .ProseMirror .oa-find {
+  background: rgba(255, 213, 79, 0.35);
+}
+
+/* ── Smart chips ─────────────────────────────────────────────────────────────
+   A person is doc.css's `.mention`. A date is a quiet pill; a document wears the colour
+   of the app it is in, so a Sheets link is green wherever it sits. */
+
+.oa-doc .ProseMirror .oa-chip-date,
+.oa-doc .ProseMirror .oa-chip-doc {
+  display: inline-block;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.93em;
+  line-height: 1.55;
+  white-space: nowrap;
+  max-width: 24em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  cursor: pointer;
+  user-select: all;
+}
+.oa-doc .ProseMirror .oa-chip-date {
+  background: var(--field);
+  color: var(--fg-2);
+}
+.oa-doc .ProseMirror .oa-chip-doc {
+  background: var(--app-50);
+  color: var(--app-700);
+  font-weight: 500;
+}
+.oa-doc .ProseMirror .oa-chip-doc[data-state='unavailable'] {
+  background: var(--field);
+  color: var(--fg-4);
+  font-weight: 400;
+  cursor: default;
+}
+.oa-doc .ProseMirror .oa-chip-date:hover,
+.oa-doc .ProseMirror .oa-chip-doc:hover:not([data-state='unavailable']),
+.oa-doc .ProseMirror .mention:hover {
+  background: var(--app-200);
+}
+.oa-doc .ProseMirror .ProseMirror-selectednode.oa-chip-date,
+.oa-doc .ProseMirror .ProseMirror-selectednode.oa-chip-doc {
+  box-shadow: 0 0 0 2px var(--app-solid);
+}
+
+/* ── Floating panels ─────────────────────────────────────────────────────────
+   The link editor, the @ picker, the date editor and the find bar. They are fixed to
+   the window and placed from the caret, under the shell so they take its app colour. */
+
+.oa-float {
+  position: fixed;
+  z-index: 70;
+  margin: 0;
+  max-width: calc(100vw - 24px);
+}
+
+.oa-linked {
+  width: 340px;
+  padding: 12px;
+}
+.oa-linked form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.oa-linked-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.oa-linkcard {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 6px 6px 12px;
+  font-size: 13px;
+}
+.oa-linkcard-url {
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--app-700);
+}
+
+.oa-picker {
+  width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: 6px;
+}
+.oa-picker-section {
+  padding: 6px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-4);
+}
+.oa-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 13.5px;
+  text-align: left;
+}
+.oa-picker-row[data-active='true'] {
+  background: var(--app-hover);
+}
+.oa-picker-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.oa-picker-detail {
+  flex: none;
+  font-size: 12px;
+  color: var(--fg-4);
+}
+.oa-picker-empty {
+  padding: 10px;
+  font-size: 13px;
+  color: var(--fg-4);
+}
+
+.oa-datepop {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The find bar: a glass strip under the banner, at the right of the page. */
+.oa-findbar {
+  position: fixed;
+  z-index: 65;
+  width: min(420px, calc(100vw - 32px));
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.oa-findbar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.oa-findbar-row .oa-field {
+  flex: 1;
+  min-width: 0;
+}
+.oa-findbar-count {
+  flex: none;
+  min-width: 62px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+.oa-findbar-opts {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ── Ribbon pieces ───────────────────────────────────────────────────────── */
+
+.oa-sizebox {
+  position: relative;
+  display: inline-flex;
+}
+.oa-sizebox input {
+  width: 50px;
+  height: 28px;
+  padding: 0 22px 0 8px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: var(--ctrl);
+  color: var(--fg-1);
+  font: inherit;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.oa-sizebox input:hover:not(:disabled) {
+  border-color: var(--app-solid);
+}
+.oa-sizebox input:disabled {
+  color: var(--fg-4);
+}
+.oa-sizebox-caret {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 22px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0 6px 6px 0;
+  background: transparent;
+  color: var(--fg-4);
+}
+
+.oa-grid {
+  padding: 10px 10px 8px;
+  outline: none;
+}
+.oa-grid:focus-visible {
+  box-shadow: none;
+}
+.oa-grid-cells {
+  display: grid;
+  grid-template-columns: repeat(10, 18px);
+  gap: 3px;
+}
+.oa-grid-cell {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--bd);
+  border-radius: 3px;
+  background: var(--paper);
+}
+.oa-grid-cell[data-on='true'] {
+  background: var(--app-50);
+  border-color: var(--app-solid);
+}
+.oa-grid-label {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--fg-3);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── The outline pane ────────────────────────────────────────────────────── */
+
+.oa-outline {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 0 8px;
+}
+.oa-outline-row {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.oa-outline-row:hover {
+  background: var(--app-hover);
+}
+.oa-outline-row[aria-current='true'] {
+  background: var(--app-50);
+  color: var(--app-text);
+  font-weight: 600;
+}
+.oa-outline-row[data-level='1'] {
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.oa-outline-empty {
+  padding: 12px 10px;
+  font-size: 13px;
+  color: var(--fg-4);
+}
+
+/* ── Special characters ──────────────────────────────────────────────────── */
+
+.oa-chars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 4px;
+  margin-top: 12px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.oa-chars-cell {
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--bd-soft);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--fg-1);
+  font-size: 18px;
+  line-height: 1;
+}
+.oa-chars-cell:hover,
+.oa-chars-cell:focus-visible {
+  background: var(--app-50);
+  border-color: var(--app-solid);
+}
+.oa-chars-name {
+  min-height: 20px;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--fg-3);
+}
+
+/* ── The word count dialog ───────────────────────────────────────────────── */
+
+.oa-counts {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 24px;
+  margin: 0;
+  font-size: 14px;
+}
+.oa-counts dt {
+  color: var(--fg-3);
+}
+.oa-counts dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-1);
+  font-weight: 500;
+}
+.oa-counts-head {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-4);
+}
+
+/* The footer's word count is a button that looks like the rest of the footer. */
+.oa-wordbtn {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 6px;
+  margin: 0 -6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.oa-wordbtn:hover {
+  background: var(--app-hover);
+}
+
+@media print {
+  .oa-float,
+  .oa-findbar {
+    display: none !important;
+  }
+  .oa-doc .ProseMirror .oa-find,
+  .oa-doc .ProseMirror .oa-find-current {
+    background: none;
+    box-shadow: none;
+  }
+}

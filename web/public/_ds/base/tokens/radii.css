@@ -1,0 +1,17 @@
+/* ── corner radii ────────────────────────────────────────────
+   Everything is rounded; nothing is sharp. Panels 22, tiles 16, controls 10–12. */
+:root{
+  --radius-xs:6px;
+  --radius-sm:8px;
+  --radius-md:10px;
+  --radius-lg:12px;
+  --radius-xl:16px;
+  --radius-2xl:22px;
+  --radius-3xl:28px;
+  --radius-pill:999px;
+
+  --radius-panel:var(--radius-2xl);
+  --radius-card:var(--radius-xl);
+  --radius-control:var(--radius-md);
+  --radius-swatch:var(--radius-lg);
+}

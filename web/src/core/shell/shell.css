@@ -1,0 +1,891 @@
+/*
+ * The editor shell: the banner, the ribbon, the panes, the footer, and the stage the
+ * page sits on. Every number is from docs/design/boards (DocsShell, DocsFocus,
+ * Sheets, Slides); where a board and the README differ the README wins.
+ *
+ * Loaded with the editor's chunk, so Home does not carry it.
+ */
+
+.oa-shell {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--app-desk);
+  color: var(--fg-2);
+  font-family: var(--font-body), Inter, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  /* Where the stage's content starts: the banner's bottom edge. Set from its height. */
+  --shell-top: 160px;
+}
+[data-theme='dark'].oa-shell {
+  color-scheme: dark;
+}
+
+/* ── The stage ───────────────────────────────────────────────────────────────
+   The document runs full-bleed and scrolls under the chrome. Its padding is the
+   space the panes leave, and the page centres in what remains. */
+.oa-stage {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: calc(var(--shell-top) + 20px) var(--pad-r, 16px) 76px var(--pad-l, 16px);
+  scrollbar-gutter: stable;
+}
+.oa-stage-inner {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.oa-stage-inner > * {
+  max-width: 100%;
+}
+
+/* A bleed stage (Sheets): the content fills the space between the banner and the footer, and
+   a pane narrows it instead of covering it. Nothing scrolls here; the grid scrolls itself. */
+.oa-stage[data-bleed] {
+  overflow: hidden;
+  padding: 0;
+  scrollbar-gutter: auto;
+}
+.oa-bleed {
+  position: absolute;
+  top: calc(var(--shell-top) + 8px);
+  bottom: 0;
+  left: var(--bleed-l, 0);
+  right: var(--bleed-r, 0);
+}
+.oa-bleed-notices {
+  position: absolute;
+  top: calc(var(--shell-top) + 16px);
+  left: var(--bleed-l, 0);
+  right: var(--bleed-r, 0);
+  z-index: 25;
+  display: flex;
+  justify-content: center;
+  padding: 0 16px;
+  pointer-events: none;
+}
+.oa-bleed-notices .oa-notices {
+  pointer-events: auto;
+  width: 560px;
+}
+
+/* ── The banner ──────────────────────────────────────────────────────────── */
+
+.oa-banner {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 12px;
+  z-index: 30;
+  border-radius: 16px;
+  padding: 0 0 6px;
+}
+
+/* The banner's fourth row: Sheets' formula bar. */
+.oa-fbar-row {
+  margin: 6px 6px 0;
+}
+
+.oa-hd {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 8px 0 10px;
+}
+.oa-hd-left {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.oa-hd-mid {
+  flex: 0 1 380px;
+  min-width: 200px;
+  display: flex;
+}
+.oa-hd-right {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.oa-badge {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--app-solid);
+}
+.oa-badge:hover {
+  background: var(--app-solid);
+  filter: brightness(1.06);
+}
+.oa-hd-title {
+  min-width: 0;
+  font-family: var(--font-body), Inter, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--fg-1);
+  white-space: nowrap;
+}
+.oa-hd-titlewrap {
+  display: inline-grid;
+  /* The field's own padding is inside the box; the text sits where the board puts it. */
+  margin: 0 -8px;
+  min-width: 60px;
+  max-width: 100%;
+  flex: 0 1 auto;
+}
+.oa-hd-titlewrap > * {
+  grid-area: 1 / 1;
+}
+.oa-hd-sizer {
+  visibility: hidden;
+  white-space: pre;
+  overflow: hidden;
+  padding: 0 9px;
+  height: 30px;
+}
+.oa-hd-title-input {
+  height: 30px;
+  /* No intrinsic width of its own: the hidden copy sets the cell, the field fills it. */
+  width: 0;
+  min-width: 100%;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  max-width: 100%;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
+}
+.oa-hd-title-input:hover {
+  border-color: var(--bd);
+}
+.oa-hd-title-input:focus {
+  border-color: var(--app-600);
+  background: rgba(255, 255, 255, 0.7);
+}
+[data-theme='dark'] .oa-hd-title-input:focus {
+  background: rgba(18, 20, 46, 0.5);
+}
+.oa-hd-lock {
+  color: var(--fg-4);
+}
+.oa-hd-note {
+  flex: none;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--app-hover);
+  color: var(--fg-3);
+  font-size: 12px;
+  font-weight: 500;
+}
+.oa-hd-star {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-4);
+}
+.oa-hd-star:hover {
+  background: var(--app-hover);
+}
+.oa-hd-star[aria-pressed='true'] {
+  color: var(--warning-500);
+}
+.oa-hd-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-3);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.oa-hd-save:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.oa-hd-save:hover:not(:disabled) {
+  background: var(--app-hover);
+}
+.oa-hd-save[data-tone='warn'] {
+  color: var(--warning-600);
+}
+.oa-count {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--app-solid);
+  color: var(--app-on-solid);
+  font-size: 10px;
+  font-weight: 700;
+}
+.oa-btn[aria-pressed='true'] {
+  background: var(--app-50);
+  border-color: var(--app-solid);
+  color: var(--app-text);
+}
+[data-theme='dark'] .oa-btn[aria-pressed='true'] {
+  background: var(--app-hover);
+}
+
+.oa-peers {
+  display: flex;
+  align-items: center;
+}
+.oa-peer {
+  display: inline-flex;
+}
+.oa-peer + .oa-peer {
+  margin-left: -6px;
+}
+.oa-peer-more {
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--field);
+  color: var(--fg-3);
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 0 0 2px var(--ring-bg);
+}
+
+/* ── The ribbon ──────────────────────────────────────────────────────────── */
+
+.oa-rb-tabs {
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+.oa-rb-tablist {
+  position: relative;
+  display: flex;
+  --ind-color: var(--app-solid);
+}
+.oa-rb-tab {
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  color: var(--fg-2);
+  border-radius: 0;
+}
+.oa-rb-tab:hover {
+  color: var(--fg-1);
+}
+.oa-rb-tab[aria-selected='true'] {
+  color: var(--app-text);
+  font-weight: 600;
+}
+.oa-rb-tab[aria-expanded='true'] {
+  color: var(--app-text);
+}
+.oa-rb-tablist .oa-ind {
+  bottom: 0;
+}
+
+.oa-rb-strip {
+  position: relative;
+  /* The strip's own stacking level, above the formula bar that follows it in the banner. Its content
+     animates a transform for 180ms after a tab switch, which makes the content a stacking context of its
+     own, and a menu opened in that time (its z-index is inside that context) was painted under the
+     formula bar, and took the clicks of the formula bar's buttons, until the animation ended. */
+  z-index: 1;
+  min-height: 44px;
+  margin: 0 6px;
+  border-radius: 11px;
+  background: var(--app-tint);
+}
+.oa-rb-strip[data-peek='true'] {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  margin: 0;
+  z-index: 5;
+}
+.oa-rb-content {
+  min-height: 44px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+}
+.oa-rb-leaving {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: oa-fade-out var(--dur-fast) cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+.oa-rb-group {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.oa-rb-sep {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--rule);
+}
+
+.oa-rb-tb,
+.oa-rb-tl,
+.oa-rb-chev {
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-2);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.oa-rb-tb {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.oa-rb-tl {
+  height: 30px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.oa-rb-chev {
+  width: 14px;
+  height: 30px;
+  margin-left: -4px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: var(--fg-4);
+}
+.oa-rb-tb:hover:not(:disabled),
+.oa-rb-tl:hover:not(:disabled),
+.oa-rb-chev:hover:not(:disabled) {
+  background: var(--app-hover);
+}
+.oa-rb-tb[aria-pressed='true'] {
+  background: var(--app-50);
+  color: var(--app-text);
+}
+.oa-rb-tl[aria-pressed='true'] {
+  background: var(--app-50);
+  color: var(--app-text);
+  box-shadow: inset 0 0 0 1px var(--app-solid);
+  font-weight: 600;
+}
+[data-theme='dark'] .oa-rb-tb[aria-pressed='true'],
+[data-theme='dark'] .oa-rb-tl[aria-pressed='true'] {
+  background: var(--app-hover);
+}
+.oa-rb-static {
+  cursor: default;
+}
+.oa-rb-cv {
+  color: var(--fg-4);
+}
+
+.oa-rb-dd {
+  height: 28px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0 6px 0 8px;
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  background: var(--ctrl);
+  color: var(--fg-1);
+  font-size: 13px;
+  text-align: left;
+}
+.oa-rb-dd:hover:not(:disabled) {
+  background: var(--ctrl);
+  border-color: var(--app-solid);
+}
+.oa-rb-list {
+  max-height: 280px;
+  overflow-y: auto;
+  min-width: 160px;
+  scrollbar-width: thin;
+}
+.oa-rb-list .oa-menu-item[aria-selected='true'] {
+  background: var(--app-50);
+  color: var(--app-text);
+}
+
+.oa-rb-gallery {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--ctrl);
+  overflow: hidden;
+}
+.oa-rb-sty {
+  height: 30px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--fg-1);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.oa-rb-sty:hover:not(:disabled) {
+  background: var(--app-50);
+}
+.oa-rb-sty[aria-selected='true'] {
+  height: 32px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 2px var(--app-solid);
+}
+
+.oa-rb-color {
+  flex-direction: column;
+  gap: 1px;
+  align-content: center;
+}
+.oa-rb-glyph {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+}
+.oa-rb-bar {
+  width: 14px;
+  height: 3px;
+  border-radius: 1px;
+}
+.oa-rb-palette {
+  display: grid;
+  grid-template-columns: repeat(6, 22px);
+  gap: 6px;
+  padding: 6px;
+}
+.oa-rb-swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(40, 28, 45, 0.18);
+}
+.oa-rb-swatch[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 1px rgba(40, 28, 45, 0.18),
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--app-solid);
+}
+
+.oa-file-menu {
+  min-width: 280px;
+  padding: 8px;
+}
+.oa-file-menu .oa-menu-item {
+  padding: 9px 10px;
+  font-size: 14px;
+}
+
+/* ── Panes ───────────────────────────────────────────────────────────────── */
+
+@keyframes oa-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+@keyframes oa-slide-out-left {
+  to {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+}
+.oa-slide-in-left {
+  animation-name: oa-slide-in-left;
+}
+.oa-slide-in-left[data-state='closed'] {
+  animation-name: oa-slide-out-left;
+}
+@media (prefers-reduced-motion: reduce) {
+  .oa-slide-in-left {
+    animation-name: oa-fade-in;
+  }
+  .oa-slide-in-left[data-state='closed'] {
+    animation-name: oa-fade-out;
+  }
+}
+:root[data-motion='off'] .oa-slide-in-left {
+  animation-name: oa-fade-in;
+}
+:root[data-motion='off'] .oa-slide-in-left[data-state='closed'] {
+  animation-name: oa-fade-out;
+}
+
+.oa-pane {
+  position: absolute;
+  top: calc(var(--shell-top) + 18px);
+  bottom: 58px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  max-width: calc(100vw - 32px);
+}
+.oa-pane[data-side='right'] {
+  right: 16px;
+}
+.oa-pane[data-side='left'] {
+  left: 16px;
+}
+.oa-pane-head {
+  height: 44px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 6px 0 14px;
+  border-bottom: 1px solid var(--bd-faint);
+}
+.oa-pane-head h2 {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-body), Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--fg-1);
+}
+.oa-pane-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── The footer ──────────────────────────────────────────────────────────── */
+
+.oa-footer {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 12px;
+  z-index: 30;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 8px 0 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--fg-3);
+}
+.oa-footer[data-tall='true'] {
+  height: 40px;
+  gap: 2px;
+  padding: 0 8px 0 6px;
+}
+.oa-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+.oa-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.oa-sb {
+  height: 24px;
+  min-width: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fg-3);
+}
+.oa-sb:hover {
+  background: var(--app-hover);
+}
+.oa-sb[aria-pressed='true'] {
+  background: var(--app-50);
+  color: var(--app-text);
+}
+.oa-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.oa-zoom input[type='range'] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 96px;
+  height: 14px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.oa-zoom input[type='range']::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bd);
+}
+.oa-zoom input[type='range']::-moz-range-track {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--bd);
+}
+.oa-zoom input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -4.5px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--app-solid);
+}
+.oa-zoom input[type='range']::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--app-solid);
+}
+.oa-zoom input[type='range']:focus-visible {
+  box-shadow: none;
+}
+.oa-zoom input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.oa-zoom-pct {
+  width: 36px;
+  text-align: right;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+/* ── Narrow screens ──────────────────────────────────────────────────────────
+   Below 760px the secondary buttons go (`hide-sm`), the banner wraps, and a pane is
+   a sheet over the page rather than a column beside it. */
+@media (max-width: 760px) {
+  .oa-stage {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .oa-banner {
+    left: 8px;
+    right: 8px;
+    top: 8px;
+  }
+  .oa-footer {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+  }
+  .oa-hd {
+    gap: 8px;
+  }
+  .oa-pane {
+    left: 8px !important;
+    right: 8px !important;
+    width: auto !important;
+    top: calc(var(--shell-top) + 6px);
+    bottom: 50px;
+    z-index: 40;
+  }
+}
+
+@media print {
+  .oa-banner,
+  .oa-footer,
+  .oa-pane {
+    display: none !important;
+  }
+  .oa-shell {
+    position: static;
+    background: #fff;
+  }
+  .oa-stage {
+    position: static;
+    overflow: visible;
+    padding: 0 !important;
+  }
+}
+
+/* Above the page: a document in the trash, a stopped room, a preview. */
+.oa-notices {
+  width: 816px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.oa-notices:empty {
+  display: none;
+}
+
+/* A document that cannot be shown. */
+.oa-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 40px;
+  text-align: center;
+}
+.oa-message h1 {
+  margin: 0;
+  font-family: var(--font-display), system-ui;
+  font-weight: 800;
+  font-size: 28px;
+  color: var(--fg-1);
+}
+.oa-message p {
+  margin: 0;
+  max-width: 440px;
+  font-size: 15px;
+  color: var(--fg-3);
+}
+.oa-message-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── Opening a locked document, from Locked.dc.html "Opening it" ──────────── */
+
+.oa-gate {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(480px, calc(100vw - 32px));
+  height: min(560px, calc(100dvh - 32px));
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--app-panel);
+  animation: oa-pop-in var(--dur-slow) var(--ease-out);
+}
+.oa-gate-head {
+  height: 44px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--bd-faint);
+}
+.oa-gate-badge {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--app-solid);
+  color: var(--app-on-solid);
+}
+.oa-gate-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--fg-1);
+}
+.oa-gate-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px 0;
+  text-align: center;
+  width: min(320px, calc(100% - 32px));
+  margin: 0 auto;
+}
+.oa-gate-tile {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--app-50);
+  color: var(--app-600);
+}
+.oa-gate-h {
+  margin: 0;
+  max-width: 100%;
+  font-family: var(--font-body), Inter, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--fg-1);
+  overflow-wrap: anywhere;
+}
+.oa-gate-p {
+  margin: -4px 0 4px;
+  font-size: 13px;
+  color: var(--fg-3);
+}
+.oa-gate-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--fg-3);
+}
+.oa-gate-note > svg {
+  color: #0d8f86;
+}

@@ -1,0 +1,15 @@
+/* ── layout ─────────────────────────────────────────────────── */
+:root{
+  --container-max:1200px;
+  --container-prose:620px;
+  --page-gutter:48px;
+  --page-gutter-sm:20px;
+  --page-top:56px;
+  --page-bottom:80px;
+  --app-sidebar:264px;
+  --app-rail:56px;
+  --app-topbar:60px;
+  --control-h-sm:32px;
+  --control-h:40px;
+  --control-h-lg:48px;
+}

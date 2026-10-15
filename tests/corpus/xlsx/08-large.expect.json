@@ -1,0 +1,34 @@
+{
+  "formulas": [
+    "Ledger!D1",
+    "Ledger!E2",
+    "Ledger!E20000",
+    "Ledger!H1"
+  ],
+  "large_formulas": 40001,
+  "rows": 20000,
+  "values": {
+    "Ledger!C1": 1.25,
+    "Ledger!C10000": 11.25,
+    "Ledger!C19999": 21.25,
+    "Ledger!C2": 2.5,
+    "Ledger!C20000": 22.5,
+    "Ledger!C97": 0.0,
+    "Ledger!C98": 1.25,
+    "Ledger!D1": 2.5,
+    "Ledger!D10000": 22.5,
+    "Ledger!D19999": 42.5,
+    "Ledger!D2": 5.0,
+    "Ledger!D20000": 45.0,
+    "Ledger!D97": 0.0,
+    "Ledger!D98": 2.5,
+    "Ledger!E1": 2.5,
+    "Ledger!E10000": 1199032.5,
+    "Ledger!E19999": 2398222.5,
+    "Ledger!E2": 7.5,
+    "Ledger!E20000": 2398267.5,
+    "Ledger!E97": 11640.0,
+    "Ledger!E98": 11642.5,
+    "Ledger!H1": 1199133.75
+  }
+}

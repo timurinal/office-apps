@@ -1,0 +1,14 @@
+/* ── elevation ───────────────────────────────────────────────
+   The brand board's panels sit on a hairline (0 1px 0 / 4% mauve-black), not a
+   drop shadow. Keep elevation almost flat; reserve md/lg for lifted overlays. */
+:root{
+  --shadow-hairline:0 1px 0 rgba(var(--ink-rgb),0.04);
+  --shadow-xs:0 1px 2px rgba(var(--ink-rgb),0.05);
+  --shadow-sm:0 1px 2px rgba(var(--ink-rgb),0.06),0 1px 0 rgba(var(--ink-rgb),0.03);
+  --shadow-md:0 4px 14px rgba(var(--ink-rgb),0.08);
+  --shadow-lg:0 18px 40px rgba(var(--ink-rgb),0.14);
+  --shadow-xl:0 32px 70px rgba(var(--ink-rgb),0.20);
+  --shadow-ring:inset 0 0 0 1px var(--border-subtle);
+  --shadow-focus:0 0 0 3px var(--focus-ring);
+  --shadow-press:inset 0 1px 2px rgba(var(--ink-rgb),0.14);
+}
