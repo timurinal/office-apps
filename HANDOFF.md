@@ -32,6 +32,12 @@ editors now take an `assets` and a `fileItems` prop; the PowerPoint export reads
 the first, so the fork's hunk in `slides/modules/files.tsx` is gone. `LocalSlidesPage` could pass
 `assets` instead of hunk 9, but the audience window still asks `documentAssets`, so hunk 9 stays.
 
+A fourth port brought a File menu with a "Download a copy" submenu, which upstream hides on a
+local document (its own local page saves through a Save as). The desktop modules now carry their
+own **Export a copy** (`desktop/exports.ts`, the same writers), and `kinds.ts` / `kinds.json` point
+the menu bar's Export at those commands, named as upstream now names formats ("Document (.docx)",
+never a product).
+
 ## What the Slides session did
 
 - **Slides.** `desktop/LocalSlidesPage.tsx` opens a blank, a template, an `.oadeck` or a PowerPoint

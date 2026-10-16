@@ -92,6 +92,11 @@ async function openFile(menuText) {
   await page.getByRole('button', { name: 'File', exact: true }).click();
   await page.getByRole('menuitem', { name: menuText }).click();
 }
+/** File > Export a copy > a format. */
+async function exportAs(format) {
+  await openFile('Export a copy');
+  await page.getByRole('menuitem', { name: format, exact: true }).click();
+}
 async function noOldNames() {
   const old = await page.evaluate(() => {
     const hits = new Set();
@@ -172,7 +177,7 @@ await step('Docs: a Word file with pictures, opened and exported again', async (
   });
   expect(images.every((s) => s.startsWith('data:image/')), `pictures ${images}`);
   const download = page.waitForEvent('download');
-  await openFile('Export as Word (.docx)');
+  await exportAs('Document (.docx)');
   const file = await (await download).path();
   const zip = unzipSync(new Uint8Array(readFileSync(file)));
   expect(strFromU8(zip['docProps/core.xml']).includes('<dc:creator>Office</dc:creator>'), 'creator is not Office');
@@ -193,7 +198,7 @@ await step('Sheets: a formula, saved, exported as CSV, opened again', async () =
   await page.keyboard.press('Control+s');
   await until('Saved', async () => (await saveState()) === 'Saved');
   const download = page.waitForEvent('download');
-  await openFile('Export as CSV (.csv)');
+  await exportAs('Comma-separated values (.csv)');
   const csv = readFileSync(await (await download).path(), 'utf8');
   expect(csv.split(/\s+/).includes('5'), `csv ${JSON.stringify(csv)}`);
   await noOldNames();
@@ -272,7 +277,7 @@ await step('Slides: a PowerPoint file with pictures, saved with them, opened aga
   const after = await until('the pictures after opening again', pictures);
   expect(after.length === before.length, `${after.length} pictures after, ${before.length} before`);
   const download = page.waitForEvent('download');
-  await openFile('Export as PowerPoint (.pptx)');
+  await exportAs('Presentation (.pptx)');
   const zip = unzipSync(new Uint8Array(readFileSync(await (await download).path())));
   const media = Object.keys(zip).filter((k) => k.startsWith('ppt/media/'));
   expect(media.length > 0, 'no pictures in the export');

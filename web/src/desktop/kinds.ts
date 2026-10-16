@@ -11,7 +11,7 @@ import type { DocKind } from '@shared/api';
 export type Kind = DocKind;
 
 export interface ExportEntry {
-  /** The editor's own command (`docs/modules/files.tsx`, `sheets/modules/files.tsx`). */
+  /** The desktop module's command (`exports.ts`), which runs the editor's own writer. */
   command: string;
   label: string;
 }
@@ -41,10 +41,10 @@ export const KINDS: Readonly<Record<Kind, KindInfo>> = {
     mime: 'application/x-office-document',
     imports: ['docx', 'md', 'markdown', 'html', 'htm', 'txt'],
     exports: [
-      { command: 'file.download-docx', label: 'Word (.docx)' },
-      { command: 'file.download-markdown', label: 'Markdown (.md)' },
-      { command: 'file.download-html', label: 'Web page (.html)' },
-      { command: 'file.download-text', label: 'Plain text (.txt)' }
+      { command: 'desktop.export-docx', label: 'Document (.docx)' },
+      { command: 'desktop.export-markdown', label: 'Markdown (.md)' },
+      { command: 'desktop.export-html', label: 'Web page (.html)' },
+      { command: 'desktop.export-text', label: 'Plain text (.txt)' }
     ],
     enabled: true
   },
@@ -56,9 +56,9 @@ export const KINDS: Readonly<Record<Kind, KindInfo>> = {
     mime: 'application/x-office-spreadsheet',
     imports: ['xlsx', 'csv', 'tsv'],
     exports: [
-      { command: 'file.download-xlsx', label: 'Excel (.xlsx)' },
-      { command: 'file.download-csv', label: 'CSV (.csv)' },
-      { command: 'file.download-tsv', label: 'Tab-separated (.tsv)' }
+      { command: 'desktop.export-xlsx', label: 'Workbook (.xlsx)' },
+      { command: 'desktop.export-csv', label: 'Comma-separated values (.csv)' },
+      { command: 'desktop.export-tsv', label: 'Tab-separated values (.tsv)' }
     ],
     enabled: true
   },
@@ -69,7 +69,7 @@ export const KINDS: Readonly<Record<Kind, KindInfo>> = {
     extension: 'oadeck',
     mime: 'application/x-office-presentation',
     imports: ['pptx', 'ppsx', 'potx'],
-    exports: [{ command: 'file.download-pptx', label: 'PowerPoint (.pptx)' }],
+    exports: [{ command: 'desktop.export-pptx', label: 'Presentation (.pptx)' }],
     enabled: true
   }
 };

@@ -23,7 +23,7 @@ so it looks and behaves the same everywhere, and the shell gives it real windows
 | Slides | `.oadeck` | PowerPoint `.pptx`, `.ppsx`, `.potx` | PowerPoint |
 
 The app's own files keep everything exactly; save one and it saves itself as you work (the footer
-says *Saved*). A Word or Excel file opens as a new document; File → Export writes one back out.
+says *Saved*). A Word, Excel or PowerPoint file opens as a new document; File → Export a copy writes one back out.
 Backups of the last ten versions of each file are kept in
 `~/Library/Application Support/Office/Backups`.
 

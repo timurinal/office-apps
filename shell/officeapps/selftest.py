@@ -255,7 +255,7 @@ class SelfTest:
             if not all(i.startswith("data:image/") for i in images):
                 raise StepFailed(f"pictures: {images}")
             self.exports.clear()
-            w.send("export", {"command": "file.download-docx"})
+            w.send("export", {"command": "desktop.export-docx"})
             self.until("the export", lambda: self.exports, 30_000)
             out = self.exports[0]
             with zipfile.ZipFile(out) as z:
@@ -280,8 +280,8 @@ class SelfTest:
             w.menu_actions["save"].trigger()
             s = self.until("the save", lambda: (lambda s: s if s.get("path") and not s.get("dirty") else None)(self.session(w)))
             self.exports.clear()
-            w.send("export", {"command": "file.download-xlsx"})
-            w.send("export", {"command": "file.download-csv"})
+            w.send("export", {"command": "desktop.export-xlsx"})
+            w.send("export", {"command": "desktop.export-csv"})
             self.until("two exports", lambda: len(self.exports) >= 2, 60_000)
             csv = next((p for p in self.exports if p.endswith(".csv")), None)
             xlsx = next((p for p in self.exports if p.endswith(".xlsx")), None)
@@ -435,7 +435,7 @@ class SelfTest:
             self.ready(again)
             self.until("the pictures after reopening", lambda: seen(again), 20_000)
             self.exports.clear()
-            again.send("export", {"command": "file.download-pptx"})
+            again.send("export", {"command": "desktop.export-pptx"})
             self.until("the export", lambda: self.exports, 60_000)
             with zipfile.ZipFile(self.exports[0]) as z:
                 media = [n for n in z.namelist() if n.startswith("ppt/media/")]
