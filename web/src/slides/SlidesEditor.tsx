@@ -40,7 +40,7 @@ import { EditorShell, type ShellPane } from '../core/shell/EditorShell';
 import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
-import type { PaneSpec } from '../core/shell/types';
+import type { FileItem, PaneSpec } from '../core/shell/types';
 import { AppKindProvider, Banner, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -83,7 +83,7 @@ import {
   type SnapResult
 } from './modules/types';
 import { PresentMenu } from './present';
-import { documentAssets, SlideAssets } from './render';
+import { documentAssets, SlideAssets, type AssetUrl } from './render';
 import { useDeckSlice, useOrder, useSlideModel, useVersionModel } from './useSlideModel';
 import './editor/editor.css';
 
@@ -124,6 +124,10 @@ export interface SlidesEditorProps {
   refresh?: () => Promise<void>;
   /** Start over, with the loading state. */
   reload?: () => void;
+  /** File menu rows the page adds: the desktop app's Save, the web's "Open in the desktop app". */
+  fileItems?: readonly FileItem<unknown>[];
+  /** Where a picture is, for a deck that is not the server's: a local file's pictures in this page. */
+  assets?: AssetUrl;
 }
 
 const nothing = (): void => undefined;
@@ -168,12 +172,14 @@ function useSlidesKeys(keys: readonly SlidesKey[], ctx: React.MutableRefObject<S
   }, [keys, ctx]);
 }
 
-export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing }: SlidesEditorProps) {
+export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing, fileItems, assets: assetsProp }: SlidesEditorProps) {
   const { me } = useApp();
   const { navigate } = useRouter();
   const notify = useNotify();
   const caps = capsFor(meta);
   const features = source.features;
+  const assets = useMemo(() => assetsProp ?? documentAssets(meta.id), [assetsProp, meta.id]);
+  const fileRows = useMemo(() => (fileItems?.length ? [...COLLECTED.fileItems, ...fileItems] : COLLECTED.fileItems), [fileItems]);
   const act = useDocumentActions(meta, setMeta, reload, source.kind === 'local');
 
   const [tab, setTab] = useState('home');
@@ -451,6 +457,7 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
           caps,
           can,
           connection,
+          assets,
           awareness: previewing ? null : awareness,
           design,
           slideId,
@@ -613,8 +620,6 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
     }
   };
 
-  const assets = useMemo(() => documentAssets(meta.id), [meta.id]);
-
   // The deck that has not come yet is drawn as its outline, which fades off it.
   const loading = usePresence(!ready, DUR.base);
 
@@ -737,7 +742,7 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
             ctx,
             active: tab,
             onActive: setTab,
-            fileMenu: <FileMenu items={COLLECTED.fileItems} ctx={ctx} />,
+            fileMenu: <FileMenu items={fileRows} ctx={ctx} />,
             modeSlot: <EditingModeMenu modes={modes} mode={activeMode} onMode={setMode} />,
             subscribe
           }}

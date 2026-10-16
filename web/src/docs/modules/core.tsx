@@ -74,14 +74,18 @@ import { openFind } from '../core/find';
 import { DEFAULT_FONT, FONT_CHOICES } from '../core/fonts';
 import { CoreHost } from '../core/Host';
 import {
+  arrowsMergeIcon,
+  arrowsSplitIcon,
   arrowsVerticalIcon,
   atIcon,
   calendarPlusIcon,
+  columnsMinusIcon,
   columnsPlusLeftIcon,
   columnsPlusRightIcon,
   imageSquareIcon,
   listChecksIcon,
   listMagnifyingGlassIcon,
+  rowsMinusIcon,
   rowsPlusBottomIcon,
   rowsPlusTopIcon,
   sigmaIcon,
@@ -233,12 +237,12 @@ const tableEntries: MenuEntry<DocsContext>[] = [
   { label: 'Add row below', icon: rowsPlusBottomIcon, run: (c) => run(c, (ch) => ch.addRowAfter()), disabled: (c) => !can(c, (e) => e.can().addRowAfter()) },
   { label: 'Add column left', icon: columnsPlusLeftIcon, run: (c) => run(c, (ch) => ch.addColumnBefore()), disabled: (c) => !can(c, (e) => e.can().addColumnBefore()) },
   { label: 'Add column right', icon: columnsPlusRightIcon, run: (c) => run(c, (ch) => ch.addColumnAfter()), disabled: (c) => !can(c, (e) => e.can().addColumnAfter()) },
-  { label: 'Delete row', run: (c) => run(c, (ch) => ch.deleteRow()), disabled: (c) => !can(c, (e) => e.can().deleteRow()), separated: true },
-  { label: 'Delete column', run: (c) => run(c, (ch) => ch.deleteColumn()), disabled: (c) => !can(c, (e) => e.can().deleteColumn()) },
-  { label: 'Merge cells', run: (c) => run(c, (ch) => ch.mergeCells()), disabled: (c) => !can(c, (e) => e.can().mergeCells()), separated: true },
-  { label: 'Split cell', run: (c) => run(c, (ch) => ch.splitCell()), disabled: (c) => !can(c, (e) => e.can().splitCell()) },
+  { label: 'Delete row', icon: rowsMinusIcon, run: (c) => run(c, (ch) => ch.deleteRow()), disabled: (c) => !can(c, (e) => e.can().deleteRow()), separated: true },
+  { label: 'Delete column', icon: columnsMinusIcon, run: (c) => run(c, (ch) => ch.deleteColumn()), disabled: (c) => !can(c, (e) => e.can().deleteColumn()) },
+  { label: 'Merge cells', icon: arrowsMergeIcon, run: (c) => run(c, (ch) => ch.mergeCells()), disabled: (c) => !can(c, (e) => e.can().mergeCells()), separated: true },
+  { label: 'Split cell', icon: arrowsSplitIcon, run: (c) => run(c, (ch) => ch.splitCell()), disabled: (c) => !can(c, (e) => e.can().splitCell()) },
   { label: 'Header row', active: (c) => on(c, 'tableHeader'), run: (c) => run(c, (ch) => ch.toggleHeaderRow()), disabled: (c) => !can(c, (e) => e.can().toggleHeaderRow()), separated: true },
-  { label: 'Delete table', run: (c) => run(c, (ch) => ch.deleteTable()), disabled: (c) => !can(c, (e) => e.can().deleteTable()), danger: true, separated: true }
+  { label: 'Delete table', icon: trashIcon, run: (c) => run(c, (ch) => ch.deleteTable()), disabled: (c) => !can(c, (e) => e.can().deleteTable()), danger: true, separated: true }
 ];
 
 // ── the footer ──────────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ import type { Editor } from '@tiptap/core';
 import type { ContextEntry, ContextGroup } from '../../core/ContextMenu';
 import { arrowSquareOutIcon, copyIcon, linkBreakIcon, notePencilIcon, pencilSimpleIcon, trashIcon } from '../../core/icons';
 import { copyText } from '../../core/ui';
-import { arrowsMergeIcon, arrowsSplitIcon, columnsPlusLeftIcon, columnsPlusRightIcon, rowsPlusBottomIcon, rowsPlusTopIcon } from '../core/icons';
+import { arrowsMergeIcon, arrowsSplitIcon, columnsMinusIcon, columnsPlusLeftIcon, columnsPlusRightIcon, rowsMinusIcon, rowsPlusBottomIcon, rowsPlusTopIcon } from '../core/icons';
 import { removeLink } from '../core/links';
 import { openLink } from '../core/ui';
 import { openAltText } from '../core/contextMenu';
@@ -77,8 +77,8 @@ function tableGroup(c: DocsContext): ContextGroup {
       { label: 'Insert row below', icon: rowsPlusBottomIcon, disabled: !can(c, (e) => e.addRowAfter()), onSelect: () => run(c, (ch) => ch.addRowAfter()) },
       { label: 'Insert column left', icon: columnsPlusLeftIcon, disabled: !can(c, (e) => e.addColumnBefore()), onSelect: () => run(c, (ch) => ch.addColumnBefore()) },
       { label: 'Insert column right', icon: columnsPlusRightIcon, disabled: !can(c, (e) => e.addColumnAfter()), onSelect: () => run(c, (ch) => ch.addColumnAfter()) },
-      { label: 'Delete row', separated: true, disabled: !can(c, (e) => e.deleteRow()), onSelect: () => run(c, (ch) => ch.deleteRow()) },
-      { label: 'Delete column', disabled: !can(c, (e) => e.deleteColumn()), onSelect: () => run(c, (ch) => ch.deleteColumn()) },
+      { label: 'Delete row', icon: rowsMinusIcon, separated: true, disabled: !can(c, (e) => e.deleteRow()), onSelect: () => run(c, (ch) => ch.deleteRow()) },
+      { label: 'Delete column', icon: columnsMinusIcon, disabled: !can(c, (e) => e.deleteColumn()), onSelect: () => run(c, (ch) => ch.deleteColumn()) },
       { label: 'Merge cells', icon: arrowsMergeIcon, separated: true, disabled: !can(c, (e) => e.mergeCells()), onSelect: () => run(c, (ch) => ch.mergeCells()) },
       { label: 'Split cell', icon: arrowsSplitIcon, disabled: !can(c, (e) => e.splitCell()), onSelect: () => run(c, (ch) => ch.splitCell()) },
       { label: 'Delete table', icon: trashIcon, danger: true, separated: true, disabled: !can(c, (e) => e.deleteTable()), onSelect: () => run(c, (ch) => ch.deleteTable()) }
