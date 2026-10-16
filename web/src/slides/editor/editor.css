@@ -151,6 +151,11 @@
   overflow: auto;
   outline: none;
   scrollbar-width: thin;
+  /* Shift+click adds to the selection here. Left to the browser it also selects the text between
+     the clicks (a chart's labels), and the next press on a picture drags that text natively. The
+     box being typed in is editable, so it keeps its own selection. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .sl-desk[data-fit] {
@@ -304,6 +309,13 @@
   background: #ffffff;
   pointer-events: auto;
   touch-action: none;
+}
+
+/* A line's end is grabbed from as far as the line is: HIT_PX in geometry.ts. */
+.sl-handle[data-end]::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
 }
 
 .sl-rot {

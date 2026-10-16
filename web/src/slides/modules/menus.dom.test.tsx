@@ -108,7 +108,37 @@ describe('a right click on a shape', () => {
     expect(e.defaultPrevented).toBe(true);
     expect(s.selection.get().els).toEqual(['a']);
     expect(menus()[0]!.getAttribute('aria-label')).toBe('Shape');
-    expect(rows()).toEqual(['Cut', 'Copy', 'Paste', 'Edit text', 'Link…', 'Alt text…', 'Arrange', 'Format shape…', 'Duplicate', 'Delete']);
+    expect(rows()).toEqual(['Cut', 'Copy', 'Paste', 'Save as picture', 'Edit text', 'Link…', 'Alt text…', 'Arrange', 'Format shape…', 'Duplicate', 'Delete']);
+  });
+
+  it('has Save as picture, which lists a PNG and an SVG by what they are, for whoever may copy it out', () => {
+    setup([{ ...box(100, 100, 400, 300), id: 'a' }]);
+    rightClick(200, 200);
+    expect(row('Save as picture').getAttribute('aria-haspopup')).toBe('menu');
+    hover('Save as picture');
+    expect(menus()).toHaveLength(2);
+    expect(menus()[1]!.getAttribute('aria-label')).toBe('Save as picture');
+    expect(rows(menus()[1])).toEqual(['PNG (.png)', 'SVG (.svg)']);
+  });
+
+  it('saves what is chosen, in the format that was, from the exporter loaded then', async () => {
+    const saved = vi.fn(async () => undefined);
+    vi.doMock('../export', () => ({ savePicture: saved }));
+    const s = setup([{ ...box(100, 100, 400, 300), id: 'a' }, { ...box(900, 100, 200, 200), id: 'b' }]);
+    s.selection.set({ els: ['a', 'b'] });
+    s.ctx.meta = { id: 'doc', title: 'Deck' } as never;
+    rightClick(200, 200);
+    hover('Save as picture');
+    press('SVG (.svg)', menus()[1]);
+    await vi.waitFor(() => expect(saved).toHaveBeenCalledTimes(1));
+    const [host, slide, ids, format] = saved.mock.calls[0] as unknown as [{ title: string; model: unknown }, string, string[], string];
+    expect(host.title).toBe('Deck');
+    expect(host.model).toBe(s.model);
+    expect(slide).toBe('s1');
+    // A click on one of several chosen keeps them all.
+    expect(ids).toEqual(['a', 'b']);
+    expect(format).toBe('svg');
+    vi.doUnmock('../export');
   });
 
   it('has Arrange as a submenu with the order, align, distribute and turn rows', () => {
@@ -197,6 +227,7 @@ describe('a right click on a shape', () => {
     const s = setup([{ ...box(100, 100, 400, 300), id: 'a' }], { download: false });
     rightClick(200, 200);
     expect(rows().slice(0, 1)).toEqual(['Paste']);
+    expect(rows()).not.toContain('Save as picture');
     expect(joinGroups(contextItems({ kind: 'shape', ids: s.selection.get().els }, s.ctx)).length).toBeGreaterThan(0);
   });
 
@@ -223,7 +254,7 @@ describe('a right click on a shape', () => {
   it('is only Copy for a reader who may copy, and the browser\'s where downloads are off too', () => {
     setup([{ ...box(100, 100, 400, 300), id: 'a' }], { can: false });
     const e = rightClick(200, 200);
-    expect(rows()).toEqual(['Copy']);
+    expect(rows()).toEqual(['Copy', 'Save as picture']);
     expect(e.defaultPrevented).toBe(true);
     act(() => row('Copy').click());
     const none = rightClick(1500, 900);

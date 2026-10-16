@@ -151,13 +151,15 @@ describe('the Slides modules', () => {
     expect(fileSections(all.fileItems, c).map((s) => [s.section, s.items.map((i) => i.label)])).toEqual([
       ['Document', ['New', 'Open', 'Make a copy', 'Rename', 'Save as template']],
       ['Share', ['Version history', 'Share']],
-      ['Export', ['Export as PowerPoint (.pptx)']],
+      ['Export', ['Download a copy']],
       ['Danger', ['Move to trash']]
     ]);
-    expect(searchCommands(all.commands, 'powerpoint', c, 20).map((x) => x.title)).toContain('Export as PowerPoint');
+    expect(fileSections(all.fileItems, c).flatMap((s) => s.items).find((i) => i.id === 'file.download')!.submenu!.map((x) => x.label)).toEqual(['Presentation (.pptx)']);
+    // The old name of the format still finds it, though it is not shown.
+    expect(searchCommands(all.commands, 'powerpoint', c, 20).map((x) => x.title)).toContain('Download a copy as .pptx');
     const reader = { ...ctx({ download: false, template: false, edit: false }), meta: { id: 'd1', templateScope: null } } as unknown as SlidesContext;
     const labels = fileSections(all.fileItems, reader).flatMap((s) => s.items.map((i) => i.label));
-    expect(labels).not.toContain('Export as PowerPoint (.pptx)');
+    expect(labels).not.toContain('Download a copy');
     expect(labels).not.toContain('Save as template');
     const saved = { ...ctx(), meta: { id: 'd2', templateScope: 'user' } } as unknown as SlidesContext;
     expect(fileSections(all.fileItems, saved).flatMap((s) => s.items.map((i) => i.label))).toContain('Remove from templates');

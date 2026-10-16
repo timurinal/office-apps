@@ -188,7 +188,7 @@ export function openXlsx(bytes: Uint8Array): OpenedXlsx {
   try {
     zip = openZip(bytes, (name) => READ.test(name));
   } catch (e) {
-    // The shared reader says "not a Word document"; this one is not a spreadsheet.
+    // The shared reader says "not a document"; this one is not a spreadsheet.
     if (e instanceof FormatError && e.code === 'not_docx') throw new FormatError('not_xlsx', e.detail);
     throw e;
   }

@@ -110,6 +110,7 @@ function Person({
   suffix,
   sub,
   color,
+  src,
   pending,
   children
 }: {
@@ -118,6 +119,7 @@ function Person({
   suffix?: string;
   sub: string;
   color: string;
+  src?: string | null;
   pending?: boolean;
   children?: React.ReactNode;
 }) {
@@ -128,7 +130,7 @@ function Person({
           <Icon icon={envelopeSimpleIcon} size={15} />
         </span>
       ) : (
-        <Avatar name={name} color={color} size={32} />
+        <Avatar name={name} color={color} src={src} size={32} />
       )}
       <span className="oa-person-text">
         <span className="oa-person-name oa-ellipsis">
@@ -156,7 +158,13 @@ function MemberRow({
   const label = member.name ?? member.email ?? 'Someone';
   const sub = member.pending ? 'Joins when they sign in' : member.handle ? `@${member.handle}` : (member.email ?? '');
   return (
-    <Person name={label} sub={sub} color={colorFor(member.userId ?? member.email ?? member.id)} pending={member.pending}>
+    <Person
+      name={label}
+      sub={sub}
+      color={colorFor(member.userId ?? member.email ?? member.id)}
+      src={member.avatarUrl}
+      pending={member.pending}
+    >
       {member.expiresAt !== null && (
         <span className="oa-pill" data-tone="warn">
           <Icon icon={calendarBlankIcon} size={12} />
@@ -502,6 +510,7 @@ export function ShareDialog({
                 {...(state.owner.userId === me?.id ? { suffix: '(you)' } : {})}
                 sub={state.owner.handle ? `@${state.owner.handle}` : state.owner.email}
                 color={colorFor(state.owner.userId)}
+                src={state.owner.avatarUrl}
               >
                 <span className="oa-person-role">{ROLE_LABEL.owner}</span>
               </Person>

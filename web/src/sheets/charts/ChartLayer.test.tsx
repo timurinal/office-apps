@@ -389,14 +389,21 @@ describe('a chart on the grid', () => {
     expect(cards()).toHaveLength(1);
   });
 
-  it('opens its menu on a right click: Edit chart, both downloads, Delete', async () => {
+  it('opens its menu on a right click: Edit chart, Save as picture, Delete', async () => {
     const card = await one();
     act(() => {
       card.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 300, clientY: 200 }));
     });
     await frame();
     const rows = [...document.body.querySelectorAll('[role="menu"][aria-label="Chart"] .oa-menu-label')].map((e) => e.textContent);
-    expect(rows).toEqual(['Edit chart', 'Download as PNG', 'Download as SVG', 'Delete chart']);
+    expect(rows).toEqual(['Edit chart', 'Save as picture', 'Delete chart']);
+    // Save as picture lists the two formats by what they are, as Slides' shapes do.
+    const picture = [...document.body.querySelectorAll<HTMLElement>('[role="menu"][aria-label="Chart"] button')].find((b) => b.textContent === 'Save as picture')!;
+    expect(picture.getAttribute('aria-haspopup')).toBe('menu');
+    act(() => picture.click());
+    await frame();
+    expect([...document.body.querySelectorAll('[role="menu"][aria-label="Save as picture"] .oa-menu-label')].map((e) => e.textContent)).toEqual(['PNG (.png)', 'SVG (.svg)']);
+    keydown(document.activeElement!, 'Escape');
     keydown(document.activeElement!, 'Escape');
     // It leaves by fading, and is gone a moment later; the keyboard is back on the chart. The fade is asked
     // for before the frame, which on a loaded machine can outlast it.
@@ -447,7 +454,7 @@ describe('a chart for a reader', () => {
       cards()[0]!.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 300, clientY: 200 }));
     });
     await frame();
-    expect([...document.body.querySelectorAll('[role="menu"][aria-label="Chart"] .oa-menu-label')].map((e) => e.textContent)).toEqual(['Download as PNG', 'Download as SVG']);
+    expect([...document.body.querySelectorAll('[role="menu"][aria-label="Chart"] .oa-menu-label')].map((e) => e.textContent)).toEqual(['Save as picture']);
   });
 });
 

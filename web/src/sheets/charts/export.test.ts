@@ -9,7 +9,7 @@ vi.mock('../../formats/browser/saveFile', async (original) => ({
   save: (bytes: Uint8Array, mime: string, name: string) => void saved.push({ bytes, mime, name })
 }));
 
-import { downloadChart, svgText } from './export';
+import { downloadChart, pngBytes, svgText } from './export';
 import { layoutChart, resolveInput } from './layout';
 import { ChartSvg } from './render';
 import { data, measure } from './testing';
@@ -40,6 +40,50 @@ describe('svgText', () => {
     expect(text).not.toContain('data-hit');
     expect(text).not.toContain('data-tip');
     expect(svg.querySelector('[data-hit]')).not.toBeNull();
+  });
+});
+
+describe('pngBytes', () => {
+  /** A browser that can draw an image to a canvas: what the canvas was filled with, and drawn at. */
+  function drawing() {
+    const fills: string[] = [];
+    const ctx = { fillStyle: '', fillRect: () => void fills.push(ctx.fillStyle), drawImage: vi.fn() };
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as unknown as CanvasRenderingContext2D);
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((cb) => cb(new Blob([new Uint8Array([1, 2, 3])], { type: 'image/png' })));
+    vi.stubGlobal(
+      'Image',
+      class {
+        onload: () => void = () => undefined;
+        set src(_: string) {
+          queueMicrotask(() => this.onload());
+        }
+      }
+    );
+    vi.stubGlobal(
+      'URL',
+      class extends URL {
+        static override createObjectURL = () => 'blob:x';
+        static override revokeObjectURL = () => undefined;
+      }
+    );
+    return { fills, ctx };
+  }
+  afterEach(() => void vi.unstubAllGlobals());
+
+  it('fills white first, as a chart’s PNG always has', async () => {
+    const { fills } = drawing();
+    expect(await pngBytes('<svg/>', 100, 50)).toEqual(new Uint8Array([1, 2, 3]));
+    expect(fills).toEqual(['#ffffff']);
+  });
+
+  it('can be asked for a colour, or for none, which leaves the canvas transparent', async () => {
+    const a = drawing();
+    await pngBytes('<svg/>', 100, 50, 2, '#112233');
+    expect(a.fills).toEqual(['#112233']);
+    const b = drawing();
+    await pngBytes('<svg/>', 100, 50, 2, null);
+    expect(b.fills).toEqual([]);
+    expect(b.ctx.drawImage).toHaveBeenCalledTimes(1);
   });
 });
 

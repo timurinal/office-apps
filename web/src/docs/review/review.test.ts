@@ -62,8 +62,8 @@ describe('the @ picker’s text', () => {
   });
 
   it('writes a person by handle, or by name without one', () => {
-    expect(tokenFor({ userId: 'u1', name: 'Ben Okoro', handle: 'ben' })).toBe('@ben');
-    expect(tokenFor({ userId: 'u1', name: 'Ben Okoro', handle: null })).toBe('@Ben Okoro');
+    expect(tokenFor({ userId: 'u1', name: 'Ben Okoro', handle: 'ben', avatarUrl: null })).toBe('@ben');
+    expect(tokenFor({ userId: 'u1', name: 'Ben Okoro', handle: null, avatarUrl: null })).toBe('@Ben Okoro');
   });
 
   it('sends only the people whose token is still in the text, once each', () => {

@@ -44,6 +44,7 @@ import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
 import type { FileItem, PaneSpec } from '../core/shell/types';
+import type { Pt } from '../core/shell/zoomGesture';
 import { AppKindProvider, Banner, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -119,7 +120,11 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
   const [tab, setTab] = useState('home');
   const [mode, setMode] = useState('editing');
   const [panes, setPanes] = useState<{ left: string | null; right: string | null }>({ left: null, right: null });
-  const [zoom, setZoom] = useState(100);
+  // The zoom, and the point its last change holds still: Ctrl and the wheel, and the zoom keys,
+  // give one (zoomGesture.ts); the footer and the View tab do not, and keep the top-left cell.
+  const [zoomed, setZoomed] = useState<{ value: number; at?: Pt | null }>({ value: 100 });
+  const zoom = zoomed.value;
+  const setZoom = useCallback((value: number, at?: Pt | null) => setZoomed(at === undefined ? { value } : { value, at }), []);
   const [gridlines, setGridlines] = useState(true);
   const darkCells = darkCellsPref.use();
   const [shareOpen, setShareOpen] = useState(false);
@@ -134,7 +139,8 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
     () => ({
       name: me?.name ?? 'Guest',
       // A guest has no account id to hash; a random one is theirs for the visit.
-      color: colorFor(me?.id ?? `guest:${Math.random().toString(36).slice(2)}`)
+      color: colorFor(me?.id ?? `guest:${Math.random().toString(36).slice(2)}`),
+      avatar: me?.avatarUrl ?? null
     }),
     [me]
   );
@@ -575,6 +581,7 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
               data={ctx.data}
               onIntent={onIntent}
               zoom={zoom}
+              zoomAt={zoomed.at}
               readOnly={!can.edit}
               onReadOnlyEdit={() => notify({ text: readOnlyMessage })}
               insetBottom={FOOTER_INSET}

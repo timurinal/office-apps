@@ -165,7 +165,7 @@ async function fetchMedia(deck: DeckJSON, getAsset: GetAsset, warnings: Warnings
     }
     const mime = assetMimeOf(bytes);
     if (!mime) {
-      warnings.add('picture-format', (k) => `${plural(k, 'picture')} in a format PowerPoint does not take ${k === 1 ? 'was' : 'were'} left out.`);
+      warnings.add('picture-format', (k) => `${plural(k, 'picture')} in a format a .pptx file cannot hold ${k === 1 ? 'was' : 'were'} left out.`);
       continue;
     }
     const key = fingerprint(bytes);

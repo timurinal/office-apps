@@ -6,19 +6,23 @@
  *   reorder     drag the chosen slides; a line shows where they will land, the rail scrolls near
  *               its edges, and the drop is one step. The others glide to their places after it.
  *   menu        right-click: the slide menu (modules/menus.tsx), asked for through `onMenu`
+ *   marker      under the number of a slide with a transition: its star plays it on the canvas
+ *               (present/TransitionMarker.tsx)
  *
  * It follows the model itself, not the page: a slide added, deleted or moved is drawn at once, and a
  * change inside a slide (a keystroke on the canvas) is drawn a moment later, in a transition, so the
  * thumbnail of the slide being typed on is never redrawn in the keystroke's own frame.
  */
 
-import { memo, startTransition, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type React from 'react';
 import { eyeSlashIcon, Icon } from '../../core/icons';
 import { useFlipList } from '../../motion/flip';
 import type { Aspect, SlideJSON } from '../model/deck';
 import type { SlideModel } from '../model/model';
 import type { Design } from '../model/styles';
+import { requestPreview } from '../present/previewBus';
+import { onMarker, TransitionMarker } from '../present/TransitionMarker';
 import { Thumbnail } from '../render/Thumbnail';
 import { deleteSlides, newSlide, stepSlide } from './actions';
 import type { PeerView } from './presence';
@@ -80,9 +84,11 @@ interface ItemProps {
   /** Other people's colours on this slide, joined, so the item stays memoised. */
   peers: string;
   flip: (el: HTMLElement | null) => void;
+  /** The marker was pressed: the slide is chosen and its transition plays. */
+  onPreview: (id: string) => void;
 }
 
-const RailItem = memo(function RailItem({ id, index, slide, design, active, chosen, dragging, peers, flip }: ItemProps) {
+const RailItem = memo(function RailItem({ id, index, slide, design, active, chosen, dragging, peers, flip, onPreview }: ItemProps) {
   const hidden = slide.hidden === true;
   return (
     <li
@@ -97,16 +103,17 @@ const RailItem = memo(function RailItem({ id, index, slide, design, active, chos
       aria-selected={chosen}
       aria-label={`Slide ${index + 1}${hidden ? ', hidden' : ''}`}
     >
-      <span className="sl-rail-num" aria-hidden="true">
-        {index + 1}
+      <span className="sl-rail-num">
+        <span aria-hidden="true">{index + 1}</span>
         {hidden && <Icon icon={eyeSlashIcon} size={12} />}
         {peers && (
-          <span className="sl-rail-dots">
+          <span className="sl-rail-dots" aria-hidden="true">
             {peers.split(',').map((c, i) => (
               <span key={i} className="sl-rail-dot" style={{ background: c }} />
             ))}
           </span>
         )}
+        <TransitionMarker transition={slide.transition} onPreview={() => onPreview(id)} />
       </span>
       <span className="sl-rail-thumb">
         <Thumbnail design={design} slide={slide} width={THUMB_WIDTH} number={index + 1} eager={index < 8} />
@@ -148,6 +155,16 @@ export function Rail({ model, selection, editable, peers, focusCanvas, onMenu }:
   const press = useRef<{ id: string; x: number; y: number; pointer: number; deferred: boolean; tops: number[]; heights: number[] } | null>(null);
   const scroll = useRef<{ frame: number; speed: number }>({ frame: 0, speed: 0 });
   const target = { model, selection };
+
+  // A press on the marker chooses its slide as a click on the thumbnail does, unless that is the slide on the canvas already,
+  // which keeps the slides chosen with it. Then the slide's transition plays on the canvas.
+  const latest = useRef({ selection, order: deck.order });
+  latest.current = { selection, order: deck.order };
+  const preview = useCallback((id: string) => {
+    const { selection: s, order } = latest.current;
+    if (s.get().slide !== id) s.showSlide(id, order);
+    requestPreview(id);
+  }, []);
 
   // The slide on the canvas stays in sight: after a step, a new slide, an undo.
   useLayoutEffect(() => {
@@ -198,7 +215,7 @@ export function Rail({ model, selection, editable, peers, focusCanvas, onMenu }:
 
   const onPointerDown = (e: React.PointerEvent<HTMLOListElement>) => {
     const id = itemAt(e);
-    if (!id || e.button !== 0) return;
+    if (!id || e.button !== 0 || onMarker(e.target)) return;
     rail.current?.focus({ preventScroll: true });
     const order = deck.order;
     const sel = selection.get();
@@ -335,6 +352,7 @@ export function Rail({ model, selection, editable, peers, focusCanvas, onMenu }:
               dragging={!!drag && drag.ids.includes(id)}
               peers={peerColours.get(id)?.join(',') ?? ''}
               flip={flip.item(id)}
+              onPreview={preview}
             />
           );
         })}

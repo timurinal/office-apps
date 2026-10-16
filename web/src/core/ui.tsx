@@ -25,6 +25,7 @@ import type { DocKind } from '@shared/api';
 import { DUR } from '../motion';
 import { usePresence } from '../motion/presence';
 import { useEditorTheme } from './appearance';
+import { avatarSrc } from '../theme';
 import { initialsOf } from './color';
 import { Button, IconButton } from './controls';
 import { inPortalledPopup } from './popupScope';
@@ -53,6 +54,7 @@ export const useAppKind = (): DocKind | null => useContext(AppKindContext);
 export function Avatar({
   name,
   color,
+  src,
   size = 28,
   ring = false,
   title,
@@ -60,12 +62,16 @@ export function Avatar({
 }: {
   name: string;
   color: string;
+  /** The person's profile picture. The initials stay under it until it loads, and if it fails. */
+  src?: string | null;
   size?: number;
   /** A ring in the surface's colour, so overlapped avatars read as separate. */
   ring?: boolean;
   title?: string;
   className?: string;
 }) {
+  const url = avatarSrc(src);
+  const [failed, setFailed] = useState<string | null>(null);
   return (
     <span
       title={title ?? name}
@@ -82,6 +88,7 @@ export function Avatar({
       }}
     >
       {initialsOf(name)}
+      {url && failed !== url && <img src={url} alt="" draggable={false} decoding="async" onError={() => setFailed(url)} />}
     </span>
   );
 }
@@ -303,6 +310,9 @@ export function Modal({
 
 // ── popover and menu ────────────────────────────────────────────────────────
 
+/** Px a popover keeps from the window's sides. */
+const POPOVER_EDGE = 8;
+
 /**
  * A panel that rises under its trigger. Put it, and the trigger, inside one
  * element with `position: relative` (`.oa-pop-wrap`). It is `position: absolute`
@@ -336,6 +346,17 @@ export function Popover({
     parentRef.current = root.current?.parentElement ?? null;
   });
   useDismiss(open, parentRef, onClose);
+  // Kept inside the window: a panel past its edge is out of reach, and focusing a row there scrolls
+  // the shell sideways under everything else. A margin, because the rise animates the transform.
+  useLayoutEffect(() => {
+    const el = root.current;
+    if (!open || !el) return;
+    el.style.marginLeft = '';
+    const r = el.getBoundingClientRect();
+    const room = document.documentElement.clientWidth - POPOVER_EDGE;
+    const by = r.right > room ? Math.max(room - r.right, POPOVER_EDGE - r.left) : r.left < POPOVER_EDGE ? POPOVER_EDGE - r.left : 0;
+    if (by) el.style.marginLeft = `${by}px`;
+  }, [open, present]);
 
   if (!present) return null;
   return (

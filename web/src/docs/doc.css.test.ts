@@ -153,3 +153,24 @@ describe("the page break's marker", () => {
     }
   });
 });
+
+describe('on paper', () => {
+  const core = read('src/docs/core/core.css');
+  const text = [...doc, ...core];
+
+  it('lets nothing in the text scroll, because a printer prints the scrollbar and loses what is past it', () => {
+    const scrolls = text.filter(
+      (r) => r.media === null && r.selector.includes('.ProseMirror') && /overflow(-x)?\s*:\s*(auto|scroll)/.test(r.body)
+    );
+    expect(scrolls.length).toBeGreaterThan(0);
+    for (const r of scrolls) {
+      const onPaper = text.find(
+        (p) =>
+          p.media?.includes('print') &&
+          p.selector.split(',').some((s) => s.trim() === r.selector) &&
+          decl(p, 'overflow') === 'visible'
+      );
+      expect(onPaper, r.selector).toBeDefined();
+    }
+  });
+});

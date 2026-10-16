@@ -16,28 +16,39 @@
 
 import { useEffect, useRef } from 'react';
 import type { ContextEntry, ContextGroup } from '../../core/ContextMenu';
+import { formatLabel } from '../../core/formatNames';
 import { clipboardTextIcon, copyIcon, eyeIcon, eyeSlashIcon, linkIcon, notePencilIcon, paintBucketIcon, pencilSimpleIcon, plusIcon, trashIcon } from '../../core/icons';
 import { mod } from '../../core/keys';
 import type { Command } from '../../core/shell/types';
 import { chosenHidden, chosenLayout, deleteElements, deleteSlides, duplicate, duplicateSlides, newSlide, setLayout, toggleHidden, type Target } from '../editor/actions';
-import { hitTest } from '../editor/geometry';
+import { HIT_PX, hitTest } from '../editor/geometry';
 import { hasText, shapesIn } from '../editor/linkText';
 import { emptyText } from '../model/schema';
 import { layoutIcon, scissorsIcon } from './icons';
 import { ARRANGE_ROWS } from './arrange';
 import { copyChosen, pasteChosen } from './core';
 import { cellAtPoint, measureCells } from './insert/cellGeometry';
-import { arrowsMergeIcon, arrowsSplitIcon, columnsIcon, columnsPlusLeftIcon, columnsPlusRightIcon, rowsIcon, rowsPlusBottomIcon, rowsPlusTopIcon, slidersHorizontalIcon } from './insert/icons';
+import { arrowsMergeIcon, arrowsSplitIcon, columnsIcon, columnsPlusLeftIcon, columnsPlusRightIcon, imageIcon, rowsIcon, rowsPlusBottomIcon, rowsPlusTopIcon, slidersHorizontalIcon } from './insert/icons';
 import { addColumn, addRow, mergeable, mergeChosen, removeColumns, removeRows, selectedTable, splittable, splitChosen, type TableHost } from './insert/tableActions';
 import { chooseCells } from './insert/tables';
 import { openSlideDialog, SlideDialogs } from './menuDialogs';
 import type { CanvasFrame, SlidesContext, SlidesMenuTarget, SlidesModule } from './types';
 
-/** Screen px around an object that still counts as on it, as the canvas's own. */
-const HIT_PX = 4;
-
 const target = (c: SlidesContext): Target => ({ model: c.model, selection: c.selection });
 const FORMAT_PANE = 'format';
+
+/**
+ * The chosen elements as a PNG or an SVG file (slides/export). Loaded when a format is chosen, so the
+ * editor opens without the exporter.
+ */
+function savePicture(c: SlidesContext, ids: readonly string[], format: 'png' | 'svg'): void {
+  const slide = c.selection.get().slide;
+  if (!slide) return;
+  const host = { model: c.model, title: c.meta.title, assets: c.assets, notify: c.notify };
+  void import('../export')
+    .then((m) => m.savePicture(host, slide, ids, format))
+    .catch(() => c.notify({ text: 'Could not save the picture.', tone: 'danger' }));
+}
 
 /** "Slide" or "Slides" to say what a thumbnail menu acts on. */
 const plural = (n: number, one: string, many: string): string => (n === 1 ? one : many);
@@ -72,6 +83,14 @@ function shapeMenu(c: SlidesContext, ids: readonly string[]): ContextGroup[] {
   if (c.can.edit && c.can.download) clip.push({ label: 'Cut', icon: scissorsIcon, shortcut: mod('X'), onSelect: () => void copyChosen(c, true) });
   if (c.can.download) clip.push({ label: 'Copy', icon: copyIcon, shortcut: mod('C'), onSelect: () => void copyChosen(c, false) });
   if (c.can.edit) clip.push({ label: 'Paste', icon: clipboardTextIcon, shortcut: mod('V'), onSelect: () => void pasteChosen(c) });
+  // Whoever may copy a shape out may save it as a file: a reader on a link whose downloads are off may not.
+  if (c.can.download && els.length) {
+    clip.push({
+      label: 'Save as picture',
+      icon: imageIcon,
+      submenu: (['png', 'svg'] as const).map((f) => ({ id: `picture-${f}`, label: formatLabel(f), onSelect: () => savePicture(c, ids, f) }))
+    });
+  }
   groups.push({ id: 'menu.clipboard', order: 100, items: clip });
   if (!c.can.edit) return groups;
 

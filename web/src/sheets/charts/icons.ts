@@ -12,7 +12,7 @@ import chartLineUpRaw from '@phosphor-icons/core/assets/regular/chart-line-up.sv
 import chartLineRaw from '@phosphor-icons/core/assets/regular/chart-line.svg?raw';
 import chartPieRaw from '@phosphor-icons/core/assets/regular/chart-pie.svg?raw';
 import chartScatterRaw from '@phosphor-icons/core/assets/regular/chart-scatter.svg?raw';
-import downloadSimpleRaw from '@phosphor-icons/core/assets/regular/download-simple.svg?raw';
+import imageRaw from '@phosphor-icons/core/assets/regular/image.svg?raw';
 
 export const chartBarHorizontalIcon = ph(chartBarHorizontalRaw);
 export const chartBarIcon = ph(chartBarRaw);
@@ -21,4 +21,4 @@ export const chartLineUpIcon = ph(chartLineUpRaw);
 export const chartLineIcon = ph(chartLineRaw);
 export const chartPieIcon = ph(chartPieRaw);
 export const chartScatterIcon = ph(chartScatterRaw);
-export const downloadSimpleIcon = ph(downloadSimpleRaw);
+export const imageIcon = ph(imageRaw);

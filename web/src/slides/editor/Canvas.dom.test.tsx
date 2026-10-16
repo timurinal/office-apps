@@ -70,3 +70,22 @@ describe('a key that would change the slide, on a page that cannot', () => {
     model.destroy();
   });
 });
+
+describe('a drag', () => {
+  it('lands where the button came up, when the last move has not been drawn yet', () => {
+    const { model } = mount(true);
+    const slide = host.querySelector('.sl-canvas')!;
+    const fire = (type: string, x: number) =>
+      slide.dispatchEvent(new PointerEvent(type, { bubbles: true, button: 0, pointerId: 1, clientX: x, clientY: 100 }));
+    // The box is 100 to 500 across on the slide, 50 to 250 on screen at half scale.
+    act(() => void fire('pointerdown', 100));
+    act(() => void fire('pointermove', 120));
+    // The last move and the release together, with no render between them.
+    act(() => {
+      fire('pointermove', 150);
+      fire('pointerup', 150);
+    });
+    expect(model.element('s1', 'a')).toMatchObject({ x: 200, y: 100 });
+    model.destroy();
+  });
+});

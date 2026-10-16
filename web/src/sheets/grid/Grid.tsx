@@ -41,6 +41,8 @@ export interface GridProps {
   onIntent: (intent: GridIntent) => void;
   /** The shell's zoom as a percentage, 50 to 200. */
   zoom: number;
+  /** The client point a change of `zoom` holds still, or null for the grid's centre; absent, the top-left cell stays. */
+  zoomAt?: { x: number; y: number } | null;
   /** Refuse edits even where the data allows them (a viewing mode); the data's own flag always applies. */
   readOnly?: boolean;
   /** Told when a key or a paste tried to change a sheet that cannot be changed. */
@@ -164,7 +166,7 @@ export function Grid(props: GridProps) {
       layout: () => viewRef.current?.current() ?? null,
       focusGrid: () => root.current?.focus({ preventScroll: true })
     });
-    view?.setInputs({ data, session, zoom, insetBottom, readOnly });
+    view?.setInputs({ data, session, zoom, zoomAt: props.zoomAt, insetBottom, readOnly });
   });
 
   // What a chart over the cells follows them with, for as long as this grid is mounted.
@@ -741,6 +743,7 @@ export function Grid(props: GridProps) {
     <div
       ref={root}
       className="sg-root"
+      data-zoom-content=""
       role="grid"
       tabIndex={0}
       aria-label={label}

@@ -59,6 +59,7 @@ import { type FitCell, type Measure, defaultMeasure, fitHeight, fitWidth } from 
 import { type ChangeKind, Mirror, type MirrorHost } from './mirror';
 import { type OwnClip, type PastedCell, r1c1ToA1, readClipboard } from './paste';
 import { REMOTE, type SheetConnection, type SheetEvents, type SheetFile, type SheetSource, type SourceFeatures } from './source';
+import { textSeries } from './series';
 import {
   DEFAULT_COL_WIDTH,
   DEFAULT_ROW_HEIGHT,
@@ -1272,7 +1273,7 @@ export class SheetModel implements MirrorHost, ViewHost {
     return r.format ? { content: r.content, format: r.format } : { content: r.content };
   }
 
-  /** The fill handle: series where the source is a run of numbers or a date, copies otherwise. */
+  /** The fill handle: series where the source is a run of numbers, a date or a text series, copies otherwise. */
   fill(sheetId: string, source: Rect, target: Rect): void {
     this.step((s) => {
       const n = (target.r2 - target.r1 + 1) * (target.c2 - target.c1 + 1);
@@ -1288,17 +1289,21 @@ export class SheetModel implements MirrorHost, ViewHost {
       const ops = new Map<string, CellOp>();
       for (const w of res.cells) ops.set(`${w.rowId}\u0000${w.colId}`, { sheet: sheetId, row: w.rowId, col: w.colId, content: w.content });
       const sh = this.engine.sheet(sheetId)!;
-      // A run of two or more numbers continues its line; one date counts on by days.
+      // A run of two or more numbers continues its line; one date counts on by days; text goes on as
+      // Excel's does (`textSeries`).
       const lines = vertical ? [source.c1, source.c2] : [source.r1, source.r2];
       for (let k = lines[0]!; k <= lines[1]!; k++) {
         const ids: [string, string][] = [];
         const len = vertical ? source.r2 - source.r1 + 1 : source.c2 - source.c1 + 1;
         for (let i = 0; i < len; i++) ids.push(vertical ? [sh.rowOrder[source.r1 + i]!, sh.colOrder[k]!] : [sh.rowOrder[k]!, sh.colOrder[source.c1 + i]!]);
         const xs = ids.map(([r, c]) => sh.cell(r, c)?.content);
-        if (!xs.every((x) => x && x.f === undefined && typeof x.v === 'number')) continue;
+        if (!xs.every((x) => x && x.f === undefined)) continue;
+        let next: (step: number) => number | string;
+        const words = xs.every((x) => typeof x!.v === 'string') ? textSeries(xs.map((x) => x!.v as string)) : null;
         const ys = xs.map((x) => x!.v as number);
-        let next: (step: number) => number;
-        if (ys.length >= 2) {
+        if (words) next = words;
+        else if (!xs.every((x) => typeof x!.v === 'number')) continue;
+        else if (ys.length >= 2) {
           const mx = (ys.length - 1) / 2;
           const my = ys.reduce((a, b) => a + b, 0) / ys.length;
           let num = 0;
@@ -1320,7 +1325,8 @@ export class SheetModel implements MirrorHost, ViewHost {
         for (let p = from; p <= to; p++) {
           if (p >= start && p < start + len) continue;
           const [row, col] = vertical ? [sh.rowOrder[p]!, sh.colOrder[k]!] : [sh.rowOrder[k]!, sh.colOrder[p]!];
-          const v = Number(next(p - start).toPrecision(15));
+          const x = next(p - start);
+          const v = typeof x === 'string' ? x : Number(x.toPrecision(15));
           ops.set(`${row}\u0000${col}`, { sheet: sheetId, row, col, content: { v } });
         }
       }

@@ -11,7 +11,7 @@ import {
   visibleItems,
   visibleTabs
 } from './registry';
-import type { Command, FileItem, RibbonGroup, RibbonItem, StatusItem, TabDef } from './types';
+import type { Command, FileChoice, FileItem, RibbonGroup, RibbonItem, StatusItem, TabDef } from './types';
 
 interface Ctx {
   bold: boolean;
@@ -104,6 +104,24 @@ describe('the File menu and the footer', () => {
 
   it('hides what a local file cannot do', () => {
     expect(fileSections(file, { ...ctx, local: true })[0]!.items.map((i) => i.id)).toEqual(['new', 'copy']);
+  });
+
+  it('lists the choices of a submenu row that are visible, and drops the row when none is', () => {
+    const row = (choices: FileChoice<Ctx>[]): FileItem<Ctx> => ({
+      id: 'copy-as',
+      label: 'Download a copy',
+      section: 'Export',
+      order: 610,
+      run: () => undefined,
+      submenu: choices
+    });
+    const one = { id: 'a', label: 'Document (.docx)', run: () => undefined };
+    const two = { id: 'b', label: 'Markdown (.md)', run: () => undefined, visible: (c: Ctx) => !c.local };
+    expect(fileSections([row([one, two])], ctx)[0]!.items[0]!.submenu!.map((c) => c.id)).toEqual(['a', 'b']);
+    expect(fileSections([row([one, two])], { ...ctx, local: true })[0]!.items[0]!.submenu!.map((c) => c.id)).toEqual(['a']);
+    expect(fileSections([row([two])], { ...ctx, local: true })).toEqual([]);
+    // The row itself can be hidden, as any other.
+    expect(fileSections([{ ...row([one]), visible: (c: Ctx) => !c.local }], { ...ctx, local: true })).toEqual([]);
   });
 
   it('orders status items by side and order', () => {

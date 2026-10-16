@@ -8,7 +8,7 @@ import type { DocModel } from './types';
 export type ExportFormat = 'docx' | 'markdown' | 'html' | 'text';
 
 export const EXPORT_FORMATS: Record<ExportFormat, { label: string; extension: string; mime: string }> = {
-  docx: { label: 'Word document (.docx)', extension: 'docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
+  docx: { label: 'Document (.docx)', extension: 'docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
   markdown: { label: 'Markdown (.md)', extension: 'md', mime: 'text/markdown;charset=utf-8' },
   html: { label: 'Web page (.html)', extension: 'html', mime: 'text/html;charset=utf-8' },
   text: { label: 'Plain text (.txt)', extension: 'txt', mime: 'text/plain;charset=utf-8' }

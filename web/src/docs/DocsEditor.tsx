@@ -52,6 +52,7 @@ import { startComment } from './review/actions';
 import { useOpenThreads } from './review/store';
 import { liveStatus, type StopReason } from './room';
 import type { DocumentSource } from './source';
+import { avatarSrc } from '../theme';
 import { usePeers, useConnection } from './useConnection';
 
 const STOP_TEXT: Record<StopReason, string> = {
@@ -191,7 +192,8 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
     () => ({
       name: me?.name ?? 'Guest',
       // A guest has no account id to hash; their client id is theirs for the visit.
-      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`)
+      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`),
+      avatar: me?.avatarUrl ?? null
     }),
     [me, rs.conn]
   );
@@ -506,7 +508,7 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
 
   const note = caps.trashed ? 'In the trash' : meta.role === 'viewer' ? 'View only' : meta.role === 'commenter' ? 'Comment only' : null;
 
-  const self = me ? [{ clientId: 0, name: me.name, color: colorFor(me.id), self: true, tabs: 1 }] : [];
+  const self = me ? [{ clientId: 0, name: me.name, color: colorFor(me.id), avatar: avatarSrc(me.avatarUrl), self: true, tabs: 1 }] : [];
 
   const sharesLocked = source.kind === 'locked' && caps.owner;
 

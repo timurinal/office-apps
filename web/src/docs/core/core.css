@@ -693,6 +693,10 @@
   .oa-findbar {
     display: none !important;
   }
+  /* Paper does not scroll: a table wider than the text runs into the margin, as Word's does. */
+  .oa-doc .ProseMirror .tableWrapper {
+    overflow: visible;
+  }
   .oa-doc .ProseMirror .oa-find,
   .oa-doc .ProseMirror .oa-find-current {
     background: none;

@@ -28,6 +28,20 @@ export function accountOrigin(): string {
 export const signInHref = (returnTo: string): string =>
   `${accountOrigin()}/signin?next=${encodeURIComponent(returnTo)}`;
 
+const AVATAR_PATH = /^\/api\/account\/avatar\/avatars\/[A-Za-z0-9_-]{1,64}\/[A-Za-z0-9-]{1,64}$/;
+
+/**
+ * A profile picture the page will load, or null. Only the account site's avatar route
+ * (the account site's `worker/lib/avatar.ts`) on this deployment's account origin, which is
+ * also the one origin the policy's `img-src` adds; anything else draws the initials.
+ */
+export function avatarSrc(url: unknown): string | null {
+  if (typeof url !== 'string' || url.length > 256) return null;
+  const origin = accountOrigin();
+  if (!url.startsWith(`${origin}/`)) return null;
+  return AVATAR_PATH.test(url.slice(origin.length)) ? url : null;
+}
+
 /** Where Help goes. One constant, so moving the documentation is a one-line change. */
 export const HELP_URL = 'https://docs.example.com';
 

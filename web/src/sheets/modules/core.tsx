@@ -185,7 +185,7 @@ function ConnectionStatus({ ctx }: { ctx: SheetsContext }) {
   const c = CONNECTION[ctx.connection];
   if (!c) return null;
   return (
-    <span className="oa-status" role="status" style={{ marginRight: 10 }}>
+    <span className="oa-status" role="status" title={c.label} style={{ marginRight: 10 }}>
       <span className="oa-dot" data-tone={c.warn ? 'warn' : undefined} />
       {c.label}
     </span>

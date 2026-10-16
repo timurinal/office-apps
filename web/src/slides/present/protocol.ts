@@ -12,6 +12,7 @@
  *   pointer  where the laser is, as fractions of the slide  → drawn as a dot in the other window
  *   end      the show was ended                             → the other window leaves too
  *   bye      this window is going away, the show goes on    → the presenter offers to open it again
+ *   window   this window is, or is no longer, full screen   → the presenter says so, and how to fix it
  */
 
 import type { Screen, ShowState } from './state';
@@ -21,7 +22,8 @@ export type ShowMessage =
   | { t: 'state'; from: string; state: ShowState }
   | { t: 'pointer'; from: string; at: { x: number; y: number } | null }
   | { t: 'end'; from: string }
-  | { t: 'bye'; from: string };
+  | { t: 'bye'; from: string }
+  | { t: 'window'; from: string; full: boolean };
 
 /** A message as it is sent: the link adds `from`. */
 export type Outgoing = ShowMessage extends infer M ? (M extends { from: string } ? Omit<M, 'from'> : never) : never;
@@ -65,6 +67,8 @@ export function parseMessage(data: unknown): ShowMessage | null {
       const state = parseState(m.state);
       return state ? { t: 'state', from: m.from, state } : null;
     }
+    case 'window':
+      return typeof m.full === 'boolean' ? { t: 'window', from: m.from, full: m.full } : null;
     case 'pointer': {
       if (m.at === null) return { t: 'pointer', from: m.from, at: null };
       if (typeof m.at !== 'object') return null;

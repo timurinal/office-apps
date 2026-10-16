@@ -213,7 +213,7 @@ describe('names, validations and conditional formats', () => {
     expect(model.A11).toMatchObject({ type: 'custom', formulae: ['A11>A1'] });
     // A comma in an item cannot be said in Excel's literal list.
     expect(model.A16).toBeUndefined();
-    expect(warnings.map((w) => w.message)).toEqual(['1 list validation that Excel cannot hold was left out.']);
+    expect(warnings.map((w) => w.message)).toEqual(['1 list validation that an .xlsx file cannot hold was left out.']);
   });
 
   it('is the same workbook when it is read again, rules and names included', async () => {
@@ -247,7 +247,7 @@ describe('sheet names', () => {
     const { wb, warnings } = await exportOf(seed);
     expect(wb.worksheets.map((w) => w.name)).toEqual(['A_B', 'Next']);
     expect(wb.getWorksheet('Next')!.getCell('A1').value).toEqual({ formula: 'A_B!A1+1', result: 4 });
-    expect(warnings.map((w) => w.message)).toEqual(['1 sheet name was changed to fit Excel.']);
+    expect(warnings.map((w) => w.message)).toEqual(['1 sheet name was changed to fit an .xlsx file.']);
   });
 });
 

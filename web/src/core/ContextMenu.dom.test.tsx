@@ -118,6 +118,16 @@ describe('the menu', () => {
     expect(document.activeElement).toBe(row('Cut'));
   });
 
+  it('takes the keyboard once it is placed: a browser gives a row that is still hidden for its first frame none', () => {
+    const focus = HTMLElement.prototype.focus;
+    vi.spyOn(HTMLElement.prototype, 'focus').mockImplementation(function (this: HTMLElement, options?: FocusOptions) {
+      if (this.closest<HTMLElement>('[role="menu"]')?.style.visibility === 'hidden') return;
+      focus.call(this, options);
+    });
+    open(ITEMS());
+    expect(document.activeElement).toBe(row('Cut'));
+  });
+
   it('is a checkbox row where it has a tick, and shows the tick', () => {
     open([{ label: 'Filter', checked: true }, { label: 'Gridlines', checked: false }, { label: 'Plain' }]);
     expect(row('Filter').getAttribute('role')).toBe('menuitemcheckbox');

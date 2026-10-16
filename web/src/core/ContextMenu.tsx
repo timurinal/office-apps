@@ -185,11 +185,14 @@ function Panel({ entries, label, depth, anchor, focusFirst, onBack, onEnter }: P
 
   const focusable = (): HTMLButtonElement[] => [...el.current!.children].filter((c): c is HTMLButtonElement => c.matches('button[data-row]:not(:disabled)'));
 
+  // Once it has a place, not as it mounts: until then it is hidden off-screen, and a browser gives a
+  // hidden row no keyboard, so the menu opened and the keys went on to whatever had them before.
+  const placed = pos !== null;
   useEffect(() => {
-    if (focusFirst) focusable()[0]?.focus();
-    // Once, as it opens.
+    if (focusFirst && placed) focusable()[0]?.focus();
+    // Once, as it opens and is placed.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [placed]);
 
   const openSub = (index: number, row: HTMLElement, focus: boolean) => {
     clearTimeout(leaving.current);
@@ -348,6 +351,80 @@ function Panel({ entries, label, depth, anchor, focusFirst, onBack, onEnter }: P
         />
       )}
     </>
+  );
+}
+
+export interface HostedSubmenuProps {
+  entries: readonly ContextEntry[];
+  /** The panel's accessible name: the row's. */
+  label: string;
+  /** The row it hangs from, in window pixels. */
+  rect: Box;
+  /** The row's element, whose app colour and theme it wears. */
+  from: Element | null;
+  /** Take the keyboard on opening: the first row. */
+  focus: boolean;
+  /** Left or Escape: the host closes it and puts the keyboard back on the row. */
+  onBack: () => void;
+  /** The pointer is over the panel, so the host must not close it. */
+  onEnter: () => void;
+  /** A row was chosen: the host lets go of the panel, and then the row runs. */
+  onChoose: () => void;
+}
+
+/**
+ * A submenu hung from a row of a menu that is not a `ContextMenu`: the File menu's. It is the same
+ * panel (placement beside the row, the keys, nested submenus, typing ahead), in the same portal and
+ * wearing the colours of the row, so a host that has its own rows does not write a second menu.
+ *
+ * The host keeps which row is open, and what the pointer and the keys do on its own rows. What
+ * differs from a menu opened at a point is that a choice's click is not stopped: it bubbles to the
+ * host, which closes itself on a click on any of its rows. Every other event is stopped, as a
+ * menu's are, so a key in the panel is not also a key in the host's own list.
+ */
+export function HostedSubmenu({ entries, label, rect, from, focus, onBack, onEnter, onChoose }: HostedSubmenuProps) {
+  const latest = useRef(onChoose);
+  latest.current = onChoose;
+  const api = useMemo<MenuApi>(
+    () => ({
+      state: 'open',
+      close: () => latest.current(),
+      choose: (item) => {
+        if (item.disabled) return;
+        latest.current();
+        item.onSelect?.();
+      }
+    }),
+    []
+  );
+  const scope = useMemo(() => scopeOf(from), [from]);
+  const anchor = useMemo<Anchor>(() => ({ kind: 'row', rect }), [rect]);
+  const stop = (e: React.SyntheticEvent) => e.stopPropagation();
+  return createPortal(
+    <MenuContext.Provider value={api}>
+      <div
+        className="oa-ctx-root"
+        {...scope}
+        onPointerDown={stop}
+        onPointerUp={stop}
+        onMouseDown={stop}
+        onMouseUp={stop}
+        onDoubleClick={stop}
+        onKeyDown={stop}
+        onKeyUp={stop}
+        // A choice closes the host; a press on a row that opens another panel, or on the panel's own edge, does not.
+        onClick={(e) => {
+          if (!(e.target instanceof Element && e.target.closest('button[data-row]:not([aria-haspopup])'))) e.stopPropagation();
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+      >
+        <Panel entries={tidy(entries)} label={label} depth={1} anchor={anchor} focusFirst={focus} onBack={onBack} onEnter={onEnter} />
+      </div>
+    </MenuContext.Provider>,
+    document.body
   );
 }
 

@@ -41,6 +41,7 @@ import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
 import type { FileItem, PaneSpec } from '../core/shell/types';
+import { useHoldStill, type Pt } from '../core/shell/zoomGesture';
 import { AppKindProvider, Banner, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -221,7 +222,8 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
     () => ({
       name: me?.name ?? 'Guest',
       // A guest has no account id to hash; their client id is theirs for the visit.
-      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`)
+      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`),
+      avatar: me?.avatarUrl ?? null
     }),
     [me, rs.conn]
   );
@@ -331,6 +333,15 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
     setFit(false);
     setZoomValue(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(value))));
   }, []);
+  // Ctrl and the wheel leave Fit holding the point under the pointer still; the keys hold the desk's centre.
+  const holdSlide = useHoldStill(() => desk.current, () => desk.current?.querySelector('.sl-canvas') ?? null, scale);
+  const zoomTo = useCallback(
+    (value: number, at?: Pt | null) => {
+      if (at !== undefined) holdSlide(at);
+      setZoom(value);
+    },
+    [holdSlide, setZoom]
+  );
   const onDeskSize = useCallback((w: number, h: number) => setDeskSize((d) => (d.w === w && d.h === h ? d : { w, h })), []);
 
   // ── panes ─────────────────────────────────────────────────────────────────
@@ -714,7 +725,7 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
         <EditorShell
           kind="slides"
           bleed
-          zoom={{ value: zoomShown, onChange: (v) => setZoom(v) }}
+          zoom={{ value: zoomShown, onChange: zoomTo, onReset: () => setZoom('fit'), gesture: !show }}
           header={{
             title: meta.title,
             titleEditable: can.rename,
