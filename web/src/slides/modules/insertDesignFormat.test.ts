@@ -10,7 +10,9 @@ import { designModule } from './design';
 import { formatModule, FORMAT_PANE } from './format';
 import { SLIDES_MODULES } from './index';
 import { insertModule } from './insert';
+import { menusModule } from './menus';
 import { SHAPE_NAMES } from './insert/ShapeGallery';
+import { THEMES } from '../themes';
 import { SLIDES_TABS, type SlidesContext } from './types';
 
 const modules = [coreModule, insertModule, designModule, formatModule];
@@ -141,8 +143,9 @@ describe('Format', () => {
     expect(searchCommands(all.commands, 'format shape', ctx(), 20).map((x) => x.title)).toContain('Format shape');
   });
 
-  it('has a menu on the canvas', () => {
-    expect(formatModule.canvas!.map((l) => l.id)).toEqual(['format.context']);
+  it('has no menu of its own on the canvas: the menus module hears the right click', () => {
+    expect(formatModule.canvas).toBeUndefined();
+    expect(menusModule.canvas!.map((l) => l.id)).toEqual(['menus.canvas']);
   });
 });
 
@@ -150,7 +153,7 @@ describe('Design', () => {
   it('has a command for each theme, off for the one in use, and one to reset the background', () => {
     const c = ctx();
     const themes = all.commands.filter((x) => x.id.startsWith('design.theme.'));
-    expect(themes).toHaveLength(8);
+    expect(themes).toHaveLength(THEMES.length);
     expect(themes.find((x) => x.id === 'design.theme.midnight')!.disabled?.(c)).toBe(false);
     themes.find((x) => x.id === 'design.theme.midnight')!.run(c);
     expect(c.model.design().theme.id).toBe('midnight');

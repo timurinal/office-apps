@@ -5,7 +5,7 @@
  *   keys        arrows step, Home and End jump, Delete deletes, Enter makes a new slide after
  *   reorder     drag the chosen slides; a line shows where they will land, the rail scrolls near
  *               its edges, and the drop is one step. The others glide to their places after it.
- *   menu        right-click: New slide, Duplicate, Delete, Hide or Show
+ *   menu        right-click: the slide menu (modules/menus.tsx), asked for through `onMenu`
  *
  * It follows the model itself, not the page: a slide added, deleted or moved is drawn at once, and a
  * change inside a slide (a keystroke on the canvas) is drawn a moment later, in a transition, so the
@@ -15,13 +15,12 @@
 import { memo, startTransition, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type React from 'react';
 import { eyeSlashIcon, Icon } from '../../core/icons';
-import { MenuList, Popover, type MenuItem } from '../../core/ui';
 import { useFlipList } from '../../motion/flip';
 import type { Aspect, SlideJSON } from '../model/deck';
 import type { SlideModel } from '../model/model';
 import type { Design } from '../model/styles';
 import { Thumbnail } from '../render/Thumbnail';
-import { chosenHidden, deleteSlides, duplicateSlides, newSlide, stepSlide, toggleHidden } from './actions';
+import { deleteSlides, newSlide, stepSlide } from './actions';
 import type { PeerView } from './presence';
 import { useSelection, type SelectionStore } from './selection';
 
@@ -123,6 +122,11 @@ export interface RailProps {
   peers: readonly PeerView[];
   /** The keyboard goes to the slide: after Enter on a new slide. */
   focusCanvas: () => void;
+  /**
+   * Ask for the slide menu for these slides at a point in window pixels. False when there is none to
+   * show, and the browser's own is left alone. Without it the rail has no menu.
+   */
+  onMenu?: (ids: readonly string[], at: { x: number; y: number }, from: Element) => boolean;
 }
 
 interface Drag {
@@ -133,7 +137,7 @@ interface Drag {
   line: number;
 }
 
-export function Rail({ model, selection, editable, peers, focusCanvas }: RailProps) {
+export function Rail({ model, selection, editable, peers, focusCanvas, onMenu }: RailProps) {
   const deck = useRailDeck(model);
   const active = useSelection(selection, (s) => s.slide);
   const chosen = useSelection(selection, (s) => s.slides);
@@ -141,7 +145,6 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
   const list = useRef<HTMLOListElement | null>(null);
   const flip = useFlipList(deck.order);
   const [drag, setDrag] = useState<Drag | null>(null);
-  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const press = useRef<{ id: string; x: number; y: number; pointer: number; deferred: boolean; tops: number[]; heights: number[] } | null>(null);
   const scroll = useRef<{ frame: number; speed: number }>({ frame: 0, speed: 0 });
   const target = { model, selection };
@@ -279,7 +282,7 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
       case 'ContextMenu': {
         const el = s.slide ? list.current?.querySelector<HTMLElement>(`[data-slide="${CSS.escape(s.slide)}"]`) : null;
         const r = el?.getBoundingClientRect();
-        if (r && editable) setMenu({ x: r.left + 24, y: r.top + 24 });
+        if (r && rail.current) onMenu?.(s.slides, { x: r.left + 24, y: r.top + 24 }, rail.current);
         break;
       }
       default:
@@ -292,21 +295,13 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
   };
 
   const onContextMenu = (e: React.MouseEvent) => {
+    // Shift asks for the browser's own menu.
     const id = itemAt(e);
-    if (!id || !editable) return;
-    e.preventDefault();
+    if (!id || !onMenu || e.shiftKey || !rail.current) return;
     if (!selection.get().slides.includes(id)) selection.showSlide(id, deck.order);
     selection.set({ focus: 'rail' });
-    setMenu({ x: e.clientX, y: e.clientY });
+    if (onMenu(selection.get().slides, { x: e.clientX, y: e.clientY }, rail.current)) e.preventDefault();
   };
-
-  const many = chosen.length > 1;
-  const menuItems: MenuItem[] = [
-    { label: 'New slide', onSelect: () => newSlide(target) },
-    { label: many ? 'Duplicate slides' : 'Duplicate slide', onSelect: () => void duplicateSlides(target) },
-    { label: many ? 'Delete slides' : 'Delete slide', danger: true, disabled: chosen.length >= deck.order.length, onSelect: () => void deleteSlides(target) },
-    { label: chosenHidden(target) ? (many ? 'Show slides' : 'Show slide') : many ? 'Hide slides' : 'Hide slide', separated: true, onSelect: () => void toggleHidden(target) }
-  ];
 
   return (
     <div ref={rail} className="sl-rail" tabIndex={0} aria-label="Slides" onKeyDown={onKeyDown} onFocus={(e) => e.target === e.currentTarget && selection.set({ focus: 'rail' })}>
@@ -345,13 +340,6 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
         })}
         {drag && <li className="sl-rail-drop" aria-hidden="true" style={{ top: drag.line }} />}
       </ol>
-      {menu && (
-        <div className="sl-ctx oa-pop-wrap" style={{ left: menu.x, top: menu.y }}>
-          <Popover open onClose={() => setMenu(null)} role="menu" label="Slide">
-            <MenuList items={menuItems} onDone={() => setMenu(null)} />
-          </Popover>
-        </div>
-      )}
     </div>
   );
 }

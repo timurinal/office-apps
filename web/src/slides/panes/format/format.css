@@ -483,10 +483,3 @@
 .sl-fp-acts .sl-fp-act {
   justify-content: flex-start;
 }
-
-/* The slide's context menu. */
-.sl-ctx {
-  position: fixed;
-  z-index: 95;
-  min-width: 200px;
-}

@@ -20,6 +20,7 @@ vi.mock('./layout', async (original) => {
   };
 });
 
+import { chooseCombo, comboValue } from '../../core/selectTestkit';
 import { ToastHost } from '../../core/ui';
 import { localMeta } from '../../docs/source';
 import { RouterProvider } from '../../router';
@@ -163,7 +164,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   host.remove();
-  document.body.querySelectorAll('.oa-toast, .oac-menu').forEach((n) => n.remove());
+  document.body.querySelectorAll('.oa-toast, .oa-ctx-root').forEach((n) => n.remove());
 });
 
 describe('Insert > Charts', () => {
@@ -394,11 +395,16 @@ describe('a chart on the grid', () => {
       card.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 300, clientY: 200 }));
     });
     await frame();
-    const rows = [...document.body.querySelectorAll('.oac-menu .oa-menu-label')].map((e) => e.textContent);
+    const rows = [...document.body.querySelectorAll('[role="menu"][aria-label="Chart"] .oa-menu-label')].map((e) => e.textContent);
     expect(rows).toEqual(['Edit chart', 'Download as PNG', 'Download as SVG', 'Delete chart']);
-    keydown(document.body.querySelector('.oac-menu')!, 'Escape');
+    keydown(document.activeElement!, 'Escape');
+    // It leaves by fading, and is gone a moment later; the keyboard is back on the chart. The fade is asked
+    // for before the frame, which on a loaded machine can outlast it.
+    expect(document.body.querySelector('[role="menu"]')!.getAttribute('data-state')).toBe('closed');
     await frame();
-    expect(document.body.querySelector('.oac-menu')).toBeNull();
+    expect(document.activeElement).toBe(card);
+    await wait(180);
+    expect(document.body.querySelector('[role="menu"]')).toBeNull();
   });
 
   it('opens the chart pane on a double click, showing this chart\'s settings, and the pane changes it', async () => {
@@ -410,13 +416,9 @@ describe('a chart on the grid', () => {
     await wait(50);
     const pane = q('.oac-pane')!;
     expect(pane).not.toBeNull();
-    expect(pane.querySelector('select')!.value).toBe('column');
+    expect(comboValue(pane.querySelector('button[role="combobox"]')!)).toBe('column');
     expect(pane.querySelector<HTMLInputElement>('input[value="Spend"]')).not.toBeNull();
-    act(() => {
-      const select = pane.querySelector('select')!;
-      Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')!.set!.call(select, 'doughnut');
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+    chooseCombo(pane.querySelector<HTMLElement>('button[role="combobox"]')!, 'doughnut');
     await frame();
     await frame();
     expect(cards()[0]!.querySelector('svg')!.getAttribute('aria-label')).toMatch(/^Doughnut chart/);
@@ -445,7 +447,7 @@ describe('a chart for a reader', () => {
       cards()[0]!.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 300, clientY: 200 }));
     });
     await frame();
-    expect([...document.body.querySelectorAll('.oac-menu .oa-menu-label')].map((e) => e.textContent)).toEqual(['Download as PNG', 'Download as SVG']);
+    expect([...document.body.querySelectorAll('[role="menu"][aria-label="Chart"] .oa-menu-label')].map((e) => e.textContent)).toEqual(['Download as PNG', 'Download as SVG']);
   });
 });
 

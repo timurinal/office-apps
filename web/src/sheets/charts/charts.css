@@ -193,15 +193,6 @@
   flex: none;
 }
 
-/* The menu is a portal under its own data-app, at the point it was opened. */
-.oac-menu {
-  position: fixed;
-  z-index: 200;
-}
-.oac-menu .oa-popover {
-  position: static;
-}
-
 /* ── The chart pane ──────────────────────────────────────────────────────── */
 
 .oac-pane {
@@ -279,6 +270,11 @@
   border-radius: 6px;
   cursor: pointer;
   box-shadow: inset 0 0 0 1px rgba(40, 28, 45, 0.14);
+}
+/* The chart itself is a drawn object with its own surface and ink (render.tsx), like a picture, and stays
+   as it is on a dark sheet. The pane that edits it is the app's: its swatches take the theme's line. */
+[data-theme='dark'] .oac-swatch {
+  box-shadow: inset 0 0 0 1px var(--bd);
 }
 .oac-swatch[aria-pressed='true'] {
   box-shadow:

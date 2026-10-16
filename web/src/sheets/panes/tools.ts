@@ -21,6 +21,8 @@ export type ToolRequest =
   /** The name manager; `fromSelection` opens its form to define a name for the selected cells. */
   | { id: 'names'; fromSelection?: boolean }
   | { id: 'numfmt' }
+  /** The width of the chosen columns, or the height of the chosen rows. */
+  | { id: 'size'; axis: 'col' | 'row' }
   /** A filter's menu, for the column at this position. */
   | { id: 'filter'; col: number };
 

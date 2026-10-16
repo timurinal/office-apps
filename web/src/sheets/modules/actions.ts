@@ -12,6 +12,8 @@ import { pastedRect } from '../grid/Grid';
 import { pasteFrom } from '../grid/clipboard';
 import { isWholeCols, isWholeRows } from '../grid/selection';
 import type { Cellpos, Rect } from '../grid/types';
+import { DEFAULT_COL_WIDTH, DEFAULT_ROW_HEIGHT } from '../model';
+import { toTsv } from '../model/paste';
 import type { SheetsContext } from './types';
 
 /** The part of the context these functions read, so a test need not build the rest. */
@@ -47,6 +49,57 @@ export function deleteRows(c: ActionContext): void {
 export function deleteCols(c: ActionContext): void {
   const [at, n] = colSpan(c.selection().rect);
   c.model.deleteCols(c.sheetId, at, n);
+}
+
+// ── the size of rows and columns ────────────────────────────────────────────
+
+export type Axis = 'row' | 'col';
+
+/** What a width or a height may be, in the px the grid stores; the model's own ceiling is the upper end. */
+export const SIZE_LIMITS: Readonly<Record<Axis, { min: number; max: number }>> = {
+  col: { min: 8, max: 5000 },
+  row: { min: 8, max: 2000 }
+};
+
+/** The chosen columns (or rows) as the first and last, today's indexes. */
+export function lineSpan(c: Pick<ActionContext, 'selection'>, axis: Axis): { from: number; to: number } {
+  const { rect } = c.selection();
+  return axis === 'col' ? { from: rect.c1, to: rect.c2 } : { from: rect.r1, to: rect.r2 };
+}
+
+const sizeOf = (c: Pick<ActionContext, 'data'>, axis: Axis, line: number): number => (axis === 'col' ? c.data.colWidth(line) : c.data.rowHeight(line));
+
+/** The size the first chosen line has now, for a dialog to start from; a hidden one starts from the default. */
+export function currentSize(c: Pick<ActionContext, 'data' | 'selection'>, axis: Axis): number {
+  const { from } = lineSpan(c, axis);
+  return Math.round(sizeOf(c, axis, from)) || (axis === 'col' ? DEFAULT_COL_WIDTH : DEFAULT_ROW_HEIGHT);
+}
+
+/** A width or a height in px for every chosen column or row: one step, one frame. False when `px` is not allowed. */
+export function setLineSize(c: ActionContext, axis: Axis, px: number): boolean {
+  const { min, max } = SIZE_LIMITS[axis];
+  if (!Number.isFinite(px) || px < min || px > max) return false;
+  const { from, to } = lineSpan(c, axis);
+  c.model.resize(c.sheetId, axis, from, to, Math.round(px));
+  return true;
+}
+
+/** Each chosen column or row to fit what is in it. */
+export function autofitLines(c: ActionContext, axis: Axis): void {
+  const { from, to } = lineSpan(c, axis);
+  c.model.autofit(c.sheetId, axis, from, to);
+}
+
+export function hideLines(c: ActionContext, axis: Axis, hidden: boolean): void {
+  const { from, to } = lineSpan(c, axis);
+  c.model.hide(c.sheetId, axis, from, to, hidden);
+}
+
+/** Whether a chosen column or row is hidden: the choice spans it, as it must to show it again. */
+export function anyHidden(c: Pick<ActionContext, 'data' | 'selection'>, axis: Axis): boolean {
+  const { from, to } = lineSpan(c, axis);
+  for (let i = from; i <= to; i++) if (sizeOf(c, axis, i) === 0) return true;
+  return false;
 }
 
 /**
@@ -223,8 +276,27 @@ export async function copySelection(c: ActionContext, cut: boolean): Promise<voi
   }
 }
 
-/** Paste what the clipboard holds at the selection, as Ctrl+V does; where the browser will not say, ask for Ctrl+V. */
-export async function pasteHere(c: ActionContext): Promise<void> {
+const lf = (s: string): string => s.replace(/\r\n?/g, '\n');
+
+/** A rectangle's values, tab-separated: a number whole and without its format, anything else as shown. */
+function valuesTsv(c: Pick<ActionContext, 'data'>, r: Rect): string {
+  const rows: string[][] = [];
+  for (let row = r.r1; row <= r.r2; row++) {
+    const line: string[] = [];
+    for (let col = r.c1; col <= r.c2; col++) {
+      const cell = c.data.cell(row, col);
+      line.push(cell?.kind === 'number' && cell.value !== undefined ? String(cell.value) : (cell?.text ?? ''));
+    }
+    rows.push(line);
+  }
+  return toTsv(rows);
+}
+
+/**
+ * Paste what the clipboard holds at the selection, as Ctrl+V does; where the browser will not say, ask for Ctrl+V.
+ * `values` leaves the formats and the formulas behind: the text as it was shown, typed into the cells.
+ */
+export async function pasteHere(c: ActionContext, how: 'all' | 'values' = 'all'): Promise<void> {
   let text = '';
   let html = '';
   try {
@@ -242,7 +314,12 @@ export async function pasteHere(c: ActionContext): Promise<void> {
   }
   const r = c.selection().rect;
   const at = { row: r.r1, col: r.c1 };
-  const intent = pasteFrom({ getData: (type) => (type === 'text/html' ? html : text) }, at, c.session.clip);
+  const values = how === 'values';
+  // The table with its styles and formulas is what a plain paste uses; the text alone is the values. Of our own copy
+  // they are the numbers themselves, not as the source's format showed them, which a paste would read a format from.
+  const clip = c.session.clip;
+  const plain = values && clip && lf(clip.text) === lf(text) ? valuesTsv(c, clip.rect) : text;
+  const intent = pasteFrom({ getData: (type) => (type === 'text/html' ? (values ? '' : html) : plain) }, at, values ? null : clip);
   if (!intent || intent.type !== 'paste') return;
   c.model.paste(c.sheetId, intent.at, intent.text, intent.html, intent.cut);
   if (intent.cut) c.session.setClip(null);

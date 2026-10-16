@@ -9,6 +9,7 @@
 import type React from 'react';
 import type { DocKind } from '@shared/api';
 import { Link } from '../router';
+import { useEditorTheme } from './appearance';
 import { Button } from './controls';
 import { signInHref } from '../theme';
 
@@ -25,8 +26,9 @@ export function DocumentMessage({
   kind?: DocKind;
   children?: React.ReactNode;
 }) {
+  const theme = useEditorTheme(kind);
   return (
-    <div className="oa-shell" data-app={kind} {...(kind === 'slides' ? { 'data-theme': 'dark' } : {})}>
+    <div className="oa-shell" data-app={kind} {...(theme ? { 'data-theme': theme } : {})}>
       <div className="oa-message">
         <h1>{title}</h1>
         {text && <p>{text}</p>}

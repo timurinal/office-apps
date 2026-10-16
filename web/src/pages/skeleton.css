@@ -21,11 +21,15 @@
 }
 .oa-skel-lines {
   background-color: var(--paper, #ffffff);
+  /* The grid's own header and line colours (sheets/grid/grid.css `--sg-head-bg`, `--sg-line`), which
+     it draws from where the theme can reach them. */
+  --sk-head: #f3f5fe;
+  --sk-line: #eceef7;
   background-image:
-    linear-gradient(#f3f5fe, #f3f5fe),
-    linear-gradient(#f3f5fe, #f3f5fe),
-    linear-gradient(to right, #eceef7 1px, transparent 1px),
-    linear-gradient(to bottom, #eceef7 1px, transparent 1px);
+    linear-gradient(var(--sk-head), var(--sk-head)),
+    linear-gradient(var(--sk-head), var(--sk-head)),
+    linear-gradient(to right, var(--sk-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--sk-line) 1px, transparent 1px);
   background-size:
     46px 100%,
     100% 26px,
@@ -37,6 +41,10 @@
     46px 0,
     0 26px;
   background-repeat: no-repeat, no-repeat, repeat, repeat;
+}
+[data-theme='dark'] .oa-skel-lines {
+  --sk-head: #1b1d2c;
+  --sk-line: rgba(233, 233, 237, 0.08);
 }
 
 /*
@@ -64,7 +72,7 @@
   flex: none;
   aspect-ratio: 16 / 9;
   border-radius: 4px;
-  background: rgba(233, 233, 237, 0.07);
+  background: var(--bd-faint);
 }
 .oa-skel-thumb {
   width: 146px;
@@ -97,5 +105,5 @@
   max-width: calc(100% - 32px);
   height: 103px;
   border-radius: 12px;
-  background: #1b1d2b;
+  background: var(--app-panel);
 }

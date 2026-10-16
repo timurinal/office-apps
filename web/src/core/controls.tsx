@@ -17,6 +17,8 @@
 import { forwardRef, useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type React from 'react';
 import { caretDownIcon, Icon, type PhIcon } from './icons';
+import { Listbox } from './Listbox';
+import { useCoarsePointer } from './pointer';
 
 // ── buttons ─────────────────────────────────────────────────────────────────
 
@@ -163,12 +165,15 @@ export function TextField(props: TextFieldProps | TextAreaProps) {
 export interface SelectOption {
   value: string;
   label: string;
+  /** Shown, never pointed at and never chosen. */
+  disabled?: boolean;
 }
 
 /**
- * A native select, drawn as the boards' dropdown button. Native on purpose: the
- * list is the platform's, so it is keyboard and screen-reader complete on every
- * device, and `value` and `onChange` mean what they always meant.
+ * The boards' dropdown button. On a mouse and a keyboard it opens the page's own listbox
+ * (Listbox.tsx), which a dialog cannot clip and the browser cannot draw wrongly; where the main
+ * pointer is a finger it is the platform's select, whose sheet a phone draws better than a page can.
+ * `value` and `onChange` mean what they always meant either way.
  */
 export function Select({
   value,
@@ -192,6 +197,8 @@ export function Select({
   style?: React.CSSProperties;
 } & Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'value' | 'size' | 'style' | 'disabled'>) {
   const [id] = useState(() => (rest.id as string | undefined) ?? `oa-s${++fieldSeq}`);
+  const coarse = useCoarsePointer();
+  const { id: _id, ...others } = rest;
   return (
     <div className="oa-field" data-size={size} style={style}>
       {label && (
@@ -200,13 +207,25 @@ export function Select({
         </label>
       )}
       <div className="oa-select" data-quiet={quiet ? 'true' : undefined} data-disabled={disabled ? 'true' : undefined}>
-        <select id={id} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} {...rest}>
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        {coarse ? (
+          <select id={id} value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} {...rest}>
+            {options.map((o) => (
+              <option key={o.value} value={o.value} disabled={o.disabled}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Listbox
+            {...(others as unknown as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+            id={id}
+            value={value}
+            options={options}
+            onChange={onChange}
+            disabled={disabled}
+            name={(rest['aria-label'] as string | undefined) ?? label}
+          />
+        )}
         <Icon icon={caretDownIcon} size={12} className="oa-select-chevron" />
       </div>
     </div>

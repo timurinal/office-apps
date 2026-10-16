@@ -4,7 +4,8 @@
  * Geometry is the Slides board's, on a 1920 by 1080 slide: a margin of 8% (154 px) either side,
  * a title from 100 down, content from 368 to 928, and a footer line at 972. It is the same in
  * every theme; what a theme changes is colour, type and the ground the title and section slides
- * draw on (`themes.ts`).
+ * draw on (`themes.ts`). A `plain` theme draws none of that, as PowerPoint's Office Theme does: no ground,
+ * bar, band, rule or card, only placeholders, and a centred title slide of its own geometry.
  *
  * A placeholder is a shape with a `ph` whose `text` is the prompt an empty one shows. Footer, date
  * and slide number are on every layout, as PowerPoint has them, and **a new slide does not copy
@@ -42,6 +43,11 @@ const TITLE: Box = { x: MARGIN, y: 100, w: FULL, h: 240 };
 const CONTENT: Box = { x: MARGIN, y: 368, w: FULL, h: 560 };
 const LEFT: Box = { ...CONTENT, w: COLUMN };
 const RIGHT: Box = { ...CONTENT, x: SECOND, w: COLUMN };
+
+// Plain's title slide is PowerPoint's: a box 1440 wide on the centre line. The title's box is centred at 35% of the
+// height and the title sits on its foot, so a second line grows upward; the subtitle starts where it ends.
+const COVER_TITLE: Box = { x: 240, y: 188, w: 1440, h: 380 };
+const COVER_SUBTITLE: Box = { x: 240, y: 584, w: 1440, h: 240 };
 
 const FOOT = 972;
 const FOOTER: Box = { x: MARGIN, y: FOOT, w: 900, h: 44 };
@@ -88,6 +94,7 @@ export function layoutsFor(theme: ThemeJSON): LayoutJSON[] {
   const normal: Tones = { ground: base.ground, ink: base.ink, muted: base.muted, accent: base.accent };
   const hero: Tones = { ground: look.hero.bg, ink: look.hero.ink, muted: look.hero.muted, accent: look.hero.accent };
   const tint: Tones = { ground: base.surface, ink: base.ink, muted: base.muted, accent: base.accent };
+  const plain = look.plain === true;
 
   const titlePh = (box: Box = TITLE, text = 'Add a title.') =>
     placeholder({ type: 'title' }, box, text, { name: 'Title', textBox: FLUSH });
@@ -115,38 +122,54 @@ export function layoutsFor(theme: ThemeJSON): LayoutJSON[] {
 
   // ── on the hero ground: the title slide ─────────────────────────────────
 
-  const titleSlide = layout(
-    'title',
-    'Title slide',
-    hero,
-    [
-      placeholder({ type: 'ctrTitle' }, { x: MARGIN, y: 270, w: 1400, h: 340 }, 'Add a title.', { name: 'Title', textBox: BOTTOM }),
-      shape('rect', { x: MARGIN, y: 646, w: 120, h: 12 }, hero.accent, { name: 'Accent', alt: '' }),
-      placeholder({ type: 'subTitle', idx: 1 }, { x: MARGIN, y: 704, w: 1300, h: 160 }, 'Add a subtitle.', { name: 'Subtitle', textBox: FLUSH })
-    ],
-    {
-      ctrTitle: [{ fontSize: look.cover, color: hero.ink }],
-      subTitle: allLevels(prose(28, hero.muted))
-    },
-    hero.ground
-  );
+  const titleSlide = plain
+    ? layout(
+        'title',
+        'Title slide',
+        normal,
+        [
+          placeholder({ type: 'ctrTitle' }, COVER_TITLE, 'Add a title.', { name: 'Title', textBox: BOTTOM }),
+          placeholder({ type: 'subTitle', idx: 1 }, COVER_SUBTITLE, 'Add a subtitle.', { name: 'Subtitle', textBox: FLUSH })
+        ],
+        {
+          ctrTitle: [{ fontSize: look.cover, color: normal.ink, align: 'center' }],
+          subTitle: allLevels(prose(24, normal.muted, { align: 'center' }))
+        }
+      )
+    : layout(
+        'title',
+        'Title slide',
+        hero,
+        [
+          placeholder({ type: 'ctrTitle' }, { x: MARGIN, y: 270, w: 1400, h: 340 }, 'Add a title.', { name: 'Title', textBox: BOTTOM }),
+          shape('rect', { x: MARGIN, y: 646, w: 120, h: 12 }, hero.accent, { name: 'Accent', alt: '' }),
+          placeholder({ type: 'subTitle', idx: 1 }, { x: MARGIN, y: 704, w: 1300, h: 160 }, 'Add a subtitle.', { name: 'Subtitle', textBox: FLUSH })
+        ],
+        {
+          ctrTitle: [{ fontSize: look.cover, color: hero.ink }],
+          subTitle: allLevels(prose(28, hero.muted))
+        },
+        hero.ground
+      );
 
   // ── on a tint: the section header ───────────────────────────────────────
 
+  // Plain draws the section header on the ground, like the rest: no tint, no band.
+  const sectionOn = plain ? normal : tint;
   const sectionHeader = layout(
     'section',
     'Section header',
-    tint,
+    sectionOn,
     [
-      shape('rect', { x: 0, y: 0, w: 48, h: 1080 }, tint.accent, { name: 'Band', alt: '' }),
+      ...(plain ? [] : [shape('rect', { x: 0, y: 0, w: 48, h: 1080 }, tint.accent, { name: 'Band', alt: '' })]),
       placeholder({ type: 'title' }, { x: MARGIN, y: 340, w: 1400, h: 260 }, 'Add a title.', { name: 'Title', textBox: BOTTOM }),
       bodyPh(1, { x: MARGIN, y: 640, w: 1200, h: 160 }, 'Text', 'Add a short intro.')
     ],
     {
-      title: [{ fontSize: look.cover, color: tint.ink }],
-      body: allLevels(prose(28, tint.muted))
+      title: [{ fontSize: look.cover, color: sectionOn.ink }],
+      body: allLevels(prose(plain ? 24 : 28, sectionOn.muted))
     },
-    tint.ground
+    plain ? undefined : tint.ground
   );
 
   // ── on the ground ───────────────────────────────────────────────────────
@@ -157,6 +180,7 @@ export function layoutsFor(theme: ThemeJSON): LayoutJSON[] {
 
   const heading = (idx: number, box: Box, name: string) =>
     placeholder({ type: 'subTitle', idx }, box, 'Add a heading.', { name, textBox: { ...FLUSH, anchor: 'bottom' } });
+  const underline = (x: number, name: string): ElementJSON[] => (plain ? [] : [rule(x, 456, COLUMN, normal.accent, 3, name)]);
   const comparison = layout(
     'comparison',
     'Comparison',
@@ -164,10 +188,10 @@ export function layoutsFor(theme: ThemeJSON): LayoutJSON[] {
     [
       titlePh(),
       heading(1, { x: MARGIN, y: 368, w: COLUMN, h: 72 }, 'Left heading'),
-      rule(MARGIN, 456, COLUMN, normal.accent, 3, 'Left rule'),
+      ...underline(MARGIN, 'Left rule'),
       bodyPh(2, { ...LEFT, y: 480, h: 448 }, 'Left content'),
       heading(3, { x: SECOND, y: 368, w: COLUMN, h: 72 }, 'Right heading'),
-      rule(SECOND, 456, COLUMN, normal.accent, 3, 'Right rule'),
+      ...underline(SECOND, 'Right rule'),
       bodyPh(4, { ...RIGHT, y: 480, h: 448 }, 'Right content')
     ],
     { subTitle: [prose(28, normal.ink, { bold: true })] }
@@ -205,7 +229,7 @@ export function layoutsFor(theme: ThemeJSON): LayoutJSON[] {
     [
       titlePh(),
       bodyPh(1, { x: MARGIN, y: 368, w: 922, h: 560 }, 'Content'),
-      shape('roundRect', { x: 1228, y: 368, w: 538, h: 560 }, card.bg, { name: 'Card', adjust: 0.06, alt: '' }),
+      ...(plain ? [] : [shape('roundRect', { x: 1228, y: 368, w: 538, h: 560 }, card.bg, { name: 'Card', adjust: 0.06, alt: '' })]),
       placeholder(
         { type: 'subTitle', idx: 2 },
         { x: 1272, y: 412, w: 450, h: 472 },
@@ -216,19 +240,20 @@ export function layoutsFor(theme: ThemeJSON): LayoutJSON[] {
     {
       subTitle: allLevels(
         prose(80, card.ink, { bold: true, fontFamily: theme.fonts.major, lineHeight: 0.85, spaceAfter: 6 }),
-        prose(22, card.ink, { bold: false, fontFamily: theme.fonts.minor, lineHeight: 1 })
+        prose(22, plain ? normal.muted : card.ink, { bold: false, fontFamily: theme.fonts.minor, lineHeight: 1 })
       )
     }
   );
 
+  const indent = plain ? MARGIN : 214;
   const quote = layout(
     'quote',
     'Quote',
     normal,
     [
-      shape('rect', { x: MARGIN, y: 280, w: 10, h: 520 }, normal.accent, { name: 'Rule', alt: '' }),
-      bodyPh(1, { x: 214, y: 280, w: 1450, h: 400 }, 'Quote', 'Add a quote.', BOTTOM),
-      placeholder({ type: 'subTitle', idx: 2 }, { x: 214, y: 712, w: 1450, h: 88 }, 'Add who said it.', { name: 'Attribution', textBox: FLUSH })
+      ...(plain ? [] : [shape('rect', { x: MARGIN, y: 280, w: 10, h: 520 }, normal.accent, { name: 'Rule', alt: '' })]),
+      bodyPh(1, { x: indent, y: 280, w: 1450, h: 400 }, 'Quote', 'Add a quote.', BOTTOM),
+      placeholder({ type: 'subTitle', idx: 2 }, { x: indent, y: 712, w: 1450, h: 88 }, 'Add who said it.', { name: 'Attribution', textBox: FLUSH })
     ],
     {
       body: [prose(44, normal.ink, { fontFamily: theme.fonts.major, lineHeight: 1.05 })],

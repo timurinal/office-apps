@@ -56,6 +56,16 @@ describe('Start something new', () => {
     expect(html('Letter')).not.toBe(html('Report'));
   });
 
+  it('draws every blank as its app’s plus, and only a template as a picture', () => {
+    // a thumbnail is for a template; a blank is the plus in its app's colour.
+    mount(predefinedSummaries());
+    const thumb = (label: string) => cards().find((c) => c.getAttribute('aria-label') === label)!.querySelector('.oa-tcard-thumb')!;
+    for (const label of ['Blank document', 'Blank spreadsheet', 'Blank presentation']) {
+      expect(thumb(label).querySelector('.oa-tile'), `${label} is a plus`).toBeTruthy();
+      expect(thumb(label).querySelector('svg rect'), `${label} draws no page or slide`).toBeNull();
+    }
+  });
+
   it('draws a personal template with the kind’s page, since a list carries no content', () => {
     mount([mine]);
     act(() => tab('Yours').click());

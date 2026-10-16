@@ -143,12 +143,15 @@ export function resizePreview(
   }
 
   const start = only ? { ...box(only), rot: only.rot ?? 0 } : (unionOf(els.map(boundsOf)) ?? { x: 0, y: 0, w: 0, h: 0 });
-  let next = resizeBox(start, handle, delta, { keepAspect: !!opts.keepAspect, fromCentre: !!opts.fromCentre });
+  // Lock aspect ratio holds a corner as Shift does; a side still stretches, as in PowerPoint.
+  const corner = handle.length === 2;
+  const keepAspect = !!opts.keepAspect || (corner && els.some((e) => e.lockAspect));
+  let next = resizeBox(start, handle, delta, { keepAspect, fromCentre: !!opts.fromCentre });
   const drag: CanvasDrag = { kind: 'resize', ids, box: next, handle };
   let guides: Guide[] = [];
   // A turned box's edges are not the slide's axes, and a held proportion would not survive a pull.
   const rot = only?.rot ?? 0;
-  if (!rot && !opts.keepAspect && !opts.fromCentre) {
+  if (!rot && !keepAspect && !opts.fromCentre) {
     const r = opts.snap?.(next, drag);
     if (r) {
       next = applyResizeSnap(next, handle, r.dx, r.dy);

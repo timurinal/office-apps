@@ -311,8 +311,13 @@
   background: rgba(255, 152, 0, 0.7);
   box-shadow: 0 0 0 1px rgba(214, 120, 0, 0.8);
 }
-[data-theme='dark'] .oa-doc .ProseMirror .oa-find {
+/* A match on a dark page is a dimmer wash, so the page's light text still reads on it. It is the page's
+   colour that decides (docs/pageColour.ts), not the app's theme: a white page in a dark app is white. */
+.oa-paper[data-page='dark'] .oa-doc .ProseMirror .oa-find {
   background: rgba(255, 213, 79, 0.35);
+}
+.oa-paper[data-page='dark'] .oa-doc .ProseMirror .oa-find-current {
+  background: rgba(255, 152, 0, 0.5);
 }
 
 /* ── Smart chips ─────────────────────────────────────────────────────────────

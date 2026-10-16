@@ -5,13 +5,13 @@
  * so a match is selected the way a person selects: a DOM range over the paragraph's text nodes, which
  * ProseMirror reads back as its own selection while it has the focus. The range is found by counting
  * characters the way the search does (`findActions.ts`): a text node's length, a `<br>` as one, and
- * nothing for what the editor draws that is not text (a bullet, another person's caret).
+ * nothing for what the editor draws that is not text (a bullet).
  *
  * Best effort: when the editor is not there yet, or its paragraph is not the one searched, nothing is
  * selected and the box is simply the one entered.
  */
 
-const NOT_TEXT = '[contenteditable="false"], .sl-caret, .sl-caret-label, .ProseMirror-trailingBreak, .ProseMirror-separator';
+const NOT_TEXT = '[contenteditable="false"], .ProseMirror-trailingBreak, .ProseMirror-separator';
 
 const isNotText = (el: Element): boolean => el.matches(NOT_TEXT);
 

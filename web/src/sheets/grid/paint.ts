@@ -15,6 +15,7 @@
  * suppresses the gridlines it covers, so a long title in A1 reads as one line across B1 and C1.
  */
 
+import { darkFill, darkInk } from '../../core/darkColors';
 import { colToLetters } from './a1';
 import { type Axis, GridLayout, type Box, type Span } from './geometry';
 import type { MergeIndex } from './merges';
@@ -116,6 +117,10 @@ const intersect = (a: Box, b: Box): Box => {
   const y = Math.max(a.y, b.y);
   return { x, y, w: Math.min(a.x + a.w, b.x + b.w) - x, h: Math.min(a.y + a.h, b.y + b.h) - y };
 };
+
+/** What a person set, as this reader's theme draws it: as set, or mapped for a dark ground (Dark cells). */
+const fillOf = (theme: GridTheme, c: string): string => (theme.darkCells ? darkFill(c) : c);
+const inkOf = (theme: GridTheme, c: string): string => (theme.darkCells ? darkInk(c) : c);
 
 const THICK: Record<BorderLine, number> = { thin: 1, dashed: 1, dotted: 1, medium: 2, double: 3, thick: 3 };
 const HEAVY: Record<BorderLine, number> = { dotted: 0, dashed: 0, thin: 0, medium: 1, double: 1, thick: 2 };
@@ -336,14 +341,14 @@ export class Painter {
         const fill = cell && (cell.conditional?.fill ?? cell.style.fill);
         const bar = cell?.conditional?.bar;
         if (fill) {
-          ctx.fillStyle = fill;
+          ctx.fillStyle = fillOf(theme, fill);
           ctx.fillRect(xs[j]!, ys[i]!, xs[j + 1]! - xs[j]!, ys[i + 1]! - ys[i]!);
         }
         if (bar) {
           // A data bar sits under the text, inset from the cell's edges so neighbours' bars do not join.
           const w = xs[j + 1]! - xs[j]!;
           const inset = Math.max(1, Math.round(2 * D));
-          ctx.fillStyle = bar.color;
+          ctx.fillStyle = fillOf(theme, bar.color);
           ctx.fillRect(Math.round(xs[j]! + w * bar.from), ys[i]! + inset, Math.max(1, Math.round(w * (bar.to - bar.from))), ys[i + 1]! - ys[i]! - 2 * inset);
         }
       }
@@ -353,7 +358,7 @@ export class Painter {
       const fill = c && (c.conditional?.fill ?? c.style.fill);
       if (!fill) return;
       const b = mbox[k]!;
-      ctx.fillStyle = fill;
+      ctx.fillStyle = fillOf(theme, fill);
       ctx.fillRect(b.x, b.y, b.w, b.h);
     });
 
@@ -452,11 +457,13 @@ export class Painter {
 
       const lineH = spec.px * 1.25;
       if (lines.length * lineH > y2 - y1 + 1) clipIt = true;
+      // Automatic text is the theme's own; only a colour a person set is mapped for Dark cells.
+      const set = cell.color ?? cell.conditional?.color ?? style.color;
       ops.push({
         lines,
         font: spec.css,
         px: spec.px,
-        color: cell.color ?? cell.conditional?.color ?? style.color ?? theme.ink,
+        color: set ? inkOf(theme, set) : theme.ink,
         align,
         v: style.v ?? 'middle',
         x1,
@@ -647,7 +654,7 @@ export class Painter {
     const line = bd.b.line;
     const thin = Math.max(1, Math.round(D));
     const t = Math.max(1, Math.round(THICK[line] * D));
-    const color = bd.b.color ?? theme.ink;
+    const color = bd.b.color ? inkOf(theme, bd.b.color) : theme.ink;
     // The line is centred on the cell's edge; a thin one is the gridline's own pixel row.
     const at = (edge: number) => edge - Math.ceil(t / 2);
     const horizontal = bd.side === 'top' || bd.side === 'bottom';

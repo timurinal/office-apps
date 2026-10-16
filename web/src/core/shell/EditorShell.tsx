@@ -24,6 +24,7 @@ import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState
 import type React from 'react';
 import type { DocKind } from '@shared/api';
 import { DUR } from '../../motion';
+import { useEditorTheme } from '../appearance';
 import { useGlide } from '../../motion/flip';
 import { usePresence } from '../../motion/presence';
 import { Link } from '../../router';
@@ -371,7 +372,8 @@ export function EditorShell<C>(props: EditorShellProps<C>) {
   // changes how far down it starts.
   const glide = useGlide<HTMLDivElement>([left?.width ?? 0, right?.width ?? 0, shellTop]);
 
-  const dark = kind === 'slides';
+  // Slides is the dark editor unless the reader chose Light; the others take the page's theme.
+  const theme = useEditorTheme(kind);
   return (
     <AppKindProvider value={kind}>
       <ShellContext.Provider value={{ zoom, setZoom }}>
@@ -379,7 +381,7 @@ export function EditorShell<C>(props: EditorShellProps<C>) {
           ref={root}
           className="oa-shell"
           data-app={kind}
-          {...(dark ? { 'data-theme': 'dark' } : {})}
+          {...(theme ? { 'data-theme': theme } : {})}
           style={{ ['--page-zoom' as string]: zoom / 100 }}
         >
           <div

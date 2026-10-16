@@ -301,6 +301,119 @@ describe('the strip', () => {
   });
 });
 
+describe('one row', () => {
+  // the ribbon is the same height on every tab. A group that does not fit goes
+  // under More at the end of the strip, never onto a second row. happy-dom has no layout, so the
+  // strip's room and each group's width are given here.
+  let room = 0;
+  // Each group's width with its words, and with its icons alone.
+  let widths: Record<string, [number, number]> = {};
+  const observers: { cb: () => void; on: Element[] }[] = [];
+  const resize = () =>
+    act(() => {
+      for (const o of observers) if (o.on.some((e) => e.classList.contains('oa-rb-content'))) o.cb();
+    });
+
+  beforeEach(() => {
+    observers.length = 0;
+    widths = { 'home.a': [300, 300], 'home.b': [300, 300] };
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        o: { cb: () => void; on: Element[] };
+        constructor(cb: () => void) {
+          this.o = { cb, on: [] };
+          observers.push(this.o);
+        }
+        observe(e: Element) {
+          this.o.on.push(e);
+        }
+        unobserve() {}
+        disconnect() {
+          this.o.on = [];
+        }
+      }
+    );
+    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.classList.contains('oa-rb-content') ? room : 0;
+      }
+    });
+    Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
+      configurable: true,
+      value(this: HTMLElement) {
+        const [wide, tight] = widths[this.dataset.group ?? ''] ?? [0, 0];
+        const width = this.closest('[data-compact]') ? tight : wide;
+        return { width, height: 30, x: 0, y: 0, top: 0, left: 0, right: width, bottom: 30, toJSON: () => ({}) };
+      }
+    });
+  });
+  afterEach(() => {
+    delete (HTMLElement.prototype as { clientWidth?: number }).clientWidth;
+    delete (HTMLElement.prototype as { getBoundingClientRect?: unknown }).getBoundingClientRect;
+  });
+
+  const inStrip = (group: string) => host.querySelector(`.oa-rb-content > [data-group="${group}"]`);
+
+  it('puts a group that does not fit under More, and runs its controls from there', () => {
+    room = 400;
+    mount();
+    expect(inStrip('home.a')).not.toBeNull();
+    expect(inStrip('home.b')).toBeNull();
+    const more = q('[aria-label="More"]');
+    click(more);
+    expect(more.getAttribute('aria-expanded')).toBe('true');
+    const paste = q('.oa-popover [data-group="home.b"] [data-id="paste"]');
+    click(paste);
+    expect(calls).toEqual(['paste']);
+    expect(more.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('takes a group back when the strip widens, and has no More when everything fits', () => {
+    room = 400;
+    mount();
+    expect(inStrip('home.b')).toBeNull();
+    room = 700;
+    resize();
+    expect(inStrip('home.b')).not.toBeNull();
+    expect(host.querySelector('[aria-label="More"]')).toBeNull();
+    room = 250;
+    resize();
+    expect(host.querySelector('.oa-rb-content > [data-group]')).toBeNull();
+    expect(host.querySelector('[aria-label="More"]')).not.toBeNull();
+  });
+
+  it('drops the words from its buttons before it puts a group under More, and takes them back with room', () => {
+    widths = { 'home.a': [300, 200], 'home.b': [300, 200] };
+    room = 500;
+    mount();
+    expect(inStrip('home.b')).not.toBeNull();
+    expect(host.querySelector('[aria-label="More"]')).toBeNull();
+    expect(q('.oa-rb-content').hasAttribute('data-compact')).toBe(true);
+    room = 700;
+    resize();
+    expect(q('.oa-rb-content').hasAttribute('data-compact')).toBe(false);
+    room = 300;
+    resize();
+    expect(q('.oa-rb-content').hasAttribute('data-compact')).toBe(true);
+    expect(inStrip('home.a')).not.toBeNull();
+    expect(inStrip('home.b')).toBeNull();
+  });
+
+  it('keeps the keyboard on the strip: the arrows end at More', () => {
+    room = 400;
+    mount({ ctx: { ...base, canUndo: true } });
+    const focused: string[] = [];
+    const spy = vi.spyOn(HTMLElement.prototype, 'focus').mockImplementation(function (this: HTMLElement) {
+      focused.push(this.dataset.id ?? '');
+    });
+    key(q('[data-id="undo"]'), 'End');
+    spy.mockRestore();
+    expect(focused).toEqual(['ribbon.more']);
+  });
+});
+
 describe('collapsing', () => {
   it('hides the strip, and the chevron asks to expand', () => {
     const onCollapsed = vi.fn();

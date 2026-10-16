@@ -22,6 +22,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import type { Mark as PMMark } from '@tiptap/pm/model';
 import { Plugin, PluginKey, type EditorState, type Transaction } from '@tiptap/pm/state';
+import { darkFill, darkInk } from '../../core/darkColors';
 import { storageOf } from './storage';
 import { canonicalFamily, stackFor } from './fonts';
 import { setBlockStyle, styleAt, type StyleId } from './paragraph';
@@ -62,7 +63,10 @@ export const textAttributes = Extension.create({
             parseHTML: (el: HTMLElement) => safeColor(el.style.color),
             renderHTML: (attrs: Record<string, unknown>) => {
               const color = safeColor(attrs.color);
-              return color ? { style: `color: ${color}` } : {};
+              // The dark page's variant rides beside the colour as a custom property, found by a class,
+              // for the screen's stylesheet alone (doc.css, `@media screen`): the colour as set is what is
+              // stored, copied, printed and exported.
+              return color ? { class: 'oa-dk-i', style: `color: ${color}; --oa-dk-ink: ${darkInk(color)}` } : {};
             }
           }
         }
@@ -80,7 +84,7 @@ export const highlightMark = Highlight.extend({
         parseHTML: (el: HTMLElement) => safeColor(el.getAttribute('data-color') ?? el.style.backgroundColor),
         renderHTML: (attrs: Record<string, unknown>) => {
           const color = safeColor(attrs.color);
-          return color ? { 'data-color': color, style: `background-color: ${color}; color: inherit` } : {};
+          return color ? { 'data-color': color, class: 'oa-dk-f', style: `background-color: ${color}; color: inherit; --oa-dk-fill: ${darkFill(color)}` } : {};
         }
       }
     };

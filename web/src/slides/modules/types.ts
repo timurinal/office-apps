@@ -70,6 +70,23 @@
  * more, drawn in place of Normal's area and listed in the View tab and the footer: the slide sorter
  * is one. `ctx.view` is the id on screen and `ctx.setView` changes it.
  *
+ * ── The right-click menu ────────────────────────────────────────────────────
+ * A module's `contextItems(target, ctx)` answers with groups of rows (`ContextGroup`: an `order` and
+ * the entries); the editor joins every module's groups by `order` with a rule between, and the menu
+ * (core/ContextMenu.tsx) draws them. `target` is what was clicked (`SlidesMenuTarget`); whoever heard
+ * the click (the canvas layer, the rail, the sorter) asks for the menu with `ctx.contextMenu`, and when
+ * no module has a row for it the browser's own menu is left alone. Core's (modules/menus.tsx) fills the
+ * slots marked *; a module adds a group between with a number between.
+ *
+ *   shape    Clipboard 100* (Cut, Copy, Paste) · Text 200* (Edit text, Link, Alt text) · Arrange 300*
+ *            (Group, Ungroup, Arrange ▸) · Format 400* (Format shape) · Table 450* (a table's rows and
+ *            columns, merge and split) · Object 500* (Duplicate, Delete)
+ *   canvas   Clipboard 100* (Paste) · Slide 200* (Layout ▸, Format background)
+ *   slides   New 100* (New slide) · Edit 200* (Duplicate, Delete) · Slide 300* (Hide or Show, Layout ▸)
+ *
+ * Over text being typed in, and with Shift held, the browser's menu is the person's. A reader's menu has
+ * no row that changes the deck (a shape's is Copy where downloads are on).
+ *
  * ── The slide show ──────────────────────────────────────────────────────────
  * `ctx.present(fromSlideIndex)` starts it. One module provides a `presenter`; its `render` is
  * drawn over the whole page while a show runs and calls `close` to end it. With no presenter the
@@ -78,8 +95,10 @@
  */
 
 import type { ReactNode } from 'react';
+import type { Awareness } from 'y-protocols/awareness';
 import type { DocKind, DocumentMeta } from '@shared/api';
 import type { Caps } from '../../core/caps';
+import type { ContextHook, Point } from '../../core/ContextMenu';
 import type { PhIcon } from '../../core/icons';
 import type { Command, EditingMode, FileItem, PaneSpec, RibbonGroup, StatusItem, TabDef } from '../../core/shell/types';
 import type { Toast } from '../../core/ui';
@@ -176,6 +195,8 @@ export interface SlidesContext {
   caps: Caps;
   can: SlidesCan;
   connection: Connection;
+  /** The room, for other people's carets in a table cell: null on a local file and in a version. */
+  awareness: Awareness | null;
   /** The theme, master, layouts and size, as this render read them. `model.design()` is always current. */
   design: Design & { size: Aspect };
   /** The slide on the canvas: null in a deck with no slides. */
@@ -208,8 +229,19 @@ export interface SlidesContext {
   actions: SlidesActions;
   /** Start the slide show at a slide, from 0. Nothing happens without a presenter. */
   present: (fromSlideIndex: number) => void;
+  /**
+   * Open the right-click menu for what was clicked, at a point in window pixels. `from` is the element
+   * whose colours it wears. False, and nothing drawn, when no module has a row for the target.
+   */
+  contextMenu: (target: SlidesMenuTarget, at: Point, from?: Element | null) => boolean;
   notify: (toast: Toast) => void;
 }
+
+/**
+ * What a right click landed on: the chosen objects on the slide (their top-level ids; the chosen
+ * cells of a table are the tables module's), the slide's own ground, or slides in the rail or the sorter.
+ */
+export type SlidesMenuTarget = { kind: 'shape'; ids: readonly string[] } | { kind: 'canvas' } | { kind: 'slides'; ids: readonly string[] };
 
 /** A key a module takes while the slide or the slide list has the keyboard (never in a text box or a field). */
 export interface SlidesKey {
@@ -321,4 +353,6 @@ export interface SlidesModule {
   snap?: (box: Box, s: SnapContext) => SnapResult | null;
   views?: SlidesView[];
   presenter?: Presenter;
+  /** Rows for the right-click menu over a shape, the slide's ground or a thumbnail. Empty groups are skipped. */
+  contextItems?: ContextHook<SlidesMenuTarget, SlidesContext>;
 }

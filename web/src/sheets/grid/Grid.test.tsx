@@ -7,7 +7,7 @@ import { Grid } from './Grid';
 import { GridSession } from './session';
 import { FakeSheet } from './testing/fake';
 import { budgetSheet } from './testing/samples';
-import type { GridIntent } from './types';
+import type { GridContextTarget, GridIntent } from './types';
 
 (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -30,7 +30,7 @@ let session: GridSession;
 let intents: GridIntent[];
 let refused: number;
 
-function mount(over: { readOnly?: boolean; zoom?: number } = {}) {
+function mount(over: { readOnly?: boolean; zoom?: number; onContextMenu?: (target: GridContextTarget, at: { x: number; y: number }, from: Element) => void } = {}) {
   act(() =>
     root.render(
       <>
@@ -46,6 +46,7 @@ function mount(over: { readOnly?: boolean; zoom?: number } = {}) {
             zoom={over.zoom ?? 100}
             readOnly={over.readOnly}
             onReadOnlyEdit={() => refused++}
+            {...(over.onContextMenu ? { onContextMenu: over.onContextMenu } : {})}
           />
         </div>
       </>
@@ -715,5 +716,110 @@ describe('zoom', () => {
     pointer('pointerup', 92 + 400, 52 + 52 * 3 + 20);
     expect(session.sel.active).toEqual({ row: 3, col: 1 });
     expect(host.querySelector<HTMLElement>('.sg-cells')!.style.left).toBe('92px');
+  });
+});
+
+describe('the context menu', () => {
+  type Seen = { target: GridContextTarget; at: { x: number; y: number }; from: Element };
+  let seen: Seen[];
+  const open = () => mount({ onContextMenu: (target, at, from) => seen.push({ target, at, from }) });
+  /** A right click: the press, which chooses what is under it, and the event the browser sends after. */
+  const rightClick = (x: number, y: number, init: MouseEventInit = {}) => {
+    pointer('pointerdown', x, y, { button: 2 });
+    let e!: MouseEvent;
+    act(() => {
+      e = new MouseEvent('contextmenu', { clientX: x, clientY: y, button: 2, bubbles: true, cancelable: true, ...init });
+      scroller().dispatchEvent(e);
+    });
+    return e;
+  };
+  beforeEach(() => {
+    seen = [];
+  });
+
+  it('on a cell outside the selection chooses it, takes the browser\'s menu and says what it is', () => {
+    open();
+    const { x, y } = centre(3, 2);
+    const e = rightClick(x, y);
+    expect(e.defaultPrevented).toBe(true);
+    expect(session.rect()).toEqual({ r1: 3, r2: 3, c1: 2, c2: 2 });
+    expect(seen).toHaveLength(1);
+    expect(seen[0]!.target).toEqual({ kind: 'cell', rect: { r1: 3, r2: 3, c1: 2, c2: 2 }, active: { row: 3, col: 2 } });
+    expect(seen[0]!.at).toEqual({ x, y });
+    expect(seen[0]!.from).toBe(grid());
+  });
+
+  it('on a cell inside the selection keeps the selection', () => {
+    open();
+    session.selectRect({ r1: 1, r2: 4, c1: 1, c2: 3 });
+    const { x, y } = centre(2, 2);
+    rightClick(x, y);
+    expect(seen[0]!.target).toMatchObject({ kind: 'cell', rect: { r1: 1, r2: 4, c1: 1, c2: 3 } });
+  });
+
+  it('on a column header chooses the column, and keeps columns that were chosen', () => {
+    open();
+    rightClick(HW + 180 + 20, HH / 2);
+    expect(seen.at(-1)!.target).toEqual({ kind: 'col', from: 1, to: 1 });
+    expect(session.rect()).toMatchObject({ c1: 1, c2: 1, r1: 0, r2: 999 });
+    session.selectCols(1, 3);
+    rightClick(HW + 180 + 112 + 20, HH / 2);
+    expect(seen.at(-1)!.target).toEqual({ kind: 'col', from: 1, to: 3 });
+  });
+
+  it('on a row header chooses the row', () => {
+    open();
+    rightClick(HW / 2, HH + 26 * 4 + 13);
+    expect(seen.at(-1)!.target).toEqual({ kind: 'row', from: 4, to: 4 });
+    expect(session.rect()).toMatchObject({ r1: 4, r2: 4, c1: 0 });
+  });
+
+  it('leaves the browser\'s menu for a header edge, where a drag resizes', () => {
+    open();
+    const e = rightClick(HW + 180, HH / 2);
+    expect(e.defaultPrevented).toBe(false);
+    expect(seen).toHaveLength(0);
+  });
+
+  it('is the browser\'s with Shift held', () => {
+    open();
+    const { x, y } = centre(3, 2);
+    const e = rightClick(x, y, { shiftKey: true });
+    expect(e.defaultPrevented).toBe(false);
+    expect(seen).toHaveLength(0);
+  });
+
+  it('is the browser\'s while a cell is being edited, for spelling and paste', () => {
+    open();
+    session.beginEdit('f2');
+    const { x, y } = centre(3, 2);
+    const e = rightClick(x, y);
+    expect(e.defaultPrevented).toBe(false);
+    expect(seen).toHaveLength(0);
+  });
+
+  it('is the browser\'s when the editor gave no menu', () => {
+    mount();
+    const { x, y } = centre(3, 2);
+    expect(rightClick(x, y).defaultPrevented).toBe(false);
+  });
+
+  it('opens from the keyboard, at the active cell, with the menu key and with Shift+F10', () => {
+    open();
+    click(2, 1);
+    expect(keydown(grid(), 'ContextMenu')).toBe(true);
+    expect(keydown(grid(), 'F10', { shiftKey: true })).toBe(true);
+    expect(seen).toHaveLength(2);
+    expect(seen[0]!.target).toMatchObject({ kind: 'cell', active: { row: 2, col: 1 } });
+    // Just below the cell: inside the window, to the right of the headers.
+    expect(seen[0]!.at.x).toBeGreaterThan(HW);
+    expect(seen[0]!.at.y).toBeGreaterThan(HH);
+  });
+
+  it('opens from the keyboard over whole columns as the column menu', () => {
+    open();
+    session.selectCols(2, 3);
+    keydown(grid(), 'ContextMenu');
+    expect(seen[0]!.target).toEqual({ kind: 'col', from: 2, to: 3 });
   });
 });

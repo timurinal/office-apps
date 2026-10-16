@@ -21,6 +21,7 @@ import type { Mapping } from '@tiptap/pm/transform';
 import { DecorationSet, type EditorView } from '@tiptap/pm/view';
 import { ySyncPluginKey } from '@tiptap/y-tiptap';
 import type * as Y from 'yjs';
+import { LAYOUT_EVENT } from '../../core/carets';
 import { PageChrome } from './chrome';
 import { buildDecorations, heightCss } from './decorations';
 import { HF_FRAGMENTS, createHFEditor, type HFKind, type HFVariant } from './headerFooter';
@@ -499,6 +500,8 @@ class PageLayoutView implements PageControl {
   private finish(pageCount: number, paged: boolean): void {
     for (const t of tocViews(this.view)) t.refresh();
     this.publish(pageCount, paged);
+    // A header growing moves the text with no transaction: other people's carets measure again.
+    this.view.dom.dispatchEvent(new Event(LAYOUT_EVENT));
     const want = this.pendingHF;
     if (want && paged) {
       this.pendingHF = null;

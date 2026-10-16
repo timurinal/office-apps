@@ -333,10 +333,11 @@
   margin: 0;
   z-index: 5;
 }
+/* One row on every tab and at every width: what does not fit is under More (Ribbon.tsx, useFit). */
 .oa-rb-content {
-  min-height: 44px;
+  height: 44px;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 2px;
   padding: 0 6px;
@@ -349,9 +350,26 @@
 }
 .oa-rb-group {
   display: inline-flex;
+  flex: none;
   align-items: center;
-  flex-wrap: wrap;
   gap: 2px;
+}
+/* Under More, a group is a row of its own and may wrap. */
+.oa-rb-more {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: max-content;
+  max-width: min(520px, calc(100vw - 32px));
+}
+.oa-rb-more .oa-rb-group {
+  flex-wrap: wrap;
+}
+.oa-rb-more .oa-rb-group + .oa-rb-group {
+  align-self: stretch;
+  padding-top: 4px;
+  border-top: 1px solid var(--rule);
 }
 .oa-rb-sep {
   width: 1px;
@@ -388,6 +406,12 @@
   font-weight: 500;
   white-space: nowrap;
 }
+/* Short of room, a button with an icon drops its words (Ribbon.tsx, useFit). They stay its
+   accessible name, and its tip says them. */
+.oa-rb-content[data-compact] .oa-rb-tl:has(> svg:first-child:not(.oa-rb-cv)):not(.oa-popover *) {
+  gap: 2px;
+  font-size: 0;
+}
 .oa-rb-chev {
   width: 14px;
   height: 30px;
@@ -401,6 +425,24 @@
 .oa-rb-tl:hover:not(:disabled),
 .oa-rb-chev:hover:not(:disabled) {
   background: var(--app-hover);
+}
+/* A split button lights whole under the pointer, as Office's does, and the half the pointer is on,
+   the action or its arrow, a step darker. */
+.oa-rb-split {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.oa-rb-split:hover:has(> button:not(:disabled)) {
+  background: var(--app-hover);
+}
+.oa-rb-split > .oa-rb-tl {
+  padding-right: 4px;
+}
+.oa-rb-split > .oa-rb-chev {
+  width: 16px;
+  margin-left: 0;
 }
 .oa-rb-tb[aria-pressed='true'] {
   background: var(--app-50);
@@ -514,6 +556,16 @@
 .oa-rb-swatch[aria-pressed='true'] {
   box-shadow:
     inset 0 0 0 1px rgba(40, 28, 45, 0.18),
+    0 0 0 2px var(--paper),
+    0 0 0 4px var(--app-solid);
+}
+/* A dark swatch on a dark popover needs a line that is the theme's. */
+[data-theme='dark'] .oa-rb-swatch {
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+[data-theme='dark'] .oa-rb-swatch[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 1px var(--bd),
     0 0 0 2px var(--paper),
     0 0 0 4px var(--app-solid);
 }

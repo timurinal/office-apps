@@ -8,6 +8,175 @@
  * Loaded with the editor's chunk, so Home does not carry it.
  */
 
+/* ── Page colour ─────────────────────────────────────────────────────────────
+   The colour of the sheet is the reader's own choice (docs/pageColour.ts) and `Page` writes the
+   resolved one as `data-page`: white, sepia or dark. The page carries its own tokens, so everything
+   drawn in it (the text, the headings, the rules, a table's header, a quote, a link) is right on
+   it whatever theme the app is in; the margin cards (`.rv-margin`) are drawn in the paper and are
+   the app's, so they are left out. White is the base, and so what Print draws, whatever the screen
+   was: Sepia and Dark are `@media screen` only.
+
+   The white and dark sets are styles.css's light and dark tokens (`:root`, `[data-theme='dark']`)
+   and doc.css.test.ts fails if they drift. */
+article.oa-paper {
+  --page-paper: #ffffff;
+}
+article.oa-paper > :not(.rv-margin) {
+  --paper: #ffffff;
+  --fg-1: #292b31;
+  --fg-2: #3f424d;
+  --fg-3: #595d6c;
+  --fg-4: #75798c;
+  --bd: #cfd3e5;
+  --bd-soft: #e4e7f5;
+  --bd-faint: rgba(40, 28, 45, 0.07);
+  --field: #eef0f8;
+  --rule: rgba(40, 28, 45, 0.1);
+  --text-quiet: #b2b6c4;
+  --surface-code: #161820;
+  --selection-bg: #c9dafd;
+  --doc-link: #3d6cd0;
+  --doc-link-hover: #2f55a6;
+  --doc-mention-bg: #ebf1fe;
+  --doc-mention-fg: #2f55a6;
+  --doc-quote-rule: #9dbcfb;
+  /* Docs' own ramp, which a footnote mark, a pill and a placeholder inside the page read: the page's, not the app theme's. */
+  --app-50: #ebf1fe;
+  --app-200: #c9dafd;
+  --app-600: #3d6cd0;
+  --app-700: #2f55a6;
+  --app-text: #2f55a6;
+  --rv-sugg: #886193;
+  --rv-sugg-tint: rgba(136, 97, 147, 0.14);
+  --rv-anc: rgba(232, 163, 61, 0.22);
+  --rv-anc-on: rgba(232, 163, 61, 0.42);
+  color-scheme: light;
+}
+@media screen {
+  article.oa-paper[data-page='sepia'] {
+    --page-paper: #f4ecd8;
+  }
+  article.oa-paper[data-page='sepia'] > :not(.rv-margin) {
+    --paper: #f4ecd8;
+    --fg-1: #433422;
+    --fg-2: #54432f;
+    --fg-3: #75624a;
+    --fg-4: #7a6850;
+    --bd: #d6c7a5;
+    --bd-soft: #e3d6b8;
+    --bd-faint: rgba(67, 52, 34, 0.08);
+    --field: #ebdfc3;
+    --rule: rgba(67, 52, 34, 0.12);
+    --text-quiet: #b5a281;
+    --selection-bg: #e6d3a0;
+    --doc-link: #2f55a6;
+    --doc-link-hover: #24407f;
+    --doc-mention-bg: rgba(61, 108, 208, 0.12);
+    --doc-mention-fg: #2f55a6;
+    --doc-quote-rule: #c9b48a;
+    --app-50: #ebf1fe;
+    --app-200: #c9dafd;
+    --app-600: #3d6cd0;
+    --app-700: #2f55a6;
+    --app-text: #2f55a6;
+  }
+  article.oa-paper[data-page='dark'] {
+    --page-paper: #232532;
+  }
+  article.oa-paper[data-page='dark'] > :not(.rv-margin) {
+    --paper: #232532;
+    --fg-1: #e9e9ed;
+    --fg-2: #cfd3e5;
+    --fg-3: #9397ab;
+    --fg-4: #9397ab;
+    --bd: rgba(233, 233, 237, 0.18);
+    --bd-soft: rgba(233, 233, 237, 0.12);
+    --bd-faint: rgba(233, 233, 237, 0.08);
+    --field: #161826;
+    --rule: rgba(233, 233, 237, 0.12);
+    --text-quiet: #595d6b;
+    --surface-code: #12141c;
+    --selection-bg: rgba(157, 188, 251, 0.3);
+    --doc-link: #9dbcfb;
+    --doc-link-hover: #c9dafd;
+    --doc-mention-bg: rgba(157, 188, 251, 0.14);
+    --doc-mention-fg: #c9dafd;
+    --doc-quote-rule: #6b93e8;
+    --app-50: rgba(157, 188, 251, 0.14);
+    --app-200: rgba(157, 188, 251, 0.26);
+    --app-600: #6b93e8;
+    --app-700: #9dbcfb;
+    --app-text: #c9dafd;
+    --rv-sugg: #c9a3d6;
+    --rv-sugg-tint: rgba(201, 163, 214, 0.16);
+    --rv-anc: rgba(232, 163, 61, 0.2);
+    --rv-anc-on: rgba(232, 163, 61, 0.36);
+    color-scheme: dark;
+  }
+
+  /* The colours the document set, drawn for the dark page. Each carries its own variant, worked out
+     where it is drawn (core/darkColors.ts: hue kept, lightness inverted, never less than 5.5:1 on the
+     page), so no filter is needed and nothing else on the page is touched. They are found by a class
+     (`oa-dk-i` on text, `oa-dk-f` on a fill) so the browser looks up a few elements, not every one with
+     a style. `!important` because the colour as set is an inline style. A text colour that sits on a fill is the same map, and the
+     two are held to 4.5:1 together. */
+  article.oa-paper[data-page='dark'] .oa-dk-i {
+    color: var(--oa-dk-ink) !important;
+  }
+  article.oa-paper[data-page='dark'] .oa-dk-f {
+    background-color: var(--oa-dk-fill) !important;
+  }
+
+  /* The glass is the app's tone, thin, over a page of the same tone. Over a page in the other tone it
+     reads mid-grey under the chrome's ink, so there it is nearly opaque. */
+  html[data-theme='dark'] .oa-shell:has(article.oa-paper:not([data-page='dark'])) .glass {
+    background: rgba(31, 33, 49, 0.9);
+  }
+  html:not([data-theme='dark']) .oa-shell:has(article.oa-paper[data-page='dark']) .glass {
+    background: rgba(255, 255, 255, 0.88);
+  }
+}
+
+/* A chip that points to another app wears that app's colour (`data-app` on the chip). On a dark theme that
+   is the app's dark ramp, a tint with light text, which is right on a dark page and not on a white or a
+   sepia one: they take the light ramp back. */
+article.oa-paper:not([data-page='dark']) .oa-chip-doc[data-app='docs'] {
+  --app-50: #ebf1fe;
+  --app-200: #c9dafd;
+  --app-700: #2f55a6;
+}
+article.oa-paper:not([data-page='dark']) .oa-chip-doc[data-app='sheets'] {
+  --app-50: #e7f5ee;
+  --app-200: #b7e6cd;
+  --app-700: #176842;
+}
+article.oa-paper:not([data-page='dark']) .oa-chip-doc[data-app='slides'] {
+  --app-50: #fdefe7;
+  --app-200: #fdd2b8;
+  --app-700: #9a4116;
+}
+
+/* The three dots in the footer that choose it. */
+.oa-pc-dot {
+  width: 12px;
+  height: 12px;
+  display: block;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--bd);
+}
+.oa-pc-dot[data-pc='auto'] {
+  background: linear-gradient(90deg, #ffffff 50%, #232532 50%);
+}
+.oa-pc-dot[data-pc='white'] {
+  background: #ffffff;
+}
+.oa-pc-dot[data-pc='sepia'] {
+  background: #f4ecd8;
+}
+.oa-pc-dot[data-pc='dark'] {
+  background: #232532;
+}
+
 /* ── The paper ───────────────────────────────────────────────────────────── */
 
 .oa-paper {
@@ -17,7 +186,7 @@
   min-height: 1056px;
   flex: none;
   padding: 78px 84px 96px;
-  background: var(--paper);
+  background: var(--page-paper, var(--paper));
   color: var(--fg-1);
   border-radius: 3px;
   box-shadow:
@@ -114,7 +283,7 @@
 .oa-doc .ProseMirror blockquote {
   margin: 0;
   padding: 0.1em 0 0.1em 1em;
-  border-left: 3px solid var(--app-300);
+  border-left: 3px solid var(--doc-quote-rule, var(--app-300));
   color: var(--fg-3);
 }
 .oa-doc .ProseMirror code {
@@ -144,13 +313,13 @@
   margin: 1.2em 0;
 }
 .oa-doc .ProseMirror a {
-  color: var(--app-600);
+  color: var(--doc-link, var(--app-600));
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
 }
 .oa-doc .ProseMirror a:hover {
-  color: var(--app-700);
+  color: var(--doc-link-hover, var(--app-700));
 }
 .oa-doc .ProseMirror ::selection {
   background: var(--selection-bg);
@@ -159,8 +328,8 @@
 .oa-doc .ProseMirror .mention {
   padding: 1px 8px;
   border-radius: 999px;
-  background: var(--app-50);
-  color: var(--app-700);
+  background: var(--doc-mention-bg, var(--app-50));
+  color: var(--doc-mention-fg, var(--app-700));
   font-weight: 500;
 }
 .oa-doc .ProseMirror table {
@@ -181,37 +350,11 @@
 }
 
 /* ── Other people ────────────────────────────────────────────────────────────
-   Someone else's caret and selection, from CollaborationCaret. The colour of each
-   is set inline from the person's hash (core/color.ts). The caret is an inline
-   block, which is what lets it take a transform: docs/caretGlide.ts moves it. */
-.collaboration-carets__caret {
+   Someone else's caret, name and selection are drawn beside the text, in the
+   layers of core/carets, which carry their look. The text is positioned so the
+   selections, in the layer just before it, sit under it; a page already is. */
+.pg-host > .ProseMirror {
   position: relative;
-  display: inline-block;
-  width: 0;
-  height: 1.15em;
-  vertical-align: text-bottom;
-  margin-left: -1px;
-  margin-right: -1px;
-  border-left: 1px solid;
-  border-right: 1px solid;
-  word-break: normal;
-  pointer-events: none;
-}
-.collaboration-carets__label {
-  position: absolute;
-  bottom: 100%;
-  left: -1px;
-  padding: 3px 5px;
-  border-radius: 4px 4px 4px 0;
-  color: #fff;
-  font-family: var(--font-body), Inter, system-ui, sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  font-style: normal;
-  line-height: 1;
-  white-space: nowrap;
-  user-select: none;
-  pointer-events: none;
 }
 
 /* A reader who may not copy: nothing to select, and nothing printed. */

@@ -114,6 +114,7 @@ export function LayoutButton(p: ButtonProps) {
         data-rb-item
         data-id={p.id}
         className="oa-rb-tl"
+        title={p.label}
         aria-haspopup="menu"
         aria-expanded={o.open}
         disabled={p.disabled}
