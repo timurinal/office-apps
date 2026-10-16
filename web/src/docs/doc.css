@@ -32,8 +32,8 @@ article.oa-paper > :not(.rv-margin) {
   --bd-faint: rgba(40, 28, 45, 0.07);
   --field: #eef0f8;
   --rule: rgba(40, 28, 45, 0.1);
-  --text-quiet: #b2b6ca;
-  --surface-code: #161826;
+  --text-quiet: #b2b6c4;
+  --surface-code: #161820;
   --selection-bg: #c9dafd;
   --doc-link: #3d6cd0;
   --doc-link-hover: #2f55a6;
@@ -94,8 +94,8 @@ article.oa-paper > :not(.rv-margin) {
     --bd-faint: rgba(233, 233, 237, 0.08);
     --field: #161826;
     --rule: rgba(233, 233, 237, 0.12);
-    --text-quiet: #595d6c;
-    --surface-code: #12142e;
+    --text-quiet: #595d6b;
+    --surface-code: #12141c;
     --selection-bg: rgba(157, 188, 251, 0.3);
     --doc-link: #9dbcfb;
     --doc-link-hover: #c9dafd;

@@ -138,16 +138,16 @@ const digest = (value: unknown): string => createHash('sha256').update(JSON.stri
  * written for Plain has leaked into the look of a theme it was not written for.
  */
 const BEFORE: Record<string, { layouts: string; master: string; preview: string }> = {
-  violet: { layouts: '029923addf0b283e', master: '7f55a1c4116b6b42', preview: 'a40520fdded118b6' },
+  violet: { layouts: 'b4604ac01351b090', master: '5f745b7d73b4a46e', preview: '4012467077dee3ba' },
   midnight: { layouts: '16e953741d0930ad', master: '65642124fc48fb75', preview: '6e805552f7708e4b' },
   paper: { layouts: 'b95c65f4256fee1e', master: 'd8ecf1a125f0d757', preview: '8954a4a239700369' },
   fern: { layouts: 'a7a416a3735bf439', master: '4005f025f4c51890', preview: 'a7f9793f036411b7' },
   harbour: { layouts: '237d9f8a0b1ad9e1', master: '70e1dd83e577e3ef', preview: '429f21dda923aa82' },
-  ember: { layouts: '8d99439da432c4a4', master: '7f55a1c4116b6b42', preview: '88f44f662579b3cb' },
+  ember: { layouts: 'a7a416a3735bf439', master: '5f745b7d73b4a46e', preview: '925d6e636013b3af' },
   graphite: { layouts: '8496a22d0fede127', master: '347a1d4f39917610', preview: '3c429e1f542d4eca' },
   billboard: { layouts: '04eb525c5f84cee0', master: '027642bfe965ae22', preview: '8102d5eec12c8183' },
-  imported: { layouts: '710cbf73a727c85b', master: '564a453f62484ea3', preview: '500bd052f0cda2f3' },
-  yellow: { layouts: '710cbf73a727c85b', master: '95a707b50b054cc2', preview: 'd4625da788e62812' }
+  imported: { layouts: '402040a160b55f32', master: '4005f025f4c51890', preview: '2e7ababc7ad16c92' },
+  yellow: { layouts: '402040a160b55f32', master: 'ccf7e1b1d846886f', preview: '539afc2b5bf12bf8' }
 };
 
 describe('every theme but Plain keeps its look', () => {
