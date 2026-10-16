@@ -33,7 +33,10 @@ The edits to base files, all of them; add to this list if you must add one:
 8. `web/src/slides/modules/index.ts`: `desktopSlidesModule` appended.
 9. `web/src/slides/render/assets.tsx`: `setLocalAssets`; `documentAssets` asks it first.
 10. `web/src/slides/modules/insert/picture.ts`: `setPictureUpload` replaces the upload step.
-11. `web/src/slides/modules/files.tsx`: PowerPoint export reads a local deck's pictures too.
+
+`web/src/companion/` is upstream code for a different desktop shell, renamed on the way into `base`
+so it never mixes with `web/src/desktop/`. It acts only when the user agent carries that shell's
+mark, which this shell never sends; leave it be.
 
 Code from `base` that needs a server (sharing, comments, history, `client.ts`, `docs/room.ts`) is
 kept as it is and never reached: the editors hide it when `source.features` says there is no

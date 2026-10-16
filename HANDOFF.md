@@ -25,6 +25,13 @@ fork mirrored `index.html`, `main.tsx` (`initAppearance`, the toast's editor col
 `@tiptap/extension-collaboration-caret`. Nobody has looked at Dark on a Mac: QtWebEngine's
 `prefers-color-scheme` should follow the system's setting, which is what System means here.
 
+A third port brought, among smaller things, a web side for a different desktop app upstream. Its
+folder arrives as `web/src/companion/` (the transform renames it and the imports of it) and is
+inert here; its separate local page (`web/src/local/`) is left out of the snapshot. Upstream's
+editors now take an `assets` and a `fileItems` prop; the PowerPoint export reads pictures through
+the first, so the fork's hunk in `slides/modules/files.tsx` is gone. `LocalSlidesPage` could pass
+`assets` instead of hunk 9, but the audience window still asks `documentAssets`, so hunk 9 stays.
+
 ## What the Slides session did
 
 - **Slides.** `desktop/LocalSlidesPage.tsx` opens a blank, a template, an `.oadeck` or a PowerPoint
