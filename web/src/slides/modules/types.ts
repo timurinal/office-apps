@@ -106,6 +106,7 @@ import type { DocumentSource, SourceFeatures } from '../../docs/source';
 import type { Aspect, SlideJSON } from '../model/deck';
 import type { Box, SlideModel } from '../model/model';
 import type { Design } from '../model/styles';
+import type { AssetUrl } from '../render/assets';
 import type { Handle } from '../editor/geometry';
 import type { Selection, SelectionStore } from '../editor/selection';
 import type { TextFormat } from '../editor/format';
@@ -195,6 +196,8 @@ export interface SlidesContext {
   caps: Caps;
   can: SlidesCan;
   connection: Connection;
+  /** Where a picture is: the document's assets, or a local deck's pictures in this page. */
+  assets: AssetUrl;
   /** The room, for other people's carets in a table cell: null on a local file and in a version. */
   awareness: Awareness | null;
   /** The theme, master, layouts and size, as this render read them. `model.design()` is always current. */

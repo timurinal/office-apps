@@ -6,8 +6,9 @@
  *              a marquee, Escape to let go (from a group's child to the group first). A second click
  *              on a chosen group goes into it; on a chosen shape it puts the caret where it landed.
  *   move       drag what is chosen; Shift keeps to one axis, Alt turns snapping off
- *   resize     eight handles; Shift keeps the proportions, Alt resizes from the centre. A line has a
- *              handle at each end instead.
+ *   resize     eight handles; Shift keeps the proportions, Ctrl (Option on a Mac, or Alt) resizes from
+ *              the centre, and the two together do both, as in PowerPoint. A line has a handle at each
+ *              end instead.
  *   turn       the handle above the box; Shift turns in steps of 15 degrees
  *   keys       arrows nudge (Shift for 10 px), Delete deletes, Tab goes to the next element, Enter or
  *              F2 or a typed character goes into the text, Page Up and Page Down change slide
@@ -215,7 +216,7 @@ export const Canvas = memo(function Canvas(p: CanvasProps) {
       if (els.length === 1) setLive({ kind: 'preview', preview: rotatePreview(els[0]!, at, e.shiftKey) });
       return;
     }
-    setLive({ kind: 'preview', preview: resizePreview(els, pr.handle, delta, { keepAspect: e.shiftKey, fromCentre: e.altKey, snap: snapper(e.altKey) }) });
+    setLive({ kind: 'preview', preview: resizePreview(els, pr.handle, delta, { keepAspect: e.shiftKey, fromCentre: e.ctrlKey || e.altKey, snap: snapper(e.altKey) }) });
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>, cancelled = false) => {

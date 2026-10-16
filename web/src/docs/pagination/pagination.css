@@ -226,13 +226,16 @@ tr.pg-sp-row > td {
   transform: translate(-50%, -50%);
   padding: 0 8px;
   background: var(--paper);
-  color: var(--text-quiet);
+  color: var(--fg-3);
   font-size: 11px;
   line-height: 1;
 }
-/* In print layout the next page is the break; the marker shrinks to a hairline on its page. */
+/* In print layout the next page is the break; the marker shrinks to a hairline on its page. Its
+   words stay as they are: faded too, they were unreadable on a dark page. */
 .pg-paged .pg-break {
   height: 10px;
+}
+.pg-paged .pg-break::before {
   opacity: 0.6;
 }
 .pg-break.ProseMirror-selectednode::before {

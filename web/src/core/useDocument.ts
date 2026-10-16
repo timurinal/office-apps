@@ -13,6 +13,7 @@ import type { DocumentMeta } from '@shared/api';
 import { ApiError, errorText } from '../api';
 import { documents } from '../client';
 import { takePrefetched } from './prefetch';
+import { onTitle } from './titles';
 
 export type DocLoad =
   | { status: 'loading' }
@@ -47,6 +48,15 @@ export function useDocument(id: string) {
       live = false;
     };
   }, [id, key]);
+
+  // A rename made in another tab or by another owner, announced by the room.
+  useEffect(
+    () =>
+      onTitle(id, (title) =>
+        setLoad((l) => (l.status === 'ready' && l.meta.title !== title ? { ...l, meta: { ...l.meta, title } } : l))
+      ),
+    [id]
+  );
 
   /** Ask again without blanking the page: a role changed, a title was saved. */
   const refresh = useCallback(async (): Promise<void> => {

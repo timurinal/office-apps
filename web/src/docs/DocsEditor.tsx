@@ -34,7 +34,7 @@ import { EditorShell, type ShellPane } from '../core/shell/EditorShell';
 import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
-import type { PaneSpec } from '../core/shell/types';
+import type { FileItem, PaneSpec } from '../core/shell/types';
 import { AppKindProvider, Banner, Bone, Modal, useModalClose, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -154,17 +154,20 @@ export interface DocsEditorProps {
   refresh?: () => Promise<void>;
   /** Start over, with the loading state. */
   reload?: () => void;
+  /** File menu rows the page adds: the desktop app's Save, the web's "Open in the desktop app". */
+  fileItems?: readonly FileItem<unknown>[];
 }
 
 const nothing = (): void => undefined;
 const nothingAsync = async (): Promise<void> => undefined;
 
-export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing }: DocsEditorProps) {
+export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing, fileItems }: DocsEditorProps) {
   const { me } = useApp();
   const { navigate } = useRouter();
   const notify = useNotify();
   const caps = capsFor(meta);
   const features = source.features;
+  const fileRows = useMemo(() => (fileItems?.length ? [...COLLECTED.fileItems, ...fileItems] : COLLECTED.fileItems), [fileItems]);
 
   const rs = useConnection(source, { onRoleChanged: () => void refresh(), checkAccess: () => checkAccess(meta.id) });
   const peers = usePeers(rs.conn?.awareness ?? null);
@@ -608,7 +611,7 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
           ctx,
           active: tab,
           onActive: setTab,
-          fileMenu: <FileMenu items={COLLECTED.fileItems} ctx={ctx} />,
+          fileMenu: <FileMenu items={fileRows} ctx={ctx} />,
           modeSlot: <EditingModeMenu modes={modes} mode={activeMode} onMode={setMode} />,
           subscribe
         }}

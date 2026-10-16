@@ -169,6 +169,12 @@ describe('a table', () => {
     expect(rows()).toEqual(['Insert row above', 'Insert row below', 'Insert column left', 'Insert column right', 'Delete row', 'Delete column', 'Merge cells', 'Split cell', 'Delete table']);
   });
 
+  it('gives every row an icon, so the deletes line up with the rest', () => {
+    mount();
+    rightClick(find('td'));
+    expect(rows().filter((label) => !row(label).querySelector('svg'))).toEqual([]);
+  });
+
   it('puts the caret in the cell that was clicked, so the rows act on it', () => {
     mount();
     rightClick(dom().querySelectorAll('td')[3]!);

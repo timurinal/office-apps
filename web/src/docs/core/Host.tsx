@@ -21,6 +21,7 @@ import type { Editor } from '@tiptap/core';
 import { NodeSelection } from '@tiptap/pm/state';
 import { useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
 import { isDocKind } from '@shared/api';
+import { openInNewTab } from '../../companion/cloud';
 import { docPath } from '../../home/home';
 import { whenIdle } from '../../core/prefetch';
 import { useRouter } from '../../router';
@@ -54,7 +55,7 @@ function useChipClicks(editor: Editor | null, navigate: (to: string) => void): v
       if (!id || !isDocKind(kind) || el.dataset.state === 'unavailable') return;
       const href = docPath(kind, id);
       e.preventDefault();
-      if (e.ctrlKey || e.metaKey || e.button === 1) window.open(href, '_blank', 'noopener,noreferrer');
+      if (e.ctrlKey || e.metaKey || e.button === 1) openInNewTab(href);
       else navigate(href);
     };
 

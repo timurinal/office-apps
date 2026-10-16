@@ -144,7 +144,7 @@ export function normalised(b: Box): Box {
 export interface ResizeOptions {
   /** Shift: the proportions stay. */
   keepAspect?: boolean;
-  /** Alt: the centre stays and both sides move. */
+  /** Ctrl, or Alt: the centre stays and both sides move. */
   fromCentre?: boolean;
   min?: number;
 }

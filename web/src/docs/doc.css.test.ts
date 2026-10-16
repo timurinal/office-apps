@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { contrast } from '../core/color';
 
 /**
  * The page colour is CSS, so what keeps it honest is read from the CSS: that a white page and a dark
@@ -128,5 +129,27 @@ describe('what is for the screen only', () => {
     expect(decl(print, 'background')).toBe('#fff');
     expect(decl(doc.find((r) => r.media === '@media print' && r.selector === '.oa-doc .ProseMirror'), 'color')).toBe('#000');
     expect(decl(doc.find((r) => r.selector === 'article.oa-paper'), '--page-paper')).toBe('#ffffff');
+  });
+});
+
+describe("the page break's marker", () => {
+  const pagination = read('src/docs/pagination/pagination.css');
+  const label = pagination.find((r) => r.selector === '.pg-break::after');
+
+  it('is readable on every page colour: small type wants 4.5:1', () => {
+    const token = /^var\((--[\w-]+)\)$/.exec(decl(label, 'color') ?? '')?.[1];
+    expect(token).toBeDefined();
+    for (const tone of ['white', 'sepia', 'dark']) {
+      const fg = decl(page(tone), token!);
+      const paper = decl(page(tone), '--paper');
+      expect(fg, `${token} on the ${tone} page`).toMatch(/^#[0-9a-f]{6}$/i);
+      expect(contrast(fg!, paper!), `${tone}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('is not faded in print layout: only its rule is', () => {
+    for (const r of pagination.filter((x) => /\.pg-paged \.pg-break(::after)?$/.test(x.selector))) {
+      expect(decl(r, 'opacity'), r.selector).toBeUndefined();
+    }
   });
 });

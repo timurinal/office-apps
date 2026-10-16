@@ -26,6 +26,7 @@ import { Extension, type Editor, type Range } from '@tiptap/core';
 import type { Node as PMNode } from '@tiptap/pm/model';
 import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { yUndoPluginKey } from '@tiptap/y-tiptap';
 
 export interface FindOptions {
   query: string;
@@ -236,6 +237,13 @@ export function replaceCurrent(editor: Editor): boolean {
   const s = findState(editor);
   const m = s.matches[s.current];
   if (!editor.isEditable || !m) return false;
+  // A step remembers the selection it was made from, and undo puts that back
+  // (core/undoSelection.ts): select the match first, so undoing a Replace selects
+  // the word again, and make the Replace a step of its own, as in Word.
+  editor.view.dispatch(
+    editor.state.tr.setSelection(TextSelection.create(editor.state.doc, m.from, m.to)).setMeta('addToHistory', false)
+  );
+  yUndoPluginKey.getState(editor.state)?.undoManager.stopCapturing();
   editor.view.dispatch(editor.state.tr.insertText(s.replace, m.from, m.to));
   // The search has re-run on the change. What comes next is the first match past the
   // replacement, which is not the same index when the replacement itself matches.

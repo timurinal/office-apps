@@ -38,7 +38,8 @@ import * as Y from 'yjs';
 import * as decoding from 'lib0/decoding';
 import { WebsocketProvider } from 'y-websocket';
 import type { Awareness } from 'y-protocols/awareness';
-import { API_BASE, ROOM_CLOSE } from '@shared/api';
+import { API_BASE, LIMITS, ROOM_CLOSE } from '@shared/api';
+import { publishTitle } from '../core/titles';
 
 /** The Yjs fragment the Docs body lives in. Tiptap's own default, kept so a
  *  document made by any Tiptap client opens. Headers and footers (phase 2) get
@@ -104,13 +105,19 @@ export function socketBase(loc: { protocol: string; host: string }): string {
 
 // ── the room's notice ───────────────────────────────────────────────────────
 
-/** What the room says that is not Yjs: today only that the document is getting
- *  large. It travels as a `denied` frame with sub-type 1 (worker/lib/room-protocol.ts
- *  `AUTH.notice`), which a stock provider reads as nothing at all. */
+/** What the room says that is not Yjs: that the document is getting large, or
+ *  that it has a new title. It travels as a `denied` frame with sub-type 1
+ *  (worker/lib/room-protocol.ts `AUTH.notice`), which a stock provider reads as
+ *  nothing at all. */
 export interface RoomNotice {
   kind: 'size';
   bytes: number;
   limit: number;
+}
+
+export interface TitleNotice {
+  kind: 'title';
+  title: string;
 }
 
 const MSG_AUTH = 2;
@@ -121,12 +128,16 @@ const AUTH_NOTICE = 1;
  * leaves it: past the message type, at the sub-type. Reads a copy, so a frame
  * that is not a notice is still the provider's to read.
  */
-export function peekNotice(decoder: decoding.Decoder): RoomNotice | null {
+export function peekNotice(decoder: decoding.Decoder): RoomNotice | TitleNotice | null {
   try {
     const copy = decoding.createDecoder(decoder.arr);
     copy.pos = decoder.pos;
     if (decoding.readVarUint(copy) !== AUTH_NOTICE) return null;
     const v: unknown = JSON.parse(decoding.readVarString(copy));
+    if (typeof v === 'object' && v !== null && (v as TitleNotice).kind === 'title') {
+      const { title } = v as TitleNotice;
+      return typeof title === 'string' && title && title.length <= LIMITS.titleMax ? { kind: 'title', title } : null;
+    }
     if (
       typeof v === 'object' &&
       v !== null &&
@@ -141,6 +152,19 @@ export function peekNotice(decoder: decoding.Decoder): RoomNotice | null {
     // Not ours to repair.
   }
   return null;
+}
+
+/**
+ * Hand a notice to whoever it is for: a new title to every part of the page
+ * showing that document (core/titles.ts), anything else to the room's own
+ * handler. False when the frame is not a notice, so the provider reads it.
+ */
+export function takeNotice(documentId: string, decoder: decoding.Decoder, onNotice: (n: RoomNotice) => void): boolean {
+  const notice = peekNotice(decoder);
+  if (!notice) return false;
+  if (notice.kind === 'title') publishTitle(documentId, notice.title);
+  else onNotice(notice);
+  return true;
 }
 
 // ── the connection ──────────────────────────────────────────────────────────
@@ -190,9 +214,7 @@ export function connectRoom(
   // The room's notice rides on the provider's own handler for frame type 2.
   const original = provider.messageHandlers[MSG_AUTH];
   provider.messageHandlers[MSG_AUTH] = (encoder, decoder, p, emitSynced, type) => {
-    const notice = peekNotice(decoder);
-    if (notice) events.onNotice(notice);
-    else original?.(encoder, decoder, p, emitSynced, type);
+    if (!takeNotice(documentId, decoder, events.onNotice)) original?.(encoder, decoder, p, emitSynced, type);
   };
 
   const check = (resumeIfFine: boolean): void => {

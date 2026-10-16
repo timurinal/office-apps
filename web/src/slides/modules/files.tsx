@@ -17,7 +17,6 @@ import filePptRaw from '@phosphor-icons/core/assets/regular/file-ppt.svg?raw';
 import { buildingsIcon, cardsIcon, ph, xIcon } from '../../core/icons';
 import { whenIdle } from '../../core/prefetch';
 import { canOfferToOrganisation, loadOrganisation, offer, scopeOf } from '../../docs/templates/offer';
-import { documentAssets } from '../render/assets';
 import type { SlidesContext, SlidesModule } from './types';
 
 const downloadIcon = ph(downloadSimpleRaw);
@@ -29,7 +28,7 @@ async function download(c: SlidesContext): Promise<void> {
   await downloadPptx({
     deck: () => c.model.deck(),
     title: c.meta.title,
-    assetUrl: c.source.kind === 'cloud' ? documentAssets(c.meta.id) : () => null,
+    assetUrl: c.assets,
     notify: c.notify
   });
 }

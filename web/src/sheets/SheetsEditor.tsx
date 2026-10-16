@@ -43,7 +43,7 @@ import { EditorShell, type ShellPane } from '../core/shell/EditorShell';
 import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
-import type { PaneSpec } from '../core/shell/types';
+import type { FileItem, PaneSpec } from '../core/shell/types';
 import { AppKindProvider, Banner, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -94,6 +94,8 @@ export interface SheetsEditorProps {
   refresh?: () => Promise<void>;
   /** Start over, with the loading state. */
   reload?: () => void;
+  /** File menu rows the page adds: the desktop app's Save, the web's "Open in the desktop app". */
+  fileItems?: readonly FileItem<unknown>[];
 }
 
 const nothing = (): void => undefined;
@@ -105,12 +107,13 @@ const toastFor = (n: ModelNotice): { text: string; tone?: 'danger' } | null => {
   return n.kind === 'read-only' ? { text: n.message } : { text: n.message, tone: 'danger' };
 };
 
-export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing }: SheetsEditorProps) {
+export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing, fileItems }: SheetsEditorProps) {
   const { me } = useApp();
   const { navigate } = useRouter();
   const notify = useNotify();
   const caps = capsFor(meta);
   const features = source.features;
+  const fileRows = useMemo(() => (fileItems?.length ? [...COLLECTED.fileItems, ...fileItems] : COLLECTED.fileItems), [fileItems]);
   const act = useDocumentActions(meta, setMeta, reload);
 
   const [tab, setTab] = useState('home');
@@ -538,7 +541,7 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
           ctx,
           active: tab,
           onActive: setTab,
-          fileMenu: <FileMenu items={COLLECTED.fileItems} ctx={ctx} />,
+          fileMenu: <FileMenu items={fileRows} ctx={ctx} />,
           modeSlot: <EditingModeMenu modes={modes} mode={activeMode} onMode={setMode} />,
           subscribe
         }}

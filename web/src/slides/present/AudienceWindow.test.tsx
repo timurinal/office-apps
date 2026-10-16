@@ -152,6 +152,26 @@ describe('the slide, once the deck has come', () => {
     expect(q('.sp-chip')).toBeNull();
   });
 
+  it('takes F11 for full screen, which Firefox has no other way to give a window a script opened', async () => {
+    // F11 did nothing in the audience window in Zen.
+    Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: true });
+    const enter = vi.fn(() => Promise.resolve());
+    (HTMLElement.prototype as unknown as { requestFullscreen: unknown }).requestFullscreen = enter;
+    try {
+      const t = setup();
+      t.sync();
+      await settle();
+      const e = keydown('F11');
+      expect(e.defaultPrevented).toBe(true);
+      expect(enter).toHaveBeenCalledTimes(1);
+      // With a key held with it, it is the browser's.
+      expect(keydown('F11', { ctrlKey: true }).defaultPrevented).toBe(false);
+      expect(enter).toHaveBeenCalledTimes(1);
+    } finally {
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>).requestFullscreen;
+    }
+  });
+
   it('keeps the show, and its place, through a reconnect', async () => {
     const t = setup({ show: null });
     t.sync();

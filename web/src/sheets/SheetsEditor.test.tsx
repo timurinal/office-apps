@@ -7,6 +7,7 @@ import type { DocumentMeta } from '@shared/api';
 
 vi.mock('../state', () => ({ useApp: () => ({ me: { id: 'u_ada', name: 'Ada Rowe' } }) }));
 
+import type { FileItem } from '../core/shell/types';
 import { ToastHost } from '../core/ui';
 import { localMeta } from '../docs/source';
 import { RouterProvider } from '../router';
@@ -37,7 +38,7 @@ const meta = (over: Partial<DocumentMeta> = {}): DocumentMeta => ({ ...localMeta
 /** The structure document of the workbook that is open, for a test to be somebody else with. */
 let theirs: Y.Doc | null = null;
 
-async function open(over: Partial<DocumentMeta> = {}) {
+async function open(over: Partial<DocumentMeta> = {}, fileItems?: readonly FileItem<unknown>[]) {
   const seed = buildSheetSeed((b) => {
     const s = b.addSheet('Costs');
     s.cell(0, 0, { value: 10 }).cell(1, 0, { value: 20 });
@@ -56,7 +57,7 @@ async function open(over: Partial<DocumentMeta> = {}) {
     root.render(
       <RouterProvider>
         <ToastHost>
-          <SheetsEditor source={source} meta={meta(over)} />
+          <SheetsEditor source={source} meta={meta(over)} fileItems={fileItems} />
         </ToastHost>
       </RouterProvider>
     )
@@ -434,5 +435,19 @@ describe('the right-click menu', () => {
     const e = rightClick(x, y);
     expect(menu()).toBeNull();
     expect(e.defaultPrevented).toBe(true);
+  });
+});
+
+describe('the File menu', () => {
+  // The desktop app's Save rows, and the web's "Open in the desktop app", come from the page.
+  it('carries the rows the page adds, and runs them', async () => {
+    const run = vi.fn();
+    await open({}, [{ id: 'file.extra', label: 'Save', section: 'Save', order: 10, run }]);
+    const file = [...host.querySelectorAll('button')].find((b) => b.textContent === 'File')!;
+    act(() => file.click());
+    const row = [...document.body.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')].find((b) => b.textContent === 'Save');
+    expect(row).toBeDefined();
+    act(() => row!.click());
+    expect(run).toHaveBeenCalledTimes(1);
   });
 });
