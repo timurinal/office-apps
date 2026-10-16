@@ -24,8 +24,10 @@ import { createPortal } from 'react-dom';
 import type { DocKind } from '@shared/api';
 import { DUR } from '../motion';
 import { usePresence } from '../motion/presence';
+import { useEditorTheme } from './appearance';
 import { initialsOf } from './color';
 import { Button, IconButton } from './controls';
+import { inPortalledPopup } from './popupScope';
 import {
   Icon,
   infoIcon,
@@ -136,7 +138,8 @@ export function useDismiss(open: boolean, root: React.RefObject<HTMLElement | nu
   useEffect(() => {
     if (!open) return;
     const away = (e: PointerEvent) => {
-      if (root.current && !root.current.contains(e.target as Node)) close.current();
+      // A dropdown's list or a menu inside the panel is drawn in a portal on <body> (popup.css), and is not outside it.
+      if (root.current && !root.current.contains(e.target as Node) && !inPortalledPopup(e.target)) close.current();
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !e.defaultPrevented) {
@@ -197,6 +200,7 @@ export function Modal({
   morph?: boolean;
 }) {
   const kind = useAppKind();
+  const theme = useEditorTheme(kind);
   const [open, setOpen] = useState(true);
   const { present, state } = usePresence(open, DUR.fast);
   const closeRef = useRef(onClose);
@@ -262,7 +266,7 @@ export function Modal({
         className="oa-scrim"
         data-state={state}
         {...(kind ? { 'data-app': kind } : {})}
-        {...(kind === 'slides' ? { 'data-theme': 'dark' } : {})}
+        {...(theme ? { 'data-theme': theme } : {})}
         onMouseDown={(e) => {
           if (e.target === e.currentTarget) requestClose();
         }}
@@ -533,6 +537,7 @@ export function ToastHost({ children }: { children: React.ReactNode }) {
   const { present, state } = usePresence(open, DUR.fast);
   const counter = useRef(0);
   const kind = useAppKind();
+  const theme = useEditorTheme(kind);
 
   const notify = useCallback((t: Toast) => {
     setToast({ ...t, n: ++counter.current });
@@ -561,6 +566,7 @@ export function ToastHost({ children }: { children: React.ReactNode }) {
           data-state={state}
           data-tone={toast.tone}
           {...(kind ? { 'data-app': kind } : {})}
+          {...(theme ? { 'data-theme': theme } : {})}
         >
           <span style={{ flex: 1 }}>{toast.text}</span>
           {toast.action && (

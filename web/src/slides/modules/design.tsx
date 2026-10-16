@@ -71,13 +71,13 @@ function ThemeTile({ p, active, disabled, onPick, fonts, rb }: { p: ThemePreview
           ))}
         </span>
       </span>
-      <span className="sl-theme-name">{p.name}</span>
+      {!rb && <span className="sl-theme-name">{p.name}</span>}
       {fonts && <span className="sl-theme-fonts">{p.major === p.minor ? p.major : `${p.major}, ${p.minor}`}</span>}
     </button>
   );
 }
 
-/** The first themes in a row, and the whole gallery under an arrow. */
+/** The first themes in a row, each its card alone so that it is one control high, and the whole gallery, named, under an arrow. */
 function ThemeGallery({ ctx }: { ctx: SlidesContext }) {
   const o = useOpen(360);
   const disabled = !ctx.can.edit;
@@ -147,7 +147,7 @@ function BackgroundButton({ ctx }: { ctx: SlidesContext }) {
 
   return (
     <span className="oa-pop-wrap">
-      <button type="button" data-rb-item data-id="design.background" className="oa-rb-tl" aria-haspopup="dialog" aria-expanded={o.open} disabled={disabled} onMouseDown={keepSelection} onClick={o.toggle}>
+      <button type="button" data-rb-item data-id="design.background" className="oa-rb-tl" title="Background" aria-haspopup="dialog" aria-expanded={o.open} disabled={disabled} onMouseDown={keepSelection} onClick={o.toggle}>
         <Icon icon={paletteIcon} size={16} />
         Background
         <Icon icon={caretDownIcon} size={11} className="oa-rb-cv" />

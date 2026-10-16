@@ -38,9 +38,27 @@
  *   Danger     Move to trash 900
  *
  * Commands take their `section` heading from the same vocabulary: File, Edit, Insert, Format, Data, View.
+ *
+ * ── The right-click menu ────────────────────────────────────────────────────
+ * A module's `contextItems(target, ctx)` answers with groups of rows (`ContextGroup`: an `order` and
+ * the entries), the editor joins every module's groups by `order` with a rule between, and the menu
+ * (core/ContextMenu.tsx) draws them. `target` is what the click landed on (`SheetsMenuTarget`). Core's
+ * (modules/menus.tsx) fills the slots marked *; a module adds a group between with a number between.
+ *
+ *   cell   Clipboard 100* (Cut, Copy, Paste, Paste values) · Cells 200* (Insert ▸, Delete ▸, Clear
+ *          contents) · Data 300* (Sort ▸, Filter) · Format 400* (Format cells)
+ *   col    Clipboard 100* · Size 200* (Column width, Autofit) · Cells 300* (Insert left and right,
+ *          Delete) · Show 400* (Hide, Unhide) · Data 500* (Sort A to Z and Z to A)
+ *   row    Clipboard 100* · Size 200* (Row height, Autofit) · Cells 300* (Insert above and below,
+ *          Delete) · Show 400* (Hide, Unhide)
+ *
+ * The sheet tabs' menu and a chart's are the components' own (SheetTabs.tsx, ChartCard.tsx) and use the
+ * same menu. Gate a row on `ctx.can`: a reader's menu has no row that changes the workbook. Shift and
+ * a right click opens the browser's menu, and a cell being edited has it too.
  */
 
-import type { Cellpos, GridIntent, Rect } from '../grid/types';
+import type { ContextHook } from '../../core/ContextMenu';
+import type { Cellpos, GridContextTarget, GridIntent, Rect } from '../grid/types';
 import type { GridSession } from '../grid';
 import type { DocKind, DocumentMeta } from '@shared/api';
 import type { Caps } from '../../core/caps';
@@ -165,6 +183,9 @@ export interface SheetsOverlay {
   render: (c: SheetsContext) => ReactNode;
 }
 
+/** What a right click landed on: a cell or a range, whole columns, or whole rows. */
+export type SheetsMenuTarget = GridContextTarget;
+
 export interface SheetsModule {
   /** `core`, `format`, `charts`. Unique. */
   id: string;
@@ -186,4 +207,6 @@ export interface SheetsModule {
    * header cell, which opens a menu. Return true when it was taken, and the next module is not asked.
    */
   onIntent?: (intent: GridIntent, c: SheetsContext) => boolean | void;
+  /** Rows for the right-click menu over a cell, a column header or a row header. Empty groups are skipped. */
+  contextItems?: ContextHook<SheetsMenuTarget, SheetsContext>;
 }

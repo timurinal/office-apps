@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ChartElement, ElementJSON, ShapeElement, TableElement } from '../../model/deck';
 import { plainText } from '../../model/schema';
 import { box, modelOf, peerOf, sync, testDeck, txt } from '../../model/testing';
+import { chooseCombo } from '../../../core/selectTestkit';
 import { createTextFormat } from '../../editor/format';
 import { SelectionStore } from '../../editor/selection';
 import { tablesFor, clearCells } from '../../modules/insert/tables';
@@ -59,19 +60,13 @@ const field = (label: string): HTMLInputElement => {
   if (!el) throw new Error(`no field ${label}`);
   return el;
 };
-/** A native dropdown by its name, and a choice made in it. (Cast: happy-dom's select does not satisfy `querySelector`'s constraint.) */
-const select = (label: string): HTMLSelectElement => {
-  const el = host.querySelector(`select[aria-label="${label}"]`) as unknown as HTMLSelectElement | null;
+/** A dropdown by its name (the page's own: a button that opens a list), and a choice made in it. */
+const select = (label: string): HTMLElement => {
+  const el = host.querySelector<HTMLElement>(`button[role="combobox"][aria-label="${label}"]`);
   if (!el) throw new Error(`no dropdown ${label}`);
   return el;
 };
-const choose = (label: string, value: string): void => {
-  const el = select(label);
-  act(() => {
-    el.value = value;
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-  });
-};
+const choose = (label: string, value: string): void => chooseCombo(select(label), value);
 
 const button = (label: string): HTMLButtonElement => {
   const el = [...host.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.getAttribute('aria-label') === label || b.textContent?.trim() === label);
@@ -336,14 +331,15 @@ describe('fill and line', () => {
     choose('Line end', 'arrow');
     expect(p.model.element('s1', 'l')).toMatchObject({ line: { tail: 'arrow' } });
     const q = open([shape('a')], ['a']);
-    expect(host.querySelector('select[aria-label="Line end"]')).toBeNull();
+    expect(host.querySelector('button[role="combobox"][aria-label="Line end"]')).toBeNull();
     q.model.destroy();
   });
 
   it('a picture has an outline and no fill', () => {
     open([{ type: 'image', id: 'i', x: 0, y: 0, w: 100, h: 100, asset: { id: 'a' } }], ['i']);
     expect(host.querySelector('input[aria-label="Line width"]')).not.toBeNull();
-    expect([...host.querySelectorAll('button')].some((b) => b.textContent === 'Solid')).toBe(false);
+    // The outline's dash is a dropdown whose button reads "Solid"; the fill's choice is a plain button.
+    expect([...host.querySelectorAll('button:not([role="combobox"])')].some((b) => b.textContent === 'Solid')).toBe(false);
   });
 });
 

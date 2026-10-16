@@ -86,6 +86,9 @@ describe('the theme gallery', () => {
     expect(card.style.background).not.toBe('');
     expect(card.querySelectorAll('.sl-theme-dots span')).toHaveLength(6);
     expect(card.querySelector('.sl-theme-aa')!.getAttribute('style')).toContain('font-family');
+    // In the strip a theme is its card alone, one control high, named by its label and its tip.
+    expect(host.querySelector('.sl-themes > .sl-theme .sl-theme-name')).toBeNull();
+    expect(tiles[0]!.title).toContain(THEMES[0]!.name);
   });
 
   it('choosing one applies it in one step and gives the keyboard back to the slide', () => {
@@ -106,6 +109,7 @@ describe('the theme gallery', () => {
     const all = [...host.querySelectorAll<HTMLButtonElement>('.sl-theme-grid button.sl-theme')];
     expect(all).toHaveLength(THEMES.length);
     expect(host.querySelector('.sl-theme-grid')!.textContent).toContain('Trebuchet MS, Inter');
+    expect(all.map((b) => b.querySelector('.sl-theme-name')?.textContent)).toEqual(THEMES.map((t) => t.name));
     click(all[all.length - 1]!);
     expect(m.model.design().theme.id).toBe(THEMES[THEMES.length - 1]!.id);
   });

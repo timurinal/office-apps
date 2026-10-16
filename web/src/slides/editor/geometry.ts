@@ -165,7 +165,8 @@ export function resizeBox(start: Box & { rot?: number }, handle: Handle, delta: 
   if (opts.keepAspect && start.w > 0 && start.h > 0) {
     const ratio = start.w / start.h;
     if (sign.x && sign.y) {
-      if (Math.abs(w / start.w) >= Math.abs(h / start.h)) h = w / ratio;
+      // The axis the pointer moved most along leads, so a corner pulled in shrinks the box.
+      if (Math.abs(w / start.w - 1) >= Math.abs(h / start.h - 1)) h = w / ratio;
       else w = h * ratio;
     } else if (sign.x) h = w / ratio;
     else w = h * ratio;

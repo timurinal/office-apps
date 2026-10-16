@@ -127,6 +127,10 @@
   background: #fdf3e2;
   color: #8a5a12;
 }
+[data-theme='dark'] .oa-pill[data-tone='warn'] {
+  background: rgba(232, 163, 61, 0.16);
+  color: #f0c27a;
+}
 .oa-pill[data-tone='app'] {
   background: var(--app-50);
   color: var(--app-700);
@@ -277,6 +281,9 @@
   font-size: 12.5px;
   line-height: 1.45;
   color: #8a5a12;
+}
+[data-theme='dark'] .oa-warn {
+  color: #f0c27a;
 }
 .oa-warn > svg {
   margin-top: 1px;

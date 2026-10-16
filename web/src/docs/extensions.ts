@@ -14,11 +14,10 @@
 
 import type { AnyExtension } from '@tiptap/core';
 import Collaboration from '@tiptap/extension-collaboration';
-import CollaborationCaret from '@tiptap/extension-collaboration-caret';
 import StarterKit from '@tiptap/starter-kit';
 import type * as Y from 'yjs';
 import type { Awareness } from 'y-protocols/awareness';
-import { caretGlide } from './caretGlide';
+import { RemoteCarets } from '../core/carets';
 import { isSafeHref } from './core/links';
 import { DOCS_MODULES } from './modules';
 import type { DocsModule } from './modules/types';
@@ -60,7 +59,7 @@ export function baseExtensions(env: ExtensionEnv): AnyExtension[] {
     Collaboration.configure({ document: env.doc, field: FIELD }),
     readOnlyGuard,
     ...(env.awareness && env.user
-      ? [CollaborationCaret.configure({ provider: { awareness: env.awareness }, user: env.user }), caretGlide]
+      ? [RemoteCarets.configure({ awareness: env.awareness, user: env.user })]
       : [])
   ];
 }

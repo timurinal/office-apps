@@ -12,6 +12,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type React from 'react';
 import { createPortal } from 'react-dom';
+import { useEditorTheme } from '../../../core/appearance';
 import { usePresence } from '../../../motion/presence';
 
 export function FloatPanel({
@@ -29,6 +30,8 @@ export function FloatPanel({
   children: React.ReactNode;
 }) {
   const { present, state } = usePresence(open);
+  // Slides' chrome is dark unless the reader chose Light; a portal does not inherit it from the shell.
+  const theme = useEditorTheme('slides');
   const panel = useRef<HTMLDivElement>(null);
   const [at, setAt] = useState<{ top: number; left: number } | null>(null);
   const close = useRef(onClose);
@@ -70,7 +73,7 @@ export function FloatPanel({
 
   if (!present) return null;
   return createPortal(
-    <div data-app="slides" data-theme="dark" style={{ display: 'contents' }}>
+    <div data-app="slides" data-theme={theme} style={{ display: 'contents' }}>
       <div
         ref={panel}
         role="dialog"

@@ -1,0 +1,84 @@
+/* Other people's carets, names and selections (index.ts, layer.ts), in two layers beside the
+   editor's root: the selections just before it, under its text, and the carets after it, over
+   it. The text must be positioned for the selections to go under it; each app's CSS does that.
+
+   The colour is the person's, from `--oa-caret-c`. An app sets the bar's width and the
+   selection's strength with `--oa-caret-w` and `--oa-caret-sel-o`, and restyles the label for
+   its own scale. These defaults are Docs'. */
+
+.oa-carets,
+.oa-carets-under {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.oa-carets {
+  z-index: 1;
+}
+
+/* Where 1000px along the layer lands: its scale and turn, read by layer.ts. Left of the layer,
+   so it never widens what scrolls. */
+.oa-carets-probe {
+  position: absolute;
+  left: -1000px;
+  top: 0;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+.oa-caret,
+.oa-caret-sel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+
+.oa-caret {
+  width: 0;
+  height: 0;
+}
+
+.oa-caret-bar {
+  position: absolute;
+  top: 0;
+  left: calc(var(--oa-caret-w, 2px) / -2);
+  width: var(--oa-caret-w, 2px);
+  background: var(--oa-caret-c);
+}
+
+.oa-caret-label {
+  position: absolute;
+  bottom: 100%;
+  left: calc(var(--oa-caret-w, 2px) / -2);
+  padding: 3px 5px;
+  border-radius: 4px 4px 4px 0;
+  background: var(--oa-caret-c);
+  color: #fff;
+  font-family: var(--font-body), Inter, system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.oa-caret-sel {
+  background: var(--oa-caret-c);
+  opacity: var(--oa-caret-sel-o, 0.44);
+}
+
+@media print {
+  .oa-carets,
+  .oa-carets-under {
+    display: none;
+  }
+}

@@ -91,9 +91,12 @@ describe('the sketch of a slide', () => {
   });
 
   it('draws an empty deck’s title slide without text', () => {
-    const s = sketchSlide(blankDeck());
-    // The ground and the accent rule, and nothing for the placeholders: they are empty.
-    expect(s.marks).toHaveLength(1);
+    // Violet's is the ground and the accent rule, and nothing for the placeholders: they are empty.
+    expect(sketchSlide(blankDeck('violet')).marks).toHaveLength(1);
+    // Plain's is a white slide and nothing at all.
+    const plain = sketchSlide(blankDeck());
+    expect(plain.bg).toBe('#ffffff');
+    expect(plain.marks).toHaveLength(0);
   });
 });
 
@@ -120,7 +123,7 @@ describe('slidesSketchFor', () => {
 
 describe('the sketch of a faded fill', () => {
   it('draws a shape with alpha as the colour a viewer sees over the ground', () => {
-    const deck: DeckJSON = blankDeck();
+    const deck: DeckJSON = blankDeck('violet');
     deck.slides[0]!.layout = 'blank';
     deck.slides[0]!.elements = [{ type: 'shape', shape: 'rect', x: 0, y: 0, w: 400, h: 300, fill: { kind: 'solid', color: '#000000', alpha: 0.5 } }];
     const [mark] = sketchSlide(deck).marks.slice(-1);

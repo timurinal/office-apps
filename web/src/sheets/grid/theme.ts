@@ -24,6 +24,12 @@ export interface GridTheme {
   frozen: string;
   danger: string;
   comment: string;
+  /**
+   * Dark cells: draw the fills and text colours a person set the way a dark page draws a document's
+   * (core/darkColors.ts), for a reader on the dark theme who asked for it. Only ever a view: nothing
+   * written to the sheet or exported changes.
+   */
+  darkCells: boolean;
 }
 
 export const FALLBACK_THEME: GridTheme = {
@@ -40,10 +46,11 @@ export const FALLBACK_THEME: GridTheme = {
   accent: '#1e8255',
   frozen: '#b2b6ca',
   danger: '#d1423b',
-  comment: '#e8a23a'
+  comment: '#e8a23a',
+  darkCells: false
 };
 
-const VARS: Record<keyof GridTheme, string> = {
+const VARS: Record<Exclude<keyof GridTheme, 'darkCells'>, string> = {
   paper: '--sg-paper',
   ink: '--sg-ink',
   line: '--sg-line',
@@ -63,10 +70,12 @@ const VARS: Record<keyof GridTheme, string> = {
 export function readTheme(el: Element): GridTheme {
   const cs = getComputedStyle(el);
   const out = { ...FALLBACK_THEME };
-  for (const k of Object.keys(VARS) as (keyof GridTheme)[]) {
+  for (const k of Object.keys(VARS) as (keyof typeof VARS)[]) {
     const v = cs.getPropertyValue(VARS[k]).trim();
     if (v) out[k] = v;
   }
+  // grid.css turns it on for the option and the dark theme together.
+  out.darkCells = cs.getPropertyValue('--sg-dark-cells').trim() === '1';
   return out;
 }
 

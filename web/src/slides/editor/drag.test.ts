@@ -56,6 +56,20 @@ describe('the preview', () => {
     ]);
   });
 
+  it('Lock aspect ratio holds the proportions from a corner, as Shift does; a side still stretches', () => {
+    const locked: ElementJSON = { ...a, lockAspect: true };
+    // a is 200 by 100; its corner pulled 100 right and nothing down is 300 by 150.
+    expect(resizePreview([locked], 'se', { x: 100, y: 0 }, {}).patches[0]!.patch).toEqual({ w: 300, h: 150 });
+    expect(resizePreview([locked], 'e', { x: 100, y: 0 }, {}).patches[0]!.patch).toEqual({ w: 300 });
+    // Pulled in along one axis it shrinks: the axis that moved most leads, not the larger side.
+    expect(resizePreview([locked], 'se', { x: -100, y: 0 }, {}).patches[0]!.patch).toEqual({ w: 100, h: 50 });
+    expect(resizePreview([a], 'se', { x: 0, y: -50 }, { keepAspect: true }).patches[0]!.patch).toEqual({ w: 100, h: 50 });
+    // One locked element in a selection holds the whole selection's proportions.
+    const p = resizePreview([locked, b], 'se', { x: 400, y: 0 }, {});
+    expect(p.changed.get('a')!.w / p.changed.get('a')!.h).toBeCloseTo(2);
+    expect(resizePreview([a], 'se', { x: 100, y: 0 }, {}).patches[0]!.patch).toEqual({ w: 300 });
+  });
+
   it('a line’s end moves on its own', () => {
     const line: ElementJSON = { type: 'line', id: 'l', x: 0, y: 0, w: 100, h: 0, line: { color: '#000000', width: 2 } };
     const p = resizePreview([line], 'se', { x: -150, y: 0 }, {});

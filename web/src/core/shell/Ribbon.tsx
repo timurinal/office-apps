@@ -21,7 +21,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type React from 'react';
 import { DUR } from '../../motion';
 import { useIndicator } from '../controls';
-import { caretDownIcon, caretUpIcon, checkIcon, Icon } from '../icons';
+import { caretDownIcon, caretUpIcon, checkIcon, dotsThreeIcon, Icon } from '../icons';
 import { Menu, MenuList, Popover, useDismiss, type MenuItem as UiMenuItem } from '../ui';
 import { groupsFor, itemStates, sortedModes, statesEqual, visibleTabs, type ItemState } from './registry';
 import type {
@@ -402,12 +402,18 @@ function StripContent<C>({
   groups,
   ctx,
   states,
-  done
+  done,
+  more = false,
+  rows = false
 }: {
   groups: RibbonGroup<C>[];
   ctx: C;
   states: ReadonlyMap<string, ItemState>;
   done: () => void;
+  /** More follows the last group, so it has a rule after it too. */
+  more?: boolean;
+  /** The groups under More: one to a row, with no rules between them. */
+  rows?: boolean;
 }) {
   return (
     <>
@@ -416,12 +422,129 @@ function StripContent<C>({
           {g.items.map((item) => (
             <Item key={item.id} item={item} ctx={ctx} state={states.get(item.id) ?? OFF} done={done} />
           ))}
-          {i < groups.length - 1 && <span className="oa-rb-sep" aria-hidden="true" />}
+          {!rows && (i < groups.length - 1 || more) && <span className="oa-rb-sep" aria-hidden="true" />}
         </span>
       ))}
     </>
   );
 }
+
+/** The More button's width with the gap before it, kept free once a group has to go under it. */
+const MORE_WIDTH = 32;
+
+/** How many groups, from the first, fit in `room`. When not all of them do, `more` is kept for More. */
+export function fitGroups(widths: readonly number[], room: number, more: number): number {
+  if (widths.reduce((a, w) => a + w, 0) <= room) return widths.length;
+  let used = more;
+  let n = 0;
+  while (n < widths.length && used + widths[n]! <= room) used += widths[n++]!;
+  return n;
+}
+
+interface Fit {
+  /** The buttons that have an icon show only it (`data-compact`). */
+  compact: boolean;
+  /** How many groups are on the strip; the rest are under More. */
+  n: number;
+}
+
+/**
+ * The strip is one row, so the ribbon is the same height on every tab and at every width. Short of
+ * room, the buttons with an icon drop their words first, as Office's do; then the groups that still
+ * do not fit go under More, from the last. A group is measured in each form while it is drawn and
+ * remembered while it is not; a new set of groups is drawn whole and measured before paint.
+ */
+function useFit<C>(el: HTMLElement | null, groups: readonly RibbonGroup<C>[]): Fit {
+  const key = groups.map((g) => `${g.id}:${g.items.map((i) => i.id).join(',')}`).join('|');
+  const widths = useRef({ key: '', wide: new Map<string, number>(), compact: new Map<string, number>() });
+  const [fit, setFit] = useState<Fit & { key: string }>({ key: '', compact: false, n: 0 });
+  const latest = useRef({ groups, key });
+  latest.current = { groups, key };
+
+  const measure = useCallback(() => {
+    if (!el?.isConnected) return;
+    const { groups, key } = latest.current;
+    const w = widths.current;
+    if (w.key !== key) Object.assign(w, { key, wide: new Map(), compact: new Map() });
+    const cs = getComputedStyle(el);
+    const gap = parseFloat(cs.columnGap) || 0;
+    const room = el.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0) + gap;
+    const drawn = el.hasAttribute('data-compact') ? w.compact : w.wide;
+    for (const g of el.children) {
+      const id = (g as HTMLElement).dataset.group;
+      if (id) drawn.set(id, g.getBoundingClientRect().width + gap);
+    }
+    const all = groups.length;
+    const sizes = (m: Map<string, number>) => groups.map((g) => m.get(g.id));
+    const wide = sizes(w.wide);
+    const compact = sizes(w.compact);
+    const known = (xs: (number | undefined)[]): xs is number[] => xs.every((x) => x !== undefined);
+    const sum = (xs: number[]) => xs.reduce((a, x) => a + x, 0);
+    const next: Fit =
+      // A strip with no width has no layout (a hidden page, or a test): it draws everything.
+      room <= gap || !known(wide) || sum(wide) <= room
+        ? { compact: false, n: all }
+        : !known(compact)
+          ? { compact: true, n: all }
+          : { compact: true, n: fitGroups(compact, room, MORE_WIDTH) };
+    setFit((f) => (f.key === key && f.compact === next.compact && f.n === next.n ? f : { key, ...next }));
+  }, [el]);
+
+  const now: Fit = fit.key === key ? fit : { compact: false, n: groups.length };
+  // Each new form is drawn, then measured, until one fits: at most three passes, all before paint.
+  useLayoutEffect(measure, [key, measure, now.compact, now.n]);
+  useEffect(() => {
+    if (!el) return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    for (const g of el.children) if ((g as HTMLElement).dataset.group) ro.observe(g);
+    return () => ro.disconnect();
+  }, [el, measure, key, now.compact, now.n]);
+  return now;
+}
+
+/** The groups that did not fit, under a button at the end of the strip. */
+function MoreButton<C>({ groups, ctx, states, done }: { groups: RibbonGroup<C>[]; ctx: C; states: ReadonlyMap<string, ItemState>; done: () => void }) {
+  const o = useOpen();
+  const ran = () => {
+    o.close();
+    done();
+  };
+  return (
+    <span className="oa-pop-wrap">
+      <button
+        type="button"
+        data-rb-item
+        data-id="ribbon.more"
+        className="oa-rb-tb"
+        aria-label="More"
+        title="More"
+        aria-haspopup="dialog"
+        aria-expanded={o.open}
+        onMouseDown={keepSelection}
+        onClick={o.toggle}
+      >
+        <Icon icon={dotsThreeIcon} size={16} />
+      </button>
+      <Popover open={o.open} onClose={o.close} align="right" role="dialog" label="More">
+        <div
+          className="oa-rb-more"
+          // A control drawn by a module does not say when it has run; one that opens nothing has.
+          onClick={(e) => {
+            const pressed = (e.target as HTMLElement).closest('[data-rb-item]');
+            if (pressed && !pressed.hasAttribute('aria-haspopup')) ran();
+          }}
+        >
+          <StripContent groups={groups} ctx={ctx} states={states} done={ran} rows />
+        </div>
+      </Popover>
+    </span>
+  );
+}
+
+/** The strip's own controls: not those in a menu or under More, which Tab reaches in their panel. */
+const stripItems = (root: HTMLElement | null): HTMLElement[] =>
+  [...(root?.querySelectorAll<HTMLElement>('[data-rb-item]') ?? [])].filter((n) => !n.closest('.oa-popover'));
 
 /** One tab stop for the whole strip; the arrows move inside it. */
 function useRoving(strip: React.RefObject<HTMLElement | null>, tab: string) {
@@ -435,7 +558,7 @@ function useRoving(strip: React.RefObject<HTMLElement | null>, tab: string) {
   useLayoutEffect(() => {
     const root = strip.current;
     if (!root) return;
-    const all = [...root.querySelectorAll<HTMLElement>('[data-rb-item]')];
+    const all = stripItems(root);
     const keep = all.find((n) => n.dataset.id === current.current && !(n as HTMLButtonElement).disabled) ?? all.find((n) => !(n as HTMLButtonElement).disabled);
     for (const n of all) n.tabIndex = n === keep ? 0 : -1;
   });
@@ -449,9 +572,7 @@ function useRoving(strip: React.RefObject<HTMLElement | null>, tab: string) {
     // A key meant for an open menu or list, or for a field, is not ours.
     if ((e.target as HTMLElement).closest('.oa-popover, input, textarea')) return;
     if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(e.key)) return;
-    const all = [...(strip.current?.querySelectorAll<HTMLElement>('[data-rb-item]') ?? [])].filter(
-      (n) => !(n as HTMLButtonElement).disabled
-    );
+    const all = stripItems(strip.current).filter((n) => !(n as HTMLButtonElement).disabled);
     if (!all.length) return;
     const at = all.findIndex((n) => n === (e.target as HTMLElement).closest('[data-rb-item]'));
     const next =
@@ -516,6 +637,13 @@ export function Ribbon<C>(props: RibbonProps<C>) {
 
   const roving = useRoving(strip, shown);
   const open = !collapsed || peek;
+
+  const [content, setContent] = useState<HTMLDivElement | null>(null);
+  const fit = useFit(content, stripGroups);
+  // The leaving strip keeps the form it had, for the length of its fade.
+  const fits = useRef(new Map<string, Fit>());
+  fits.current.set(shown, fit);
+  const leavingFit = (leaving && fits.current.get(leaving)) || { compact: false, n: leavingGroups.length };
 
   // A peeking strip goes away when the pointer goes elsewhere, or a command ran.
   const pastRef = useRef<HTMLElement | null>(null);
@@ -609,12 +737,13 @@ export function Ribbon<C>(props: RibbonProps<C>) {
           data-peek={collapsed ? 'true' : undefined}
           {...roving}
         >
-          <div key={shown} className="oa-rb-content oa-rise">
-            <StripContent groups={stripGroups} ctx={ctx} states={states} done={done} />
+          <div key={shown} ref={setContent} className="oa-rb-content oa-rise" data-compact={fit.compact ? '' : undefined}>
+            <StripContent groups={stripGroups.slice(0, fit.n)} ctx={ctx} states={states} done={done} more={fit.n < stripGroups.length} />
+            {fit.n < stripGroups.length && <MoreButton groups={stripGroups.slice(fit.n)} ctx={ctx} states={states} done={done} />}
           </div>
           {leaving && (
-            <div className="oa-rb-content oa-rb-leaving" aria-hidden="true" {...{ inert: '' }}>
-              <StripContent groups={leavingGroups} ctx={ctx} states={leavingStates} done={done} />
+            <div className="oa-rb-content oa-rb-leaving" aria-hidden="true" data-compact={leavingFit.compact ? '' : undefined} {...{ inert: '' }}>
+              <StripContent groups={leavingGroups.slice(0, leavingFit.n)} ctx={ctx} states={leavingStates} done={done} more={leavingFit.n < leavingGroups.length} />
             </div>
           )}
         </div>

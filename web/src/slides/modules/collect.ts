@@ -5,9 +5,10 @@
  * may not share an id is checked in one place.
  */
 
+import type { ContextHook } from '../../core/ContextMenu';
 import { duplicateIds } from '../../core/shell/registry';
 import type { Command, EditingMode, FileItem, PaneSpec, RibbonGroup, StatusItem } from '../../core/shell/types';
-import type { CanvasLayer, Presenter, SlidesContext, SlidesKey, SlidesModule, SlidesOverlay, SlidesView } from './types';
+import type { CanvasLayer, Presenter, SlidesContext, SlidesKey, SlidesMenuTarget, SlidesModule, SlidesOverlay, SlidesView } from './types';
 
 export interface Collected {
   ribbon: RibbonGroup<SlidesContext>[];
@@ -24,6 +25,7 @@ export interface Collected {
   views: SlidesView[];
   /** The first module's. */
   presenter: Presenter | null;
+  context: ContextHook<SlidesMenuTarget, SlidesContext>[];
 }
 
 export function collect(modules: readonly SlidesModule[]): Collected {
@@ -39,7 +41,8 @@ export function collect(modules: readonly SlidesModule[]): Collected {
     canvas: [],
     snaps: [],
     views: [],
-    presenter: null
+    presenter: null,
+    context: []
   };
   for (const m of modules) {
     out.ribbon.push(...m.ribbon);
@@ -53,6 +56,7 @@ export function collect(modules: readonly SlidesModule[]): Collected {
     out.canvas.push(...(m.canvas ?? []));
     out.views.push(...(m.views ?? []));
     if (m.snap) out.snaps.push(m.snap);
+    if (m.contextItems) out.context.push(m.contextItems);
     if (m.presenter && !out.presenter) out.presenter = m.presenter;
   }
   out.views.sort((a, b) => a.order - b.order);

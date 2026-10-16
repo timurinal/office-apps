@@ -132,3 +132,54 @@ describe('pasting', () => {
     expect(t.toasts).toEqual([{ text: 'Paste with Ctrl+V.' }]);
   });
 });
+
+describe('pasting values', () => {
+  async function styled() {
+    const seed = buildSheetSeed((b) => {
+      const sh = b.addSheet('Sheet1');
+      sh.cell(0, 0, { value: 'Rent', style: { bold: true } }).cell(0, 1, { value: 950, style: { numFmt: '£#,##0' } }).cell(1, 1, { formula: 'B1*2' });
+    });
+    const model = new SheetModel(localSheetSource({ state: seed.state, cells: seed.cells }), { measure: estimateMeasure() });
+    await Promise.resolve();
+    await Promise.resolve();
+    const sheetId = model.sheets()[0]!.id;
+    const session = new GridSession();
+    const data = model.view(sheetId);
+    const ctx: ActionContext = { model, sheetId, data, session, selection: () => ({ rect: session.rect(), active: session.sel.active }), notify: () => undefined };
+    session.bind({ data, onIntent: (i) => void applyIntent(model, sheetId, i), readOnly: () => false, layout: () => null, focusGrid: () => undefined });
+    return { ctx, session, data, model };
+  }
+
+  it('lands the text as it was shown and leaves the formats and the formula behind', async () => {
+    const t = await styled();
+    t.session.selectRect({ r1: 0, r2: 1, c1: 0, c2: 1 });
+    await copySelection(t.ctx, false);
+    t.session.selectRect({ r1: 4, r2: 4, c1: 0, c2: 0 });
+    await pasteHere(t.ctx, 'values');
+    expect(t.data.cell(4, 0)?.text).toBe('Rent');
+    expect(t.data.cell(4, 0)?.style.bold).toBeUndefined();
+    expect(t.data.cell(4, 1)?.style.numFmt).toBeUndefined();
+    expect(t.data.editText(5, 1)).not.toContain('=');
+    // A plain paste of the same copy keeps all three.
+    t.session.selectRect({ r1: 8, r2: 8, c1: 0, c2: 0 });
+    await pasteHere(t.ctx);
+    expect(t.data.cell(8, 0)?.style.bold).toBe(true);
+    expect(t.data.cell(8, 1)?.style.numFmt).toBe('£#,##0');
+    expect(t.data.editText(9, 1)).toContain('=');
+  });
+
+  it('is one step, and is not a move after a cut', async () => {
+    const t = await styled();
+    t.session.selectRect({ r1: 0, r2: 0, c1: 0, c2: 0 });
+    await copySelection(t.ctx, true);
+    t.session.selectRect({ r1: 4, r2: 4, c1: 0, c2: 0 });
+    await pasteHere(t.ctx, 'values');
+    expect(t.data.cell(4, 0)?.text).toBe('Rent');
+    // The source stays where it was, and the cut is still waiting for a paste that moves it.
+    expect(t.data.cell(0, 0)?.text).toBe('Rent');
+    expect(t.session.clip).not.toBeNull();
+    t.model.undo();
+    expect(t.data.cell(4, 0)).toBeNull();
+    expect(t.data.cell(0, 0)?.text).toBe('Rent');
+  });
+});

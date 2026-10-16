@@ -42,6 +42,7 @@ import { docPath } from '../home/home';
 import { viewTransition } from '../motion/viewTransition';
 import { useRouter } from '../router';
 import { useApp } from '../state';
+import { useDocsContextMenu } from './core/contextMenu';
 import { baseExtensions, documentExtensions } from './extensions';
 import { collect } from './modules/collect';
 import { DOCS_MODULES } from './modules';
@@ -442,6 +443,9 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
     notify
   };
 
+  // The right-click menu over a link, a picture or a table: each module says what goes in it.
+  const contextMenu = useDocsContextMenu(ctx, COLLECTED.context);
+
   // The ribbon re-reads what its controls show when the selection moves, at once,
   // and a beat after typing stops: a keystroke must not pay for thirty buttons.
   const subscribe = useCallback(
@@ -636,6 +640,8 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
           ) : null}
         </Page>
       </EditorShell>
+
+      {contextMenu}
 
       {shareOpen &&
         (source.kind === 'locked' ? (

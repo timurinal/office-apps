@@ -2,9 +2,11 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useContextMenu } from '../../core/contextHost';
 import { SelectionStore } from '../editor/selection';
 import { modelOf, testDeck } from '../model/testing';
-import type { SlidesContext } from '../modules/types';
+import { contextItems } from '../modules/menus';
+import type { SlidesContext, SlidesMenuTarget } from '../modules/types';
 import { Sorter } from './Sorter';
 
 (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -49,9 +51,33 @@ function setup(over: { edit?: boolean; hidden?: string[] } = {}) {
   selection.set({ slide: 'a', slides: ['a'], focus: 'canvas' });
   const setView = vi.fn();
   const focusCanvas = vi.fn();
-  const ctx = { model, selection, can: { edit: over.edit ?? true }, zoom: 100, fit: false, setView, actions: { focusCanvas } } as unknown as SlidesContext;
-  act(() => root.render(<Sorter ctx={ctx} />));
-  return { model, selection, ctx, setView, focusCanvas };
+  // The editor builds the menu from the modules' rows and the sorter asks it, through the context.
+  const open: { current: ((t: SlidesMenuTarget, at: { x: number; y: number }, from?: Element | null) => boolean) | null } = { current: null };
+  const ctx = {
+    model,
+    selection,
+    can: { edit: over.edit ?? true, download: true },
+    design: model.design(),
+    zoom: 100,
+    fit: false,
+    setView,
+    actions: { focusCanvas },
+    contextMenu: (t: SlidesMenuTarget, at: { x: number; y: number }, from?: Element | null) => open.current?.(t, at, from) ?? false
+  } as unknown as SlidesContext;
+  function WithMenu({ ctx: now }: { ctx: SlidesContext }) {
+    const menu = useContextMenu<SlidesMenuTarget, SlidesContext>({ ctx: now, hooks: [contextItems], label: () => 'Slide', returnFocus: () => focusCanvas() });
+    open.current = menu.open;
+    return (
+      <>
+        <Sorter ctx={now} />
+        {menu.element}
+      </>
+    );
+  }
+  /** The same page again, with something about the context changed. */
+  const render = (over: Partial<SlidesContext> = {}) => act(() => root.render(<WithMenu ctx={{ ...ctx, ...over }} />));
+  render();
+  return { model, selection, ctx, setView, focusCanvas, render };
 }
 
 const options = (): HTMLElement[] => [...host.querySelectorAll<HTMLElement>('[role="option"]')];
@@ -88,9 +114,9 @@ describe('the slide sorter', () => {
     const t = setup();
     const list = host.querySelector<HTMLElement>('.sl-sort-list')!;
     expect(list.style.getPropertyValue('--sl-sort-w')).toBe('320px');
-    act(() => root.render(<Sorter ctx={{ ...t.ctx, zoom: 150 }} />));
+    t.render({ zoom: 150 });
     expect(list.style.getPropertyValue('--sl-sort-w')).toBe('480px');
-    act(() => root.render(<Sorter ctx={{ ...t.ctx, fit: true }} />));
+    t.render({ fit: true });
     expect(list.style.getPropertyValue('--sl-sort-w')).toBe('224px');
   });
 
@@ -269,7 +295,7 @@ describe('the menu', () => {
   it('has the rail’s rows, and acts on the slide it was opened on', () => {
     const t = setup();
     rightClick('c');
-    expect(rows()).toEqual(['New slide', 'Duplicate slide', 'Delete slide', 'Hide slide']);
+    expect(rows()).toEqual(['New slide', 'Duplicate slide', 'Delete slide', 'Hide slide', 'Layout']);
     expect(t.selection.get().slide).toBe('c');
     pick('Hide slide');
     expect(t.model.slide('c')!.hidden).toBe(true);
@@ -284,15 +310,33 @@ describe('the menu', () => {
     click('a');
     click('b', { shiftKey: true });
     rightClick('a');
-    expect(rows()).toEqual(['New slide', 'Duplicate slides', 'Delete slides', 'Hide slides']);
+    expect(rows()).toEqual(['New slide', 'Duplicate slides', 'Delete slides', 'Hide slides', 'Layout']);
     pick('Duplicate slides');
     expect(t.model.order()).toHaveLength(9);
   });
 
-  it('is not offered to a reader', () => {
+  it('is not offered to a reader, and is left to the browser', () => {
     setup({ edit: false });
-    rightClick('c');
+    const e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40 });
+    act(() => void item('c').dispatchEvent(e));
     expect(rows()).toEqual([]);
+    expect(e.defaultPrevented).toBe(false);
+  });
+
+  it('takes the browser\'s menu, and leaves it to the browser with Shift', () => {
+    setup();
+    const plain = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40 });
+    act(() => void item('c').dispatchEvent(plain));
+    expect(plain.defaultPrevented).toBe(true);
+    const shift = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40, shiftKey: true });
+    act(() => void item('d').dispatchEvent(shift));
+    expect(shift.defaultPrevented).toBe(false);
+  });
+
+  it('opens on the menu key at the slide that is on the canvas', () => {
+    setup();
+    key('ContextMenu');
+    expect(rows()).toEqual(['New slide', 'Duplicate slide', 'Delete slide', 'Hide slide', 'Layout']);
   });
 });
 
@@ -357,7 +401,7 @@ describe('after a drop', () => {
 
   it('plays nothing for a change of size, which is not a drop', () => {
     const t = setup();
-    act(() => root.render(<Sorter ctx={{ ...t.ctx, zoom: 140 }} />));
+    t.render({ zoom: 140 });
     expect(animations).toEqual([]);
   });
 });

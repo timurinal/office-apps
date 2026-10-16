@@ -5,8 +5,8 @@
  *   The pane            "Format shape" on the right edge (panes/format/FormatPane.tsx): fill, line,
  *                       size and position, the text box, alt text, the type's colour and spacing, and
  *                       a chart's data or a table's cells
- *   A right click       on a shape, a picture, a line, a chart or a table: Format shape and the
- *                       rest of what can be done to it (panes/format/ContextMenu.tsx)
+ *   A right click       on a shape, a picture, a line, a chart or a table: Format shape is a row of the
+ *                       menu (modules/menus.tsx)
  *   Ctrl+K              "Format shape"
  *
  * The pane is the right edge's other pane (Version history is the first; one is open at a time). A
@@ -14,7 +14,6 @@
  */
 
 import type { RibbonGroup } from '../../core/shell/types';
-import { ContextMenuLayer } from '../panes/format/ContextMenu';
 import { FormatPane } from '../panes/format/FormatPane';
 import { slidersHorizontalIcon } from './insert/icons';
 import type { SlidesContext, SlidesModule } from './types';
@@ -66,6 +65,5 @@ export const formatModule: SlidesModule = {
       visible: (c) => c.can.edit,
       render: (c) => <FormatPane ctx={c} />
     }
-  ],
-  canvas: [{ id: 'format.context', render: (c, frame) => <ContextMenuLayer c={c} frame={frame} /> }]
+  ]
 };

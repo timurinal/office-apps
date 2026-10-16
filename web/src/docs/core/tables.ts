@@ -9,6 +9,7 @@
 
 import type { Editor } from '@tiptap/core';
 import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table';
+import { darkFill } from '../../core/darkColors';
 import { safeColor } from './sanitize';
 
 /** The grid picker's size: Word's is 10 across and 8 down. */
@@ -20,7 +21,8 @@ const shading = {
     parseHTML: (el: HTMLElement) => safeColor(el.getAttribute('data-bg') ?? el.style.backgroundColor),
     renderHTML: (attrs: Record<string, unknown>) => {
       const color = safeColor(attrs.backgroundColor);
-      return color ? { 'data-bg': color, style: `background-color: ${color}` } : {};
+      // `--oa-dk-fill` is the dark page's variant, for the screen's stylesheet alone (see text.ts).
+      return color ? { 'data-bg': color, class: 'oa-dk-f', style: `background-color: ${color}; --oa-dk-fill: ${darkFill(color)}` } : {};
     }
   }
 };

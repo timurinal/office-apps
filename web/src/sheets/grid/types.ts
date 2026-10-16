@@ -193,3 +193,16 @@ export type GridIntent =
   | { type: 'choose'; at: Cellpos; value: string }
   /** A filter button in the header row was pressed. The editor opens its menu. */
   | { type: 'filterMenu'; col: number };
+
+/**
+ * What a right click (or the menu key) landed on, for the editor to open its menu for. It is not an
+ * intent: nothing is changed, and the grid has already moved the selection to what was clicked (a
+ * cell outside the selection, a header that was not among the chosen lines). Today's indexes.
+ */
+export type GridContextTarget =
+  /** A cell or the range it is in. */
+  | { kind: 'cell'; rect: Rect; active: Cellpos }
+  /** Whole columns `from` to `to`, chosen by their header. */
+  | { kind: 'col'; from: number; to: number }
+  /** Whole rows `from` to `to`, chosen by their header. */
+  | { kind: 'row'; from: number; to: number };

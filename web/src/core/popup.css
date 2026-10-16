@@ -1,0 +1,147 @@
+/*
+ * Panels that float over the page and belong to no one's layout: the dropdown's list (Listbox.tsx)
+ * and the context menu with its submenus (ContextMenu.tsx).
+ *
+ * Both are portalled to <body>, `position: fixed` from a rectangle that placement.ts worked out,
+ * and above a dialog's scrim (100) and the toast (120). The wrapper carries the app's colour and the
+ * theme it was copied from (popupScope.ts) and draws nothing itself. They enter with `oa-rise` or
+ * `oa-fade` (styles.css), so only transform and opacity move and reduced motion keeps the opacity.
+ */
+
+.oa-ctx-root {
+  display: contents;
+}
+
+.oa-pop-panel {
+  position: fixed;
+  z-index: 130;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--fg-2);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 0 1px var(--bd-faint);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  outline: none;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+/* ── The dropdown ────────────────────────────────────────────────────────── */
+
+.oa-select-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 32px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--surface-card);
+  color: var(--fg-1);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.oa-field[data-size='sm'] .oa-select-btn {
+  height: 28px;
+}
+.oa-select-btn:hover:not(:disabled) {
+  background: var(--app-50);
+}
+.oa-select-btn[aria-expanded='true'] {
+  border-color: var(--app-600);
+}
+.oa-select-btn:disabled {
+  cursor: default;
+}
+.oa-select[data-quiet='true'] .oa-select-btn {
+  border-color: transparent;
+  background: transparent;
+  font-weight: 500;
+  color: var(--fg-2);
+  padding-right: 24px;
+}
+.oa-select[data-quiet='true'] .oa-select-btn:hover:not(:disabled) {
+  background: var(--app-50);
+}
+.oa-select-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.oa-listbox {
+  min-width: 120px;
+  max-width: min(420px, calc(100vw - 16px));
+  padding: 4px;
+}
+.oa-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  color: var(--fg-2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.oa-opt[data-active='true'] {
+  background: var(--app-hover);
+}
+.oa-opt[aria-selected='true'] {
+  color: var(--fg-1);
+  font-weight: 600;
+}
+.oa-opt[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: default;
+}
+.oa-opt-label {
+  flex: 1;
+  min-width: 0;
+}
+.oa-opt-check {
+  flex: none;
+  color: var(--app-600);
+}
+
+/* ── The context menu ────────────────────────────────────────────────────── */
+
+.oa-ctx {
+  min-width: 200px;
+  max-width: min(360px, calc(100vw - 16px));
+}
+.oa-ctx .oa-menu-item {
+  cursor: pointer;
+}
+.oa-ctx .oa-menu-item:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.oa-ctx .oa-menu-item[aria-expanded='true'] {
+  background: var(--app-hover);
+}
+.oa-menu-check {
+  color: var(--app-600);
+}
+.oa-menu-item[data-checked='true'] > .oa-ico:first-child {
+  color: var(--app-600);
+}
+.oa-menu-sub {
+  flex: none;
+  margin-left: 14px;
+  color: var(--fg-4);
+}
+/* A custom row brings its own spacing. */
+.oa-ctx-custom {
+  padding: 0;
+}

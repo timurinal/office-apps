@@ -31,6 +31,7 @@ import { errorText } from '../api';
 import { versions as versionsApi } from '../client';
 import { capsFor } from '../core/caps';
 import { colorFor } from '../core/color';
+import { useContextMenu } from '../core/contextHost';
 import { Button } from '../core/controls';
 import { HomeButton, SignInButton } from '../core/EditorFrame';
 import { HistoryPanel } from '../core/HistoryPanel';
@@ -60,7 +61,8 @@ import type { GridIntent } from './grid';
 import { applyIntent, type ModelNotice, type SheetSource } from './model';
 import { collect } from './modules/collect';
 import { SHEETS_MODULES } from './modules';
-import { SHEETS_TABS, type Connection, type PaneApi, type SheetsActions, type SheetsCan, type SheetsContext } from './modules/types';
+import { SHEETS_TABS, type Connection, type PaneApi, type SheetsActions, type SheetsCan, type SheetsContext, type SheetsMenuTarget } from './modules/types';
+import { darkCellsPref } from './darkCells';
 import { useDocumentActions } from './useDocumentActions';
 import { sameSheets, shallowEqual, useModelSlice, useSaving, useSheetModel, useVersionModel } from './useSheetModel';
 import { anchorAt, followAnchor, type EditAnchor } from './editAnchor';
@@ -116,6 +118,7 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
   const [panes, setPanes] = useState<{ left: string | null; right: string | null }>({ left: null, right: null });
   const [zoom, setZoom] = useState(100);
   const [gridlines, setGridlines] = useState(true);
+  const darkCells = darkCellsPref.use();
   const [shareOpen, setShareOpen] = useState(false);
   const [preview, setPreview] = useState<VersionSummary | null>(null);
   const [restoring, setRestoring] = useState<VersionSummary | null>(null);
@@ -303,6 +306,14 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
   // The grid's intents that no step answers (the filter button) are the modules', and are read at the time they arrive.
   const ctxRef = useRef(ctx);
   ctxRef.current = ctx;
+
+  // The right-click menu over the grid: each module says what goes in it for what was clicked.
+  const menu = useContextMenu<SheetsMenuTarget, SheetsContext>({
+    ctx,
+    hooks: COLLECTED.context,
+    label: (t) => (t.kind === 'cell' ? 'Cells' : t.kind === 'col' ? 'Columns' : 'Rows'),
+    returnFocus: () => session.focusGrid()
+  });
 
   // The ribbon re-reads what its controls show when the model changes or the selection moves.
   const subscribe = useCallback(
@@ -565,7 +576,9 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
               onReadOnlyEdit={() => notify({ text: readOnlyMessage })}
               insetBottom={FOOTER_INSET}
               gridlines={gridlines}
+              darkCells={darkCells}
               label={meta.title}
+              onContextMenu={(target, at, from) => void menu.open(target, at, from)}
             />
           )}
           {loading.present && <div className="oa-fade oa-sheet-skel oa-skel-lines" data-state={loading.state} aria-hidden="true" />}
@@ -579,6 +592,7 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
               {o.render(ctx)}
             </div>
           ))}
+          {menu.element}
         </div>
       </EditorShell>
 

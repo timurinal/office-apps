@@ -47,7 +47,8 @@
 }
 .oa-home-menu:hover,
 .oa-home-menu[aria-expanded='true'] {
-  background: var(--accent-100);
+  /* The suite's violet 100, or on a dark ground the violet's own tint (styles.css, "on a dark ground"). */
+  background: var(--app-50);
 }
 .oa-home-search {
   margin-left: auto;
@@ -110,16 +111,16 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 .oa-rail-item:hover {
-  color: var(--accent-700);
+  color: var(--app-700);
 }
 .oa-rail-item[aria-current='page'] {
-  color: var(--accent-600);
+  color: var(--app-600);
 }
 .oa-rail-gear {
   height: 44px;
 }
 .oa-rail-gear:hover {
-  color: var(--accent-700);
+  color: var(--app-700);
 }
 .oa-rail-pill,
 .oa-rail-bar {
@@ -134,7 +135,7 @@
   right: 6px;
   height: 56px;
   border-radius: 8px;
-  background: var(--accent-100);
+  background: var(--app-50);
 }
 .oa-rail-bar {
   top: 16px;
@@ -379,6 +380,10 @@
   background: var(--app-600);
   color: #fff;
 }
+[data-theme='dark'] .oa-kind {
+  background: var(--app-solid);
+  color: var(--app-on-solid);
+}
 .oa-mark {
   color: var(--fg-4);
 }
@@ -414,6 +419,10 @@
   color: var(--fg-3);
   box-shadow: 0 0 0 1px rgba(40, 28, 45, 0.06);
   transition: color var(--dur-fast) var(--ease-out);
+}
+[data-theme='dark'] .oa-card-star {
+  background: rgba(35, 37, 50, 0.88);
+  box-shadow: 0 0 0 1px var(--bd-soft);
 }
 .oa-card-star:hover {
   color: var(--fg-1);
@@ -542,6 +551,17 @@
   font-size: 16px;
   font-weight: 600;
   pointer-events: none;
+}
+[data-theme='dark'] .oa-home-drop {
+  border-color: var(--accent-400);
+  background: rgba(27, 26, 51, 0.9);
+  color: var(--accent-300);
+}
+/* The cards' edge is a hairline of the theme's own line: the light theme's is 5% of the ink. */
+[data-theme='dark'] .oa-rcard,
+[data-theme='dark'] .oa-skel-card,
+[data-theme='dark'] .oa-tcard-thumb {
+  box-shadow: 0 0 0 1px var(--bd-faint);
 }
 
 /* ── Phone width ─────────────────────────────────────────────────────────── */

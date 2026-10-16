@@ -21,6 +21,7 @@ const TextToColumnsDialog = lazy(() => import('./TextToColumnsDialog'));
 const InsertFunctionDialog = lazy(() => import('./InsertFunctionDialog'));
 const NameManager = lazy(() => import('./NameManager'));
 const NumberFormatDialog = lazy(() => import('./NumberFormatDialog'));
+const SizeDialog = lazy(() => import('./SizeDialog'));
 const FilterMenu = lazy(() => import('./FilterMenu'));
 const FindBar = lazy(() => import('./FindBar'));
 
@@ -66,6 +67,7 @@ export function ToolsHost({ ctx }: { ctx: SheetsContext }) {
       {tool?.id === 'function' && <InsertFunctionDialog key={tool.seq} ctx={ctx} onClose={onClose} />}
       {tool?.id === 'names' && <NameManager key={tool.seq} ctx={ctx} onClose={onClose} {...(tool.fromSelection ? { fromSelection: true } : {})} />}
       {tool?.id === 'numfmt' && <NumberFormatDialog key={tool.seq} ctx={ctx} onClose={onClose} />}
+      {tool?.id === 'size' && <SizeDialog key={tool.seq} ctx={ctx} onClose={onClose} axis={tool.axis} />}
       {tool?.id === 'filter' && <FilterMenu key={tool.seq} ctx={ctx} onClose={onClose} col={tool.col} />}
       {findWas && <FindBar ctx={ctx} />}
     </Suspense>

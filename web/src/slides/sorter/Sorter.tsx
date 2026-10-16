@@ -10,7 +10,7 @@
  *               Alt with an arrow moves the chosen slides one place, for a keyboard.
  *   keys        arrows, Home and End move; Delete deletes; Ctrl+D copies, Ctrl+A chooses all (the
  *               page's, since the sorter has the slide list's focus)
- *   menu        right-click: New slide, Duplicate, Delete, Hide or Show
+ *   menu        right-click: the slide menu (modules/menus.tsx), through `ctx.contextMenu`
  *
  * Like the rail it follows the model itself and draws a slide's content a moment after it changes.
  * Nothing animates under a drag: the line and the dimmed slides follow the pointer.
@@ -19,9 +19,8 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import type React from 'react';
 import { eyeSlashIcon, Icon } from '../../core/icons';
-import { MenuList, Popover, type MenuItem } from '../../core/ui';
 import { boxOf, flip, type Box } from '../../motion/flip';
-import { chosenHidden, deleteSlides, duplicateSlides, newSlide, toggleHidden } from '../editor/actions';
+import { deleteSlides } from '../editor/actions';
 import { useRailDeck } from '../editor/Rail';
 import { useSelection } from '../editor/selection';
 import type { Aspect, SlideJSON } from '../model/deck';
@@ -142,7 +141,6 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
   }, []);
 
   const [drag, setDrag] = useState<Drag | null>(null);
-  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const press = useRef<Press | null>(null);
   const pointer = useRef({ x: 0, y: 0 });
   const scroll = useRef<{ frame: number; speed: number }>({ frame: 0, speed: 0 });
@@ -284,7 +282,7 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
     } else if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
       const el = s.slide ? list.current?.querySelector<HTMLElement>(`[data-slide="${CSS.escape(s.slide)}"]`) : null;
       const r = el?.getBoundingClientRect();
-      if (r && editable) setMenu({ x: r.left + 24, y: r.top + 24 });
+      if (r && scroller.current) ctx.contextMenu({ kind: 'slides', ids: s.slides }, { x: r.left + 24, y: r.top + 24 }, scroller.current);
     } else handled = false;
     if (handled) {
       e.preventDefault();
@@ -293,21 +291,13 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
   };
 
   const onContextMenu = (e: React.MouseEvent) => {
+    // Shift asks for the browser's own menu.
     const id = itemAt(e);
-    if (!id || !editable) return;
-    e.preventDefault();
+    if (!id || e.shiftKey || !scroller.current) return;
     if (!selection.get().slides.includes(id)) selection.showSlide(id, deck.order);
     selection.set({ focus: 'rail' });
-    setMenu({ x: e.clientX, y: e.clientY });
+    if (ctx.contextMenu({ kind: 'slides', ids: selection.get().slides }, { x: e.clientX, y: e.clientY }, scroller.current)) e.preventDefault();
   };
-
-  const many = chosen.length > 1;
-  const menuItems: MenuItem[] = [
-    { label: 'New slide', onSelect: () => newSlide(target) },
-    { label: many ? 'Duplicate slides' : 'Duplicate slide', onSelect: () => void duplicateSlides(target) },
-    { label: many ? 'Delete slides' : 'Delete slide', danger: true, disabled: chosen.length >= deck.order.length, onSelect: () => void deleteSlides(target) },
-    { label: chosenHidden(target) ? (many ? 'Show slides' : 'Show slide') : many ? 'Hide slides' : 'Hide slide', separated: true, onSelect: () => void toggleHidden(target) }
-  ];
 
   return (
     <div
@@ -352,13 +342,6 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
         })}
         {drag && <li className="sl-sort-drop" aria-hidden="true" style={{ left: drag.drop.line.x, top: drag.drop.line.y, height: drag.drop.line.height }} />}
       </ol>
-      {menu && (
-        <div className="sl-ctx oa-pop-wrap" style={{ left: menu.x, top: menu.y }}>
-          <Popover open onClose={() => setMenu(null)} role="menu" label="Slide">
-            <MenuList items={menuItems} onDone={() => setMenu(null)} />
-          </Popover>
-        </div>
-      )}
     </div>
   );
 }

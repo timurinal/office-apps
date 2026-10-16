@@ -103,8 +103,8 @@ function CellEditor({ c, table, pos, box, scale, start, started, enter }: Editor
           model,
           styleOf: (attrs) => paragraphStyle(base, attrs),
           theme: model.design().theme,
-          awareness: null,
-          textKey: `${pos.slideId}/${pos.elId}`,
+          awareness: ctx.awareness,
+          textKey: null,
           onEscape: exit,
           cascade: true
         }),
