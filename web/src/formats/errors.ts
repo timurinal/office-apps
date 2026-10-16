@@ -22,7 +22,7 @@ export type FormatErrorCode =
 
 const MESSAGES: Record<FormatErrorCode, string> = {
   unsupported: 'That kind of file cannot be opened here.',
-  not_docx: 'That is not a Word document.',
+  not_docx: 'That is not a document.',
   not_xlsx: 'That is not a spreadsheet.',
   not_pptx: 'That is not a presentation.',
   too_large: 'That file is too large.',

@@ -71,12 +71,16 @@ describe('the Sheets modules', () => {
     expect(sections.map((s) => s.section)).toEqual(['Document', 'Share', 'Export', 'Danger']);
     expect(sections[0]!.items.map((i) => i.label)).toEqual(['New', 'Open', 'Make a copy', 'Rename']);
     expect(sections[1]!.items.map((i) => i.label)).toEqual(['Version history', 'Share']);
-    expect(sections[2]!.items.map((i) => i.label)).toEqual(['Export as Excel (.xlsx)', 'Export as CSV (.csv)', 'Export as tab-separated (.tsv)']);
+    expect(sections[2]!.items.map((i) => i.label)).toEqual(['Download a copy']);
+    expect(sections[2]!.items[0]!.submenu!.map((c) => c.label)).toEqual(['Workbook (.xlsx)', 'Comma-separated values (.csv)', 'Tab-separated values (.tsv)']);
     // A reader on a link whose owner turned downloads off gets neither the rows nor the commands.
     const noDownload = ctx({ download: false });
     expect(fileSections(all.fileItems, noDownload).map((s) => s.section)).not.toContain('Export');
     expect(searchCommands(all.commands, 'download', noDownload, 20)).toEqual([]);
     expect(searchCommands(all.commands, 'download', ctx(), 20).map((c) => c.id).sort()).toEqual(['file.download-csv', 'file.download-tsv', 'file.download-xlsx']);
+    expect(searchCommands(all.commands, 'download', ctx(), 20).map((c) => c.title).sort()).toEqual(['Download a copy as .csv', 'Download a copy as .tsv', 'Download a copy as .xlsx']);
+    // The old names of the formats still find them, though they are not shown.
+    expect(searchCommands(all.commands, 'excel', ctx(), 20).map((c) => c.title)).toContain('Download a copy as .xlsx');
     // Lock is not built for Sheets, and there is nothing in it for it to hide.
     expect(all.fileItems.map((f) => f.id)).not.toContain('file.lock');
   });
@@ -94,7 +98,9 @@ describe('the Sheets modules', () => {
     expect(titles).toContain('Undo');
     expect(titles).toContain('AutoSum');
     const rows = fileSections(all.fileItems, local).flatMap((s) => s.items.map((i) => i.label));
-    expect(rows).toEqual(['Rename', 'Export as Excel (.xlsx)', 'Export as CSV (.csv)', 'Export as tab-separated (.tsv)']);
+    // Save as, on the local page, is what leaves a file there (local/LocalDocument.tsx).
+    expect(rows).toEqual(['Rename']);
+    expect(searchCommands(all.commands, 'download', local, 20)).toEqual([]);
   });
 
   it('offers the whole set on a cloud spreadsheet', () => {

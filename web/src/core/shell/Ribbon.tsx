@@ -11,13 +11,15 @@
  *                selects, a style gallery and a colour picker
  *   collapse     the chevron at the right hides the strip; a tab clicked while it is
  *                collapsed shows it until a command runs or the pointer goes away
+ *   fit          one row on every tab and at every width (`useFit`): the buttons drop their words,
+ *                then an item with a short form draws it (`useRibbonFit`), then groups go under More
  *
  * The state a control shows (pressed, disabled, its value) is computed from the
  * context by the registry, and the strip re-reads it only when `subscribe` says the
  * editor's state moved. A keystroke therefore does not re-render thirty buttons.
  */
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type React from 'react';
 import { DUR } from '../../motion';
 import { useIndicator } from '../controls';
@@ -444,20 +446,41 @@ export function fitGroups(widths: readonly number[], room: number, more: number)
 interface Fit {
   /** The buttons that have an icon show only it (`data-compact`). */
   compact: boolean;
+  /** An item that has a short form draws it (`data-collapsed`); `useRibbonFit` tells it. Never without `compact`. */
+  collapsed: boolean;
   /** How many groups are on the strip; the rest are under More. */
   n: number;
 }
 
+/** What a control drawn by a module may ask of the strip it is on. */
+export interface RibbonFit {
+  /** The strip is short of room for the long form of this item: draw the short one. Under More it is always true. */
+  collapsed: boolean;
+}
+
+const LONG: RibbonFit = { collapsed: false };
+const SHORT: RibbonFit = { collapsed: true };
+/** The form the strip asks its items to draw. Provided by the strip; a test or a story may provide its own. */
+export const RibbonFitContext = createContext<RibbonFit>(LONG);
+
+/**
+ * For an item that is drawn by a module and has two forms, such as a gallery of shapes that is a button when there
+ * is no room for the gallery. Draw the long form while this says `collapsed: false`. The strip measures each form
+ * as it is drawn, so draw the form this says and nothing else: both at once is a strip as wide as both.
+ */
+export const useRibbonFit = (): RibbonFit => useContext(RibbonFitContext);
+
 /**
  * The strip is one row, so the ribbon is the same height on every tab and at every width. Short of
- * room, the buttons with an icon drop their words first, as Office's do; then the groups that still
- * do not fit go under More, from the last. A group is measured in each form while it is drawn and
- * remembered while it is not; a new set of groups is drawn whole and measured before paint.
+ * room, the buttons with an icon drop their words first, as Office's do; then an item that has a short
+ * form draws it; then the groups that still do not fit go under More, from the last. A group is measured
+ * in each form while it is drawn and remembered while it is not; a new set of groups is drawn whole and
+ * measured before paint.
  */
 function useFit<C>(el: HTMLElement | null, groups: readonly RibbonGroup<C>[]): Fit {
   const key = groups.map((g) => `${g.id}:${g.items.map((i) => i.id).join(',')}`).join('|');
-  const widths = useRef({ key: '', wide: new Map<string, number>(), compact: new Map<string, number>() });
-  const [fit, setFit] = useState<Fit & { key: string }>({ key: '', compact: false, n: 0 });
+  const widths = useRef({ key: '', wide: new Map<string, number>(), compact: new Map<string, number>(), short: new Map<string, number>() });
+  const [fit, setFit] = useState<Fit & { key: string }>({ key: '', compact: false, collapsed: false, n: 0 });
   const latest = useRef({ groups, key });
   latest.current = { groups, key };
 
@@ -465,11 +488,11 @@ function useFit<C>(el: HTMLElement | null, groups: readonly RibbonGroup<C>[]): F
     if (!el?.isConnected) return;
     const { groups, key } = latest.current;
     const w = widths.current;
-    if (w.key !== key) Object.assign(w, { key, wide: new Map(), compact: new Map() });
+    if (w.key !== key) Object.assign(w, { key, wide: new Map(), compact: new Map(), short: new Map() });
     const cs = getComputedStyle(el);
     const gap = parseFloat(cs.columnGap) || 0;
     const room = el.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0) + gap;
-    const drawn = el.hasAttribute('data-compact') ? w.compact : w.wide;
+    const drawn = el.hasAttribute('data-collapsed') ? w.short : el.hasAttribute('data-compact') ? w.compact : w.wide;
     for (const g of el.children) {
       const id = (g as HTMLElement).dataset.group;
       if (id) drawn.set(id, g.getBoundingClientRect().width + gap);
@@ -478,28 +501,32 @@ function useFit<C>(el: HTMLElement | null, groups: readonly RibbonGroup<C>[]): F
     const sizes = (m: Map<string, number>) => groups.map((g) => m.get(g.id));
     const wide = sizes(w.wide);
     const compact = sizes(w.compact);
+    const short = sizes(w.short);
     const known = (xs: (number | undefined)[]): xs is number[] => xs.every((x) => x !== undefined);
     const sum = (xs: number[]) => xs.reduce((a, x) => a + x, 0);
     const next: Fit =
       // A strip with no width has no layout (a hidden page, or a test): it draws everything.
       room <= gap || !known(wide) || sum(wide) <= room
-        ? { compact: false, n: all }
-        : !known(compact)
-          ? { compact: true, n: all }
-          : { compact: true, n: fitGroups(compact, room, MORE_WIDTH) };
-    setFit((f) => (f.key === key && f.compact === next.compact && f.n === next.n ? f : { key, ...next }));
+        ? { compact: false, collapsed: false, n: all }
+        : !known(compact) || sum(compact) <= room
+          ? { compact: true, collapsed: false, n: all }
+          : !known(short)
+            ? { compact: true, collapsed: true, n: all }
+            : // A strip with nothing to collapse measures the same short as compact, and so goes straight to More.
+              { compact: true, collapsed: true, n: fitGroups(short, room, MORE_WIDTH) };
+    setFit((f) => (f.key === key && f.compact === next.compact && f.collapsed === next.collapsed && f.n === next.n ? f : { key, ...next }));
   }, [el]);
 
-  const now: Fit = fit.key === key ? fit : { compact: false, n: groups.length };
-  // Each new form is drawn, then measured, until one fits: at most three passes, all before paint.
-  useLayoutEffect(measure, [key, measure, now.compact, now.n]);
+  const now: Fit = fit.key === key ? fit : { compact: false, collapsed: false, n: groups.length };
+  // Each new form is drawn, then measured, until one fits: at most four passes, all before paint.
+  useLayoutEffect(measure, [key, measure, now.compact, now.collapsed, now.n]);
   useEffect(() => {
     if (!el) return;
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     for (const g of el.children) if ((g as HTMLElement).dataset.group) ro.observe(g);
     return () => ro.disconnect();
-  }, [el, measure, key, now.compact, now.n]);
+  }, [el, measure, key, now.compact, now.collapsed, now.n]);
   return now;
 }
 
@@ -527,16 +554,18 @@ function MoreButton<C>({ groups, ctx, states, done }: { groups: RibbonGroup<C>[]
         <Icon icon={dotsThreeIcon} size={16} />
       </button>
       <Popover open={o.open} onClose={o.close} align="right" role="dialog" label="More">
-        <div
-          className="oa-rb-more"
-          // A control drawn by a module does not say when it has run; one that opens nothing has.
-          onClick={(e) => {
-            const pressed = (e.target as HTMLElement).closest('[data-rb-item]');
-            if (pressed && !pressed.hasAttribute('aria-haspopup')) ran();
-          }}
-        >
-          <StripContent groups={groups} ctx={ctx} states={states} done={ran} rows />
-        </div>
+        <RibbonFitContext.Provider value={SHORT}>
+          <div
+            className="oa-rb-more"
+            // A control drawn by a module does not say when it has run; one that opens nothing has.
+            onClick={(e) => {
+              const pressed = (e.target as HTMLElement).closest('[data-rb-item]');
+              if (pressed && !pressed.hasAttribute('aria-haspopup')) ran();
+            }}
+          >
+            <StripContent groups={groups} ctx={ctx} states={states} done={ran} rows />
+          </div>
+        </RibbonFitContext.Provider>
       </Popover>
     </span>
   );
@@ -643,7 +672,7 @@ export function Ribbon<C>(props: RibbonProps<C>) {
   // The leaving strip keeps the form it had, for the length of its fade.
   const fits = useRef(new Map<string, Fit>());
   fits.current.set(shown, fit);
-  const leavingFit = (leaving && fits.current.get(leaving)) || { compact: false, n: leavingGroups.length };
+  const leavingFit = (leaving && fits.current.get(leaving)) || { compact: false, collapsed: false, n: leavingGroups.length };
 
   // A peeking strip goes away when the pointer goes elsewhere, or a command ran.
   const pastRef = useRef<HTMLElement | null>(null);
@@ -737,13 +766,23 @@ export function Ribbon<C>(props: RibbonProps<C>) {
           data-peek={collapsed ? 'true' : undefined}
           {...roving}
         >
-          <div key={shown} ref={setContent} className="oa-rb-content oa-rise" data-compact={fit.compact ? '' : undefined}>
-            <StripContent groups={stripGroups.slice(0, fit.n)} ctx={ctx} states={states} done={done} more={fit.n < stripGroups.length} />
-            {fit.n < stripGroups.length && <MoreButton groups={stripGroups.slice(fit.n)} ctx={ctx} states={states} done={done} />}
+          <div key={shown} ref={setContent} className="oa-rb-content oa-rise" data-compact={fit.compact ? '' : undefined} data-collapsed={fit.collapsed ? '' : undefined}>
+            <RibbonFitContext.Provider value={fit.collapsed ? SHORT : LONG}>
+              <StripContent groups={stripGroups.slice(0, fit.n)} ctx={ctx} states={states} done={done} more={fit.n < stripGroups.length} />
+              {fit.n < stripGroups.length && <MoreButton groups={stripGroups.slice(fit.n)} ctx={ctx} states={states} done={done} />}
+            </RibbonFitContext.Provider>
           </div>
           {leaving && (
-            <div className="oa-rb-content oa-rb-leaving" aria-hidden="true" data-compact={leavingFit.compact ? '' : undefined} {...{ inert: '' }}>
-              <StripContent groups={leavingGroups.slice(0, leavingFit.n)} ctx={ctx} states={leavingStates} done={done} more={leavingFit.n < leavingGroups.length} />
+            <div
+              className="oa-rb-content oa-rb-leaving"
+              aria-hidden="true"
+              data-compact={leavingFit.compact ? '' : undefined}
+              data-collapsed={leavingFit.collapsed ? '' : undefined}
+              {...{ inert: '' }}
+            >
+              <RibbonFitContext.Provider value={leavingFit.collapsed ? SHORT : LONG}>
+                <StripContent groups={leavingGroups.slice(0, leavingFit.n)} ctx={ctx} states={leavingStates} done={done} more={leavingFit.n < leavingGroups.length} />
+              </RibbonFitContext.Provider>
             </div>
           )}
         </div>

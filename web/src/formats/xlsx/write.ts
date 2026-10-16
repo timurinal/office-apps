@@ -346,7 +346,7 @@ class Writer {
           const joined = c.items.join(',');
           // Excel's literal list is comma separated and 255 characters long, and has no way to quote a comma.
           if (c.items.some((i) => i.includes(',')) || joined.length > 255) {
-            this.warnings.add('list', (n) => `${plural(n, 'list validation')} that Excel cannot hold ${n === 1 ? 'was' : 'were'} left out.`);
+            this.warnings.add('list', (n) => `${plural(n, 'list validation')} that an .xlsx file cannot hold ${n === 1 ? 'was' : 'were'} left out.`);
             continue;
           }
           model.type = 'list';
@@ -424,7 +424,7 @@ export async function writeXlsx(file: BookFile, opts: XlsxWriteOptions): Promise
     const ws = wb.addWorksheet(name, { state: field(s.map, 'hidden') ? 'hidden' : 'visible', ...(argb ? { properties: { tabColor: { argb } } } : {}) } as ExcelJS.AddWorksheetOptions);
     outs.set(s.id, { s, ws, name });
   }
-  if (renamed) writer.warnings.add('sheet-names', (n) => `${plural(n, 'sheet name')} ${n === 1 ? 'was' : 'were'} changed to fit Excel.`, renamed);
+  if (renamed) writer.warnings.add('sheet-names', (n) => `${plural(n, 'sheet name')} ${n === 1 ? 'was' : 'were'} changed to fit an .xlsx file.`, renamed);
   for (const out of outs.values()) writer.sheet(out);
   writer.names(wb, book.sheets.map((s) => s.id));
 

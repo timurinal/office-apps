@@ -24,6 +24,7 @@ import type { Markup, Suggestion } from './suggest';
 export interface Writer {
   id: string | null;
   name: string;
+  avatarUrl?: string | null;
 }
 
 export interface ReviewSnapshot {
@@ -203,7 +204,7 @@ export function createReviewStore(documentId: string): ReviewStore {
         resolved: false,
         resolvedById: null,
         resolvedAt: null,
-        messages: [{ id: `${id}:0`, authorId: by.id, authorName: by.name, body, mentions, createdAt: at, editedAt: null }],
+        messages: [{ id: `${id}:0`, authorId: by.id, authorName: by.name, authorAvatarUrl: by.avatarUrl ?? null, body, mentions, createdAt: at, editedAt: null }],
         createdAt: at
       };
       set({ threads: [...threads(), thread], draft: null, active: threadKey(id) });
@@ -228,7 +229,7 @@ export function createReviewStore(documentId: string): ReviewStore {
     reply: (threadId, body, mentions, by) => {
       const before = threads().find((t) => t.id === threadId);
       if (!before || isTemp(threadId)) return;
-      const message: CommentMessage = { id: tempId(), authorId: by.id, authorName: by.name, body, mentions, createdAt: nowSeconds(), editedAt: null };
+      const message: CommentMessage = { id: tempId(), authorId: by.id, authorName: by.name, authorAvatarUrl: by.avatarUrl ?? null, body, mentions, createdAt: nowSeconds(), editedAt: null };
       replace(threadId, { ...before, messages: [...before.messages, message] });
       write(
         threadId,

@@ -313,6 +313,50 @@ describe('two windows on one show', () => {
     expect(at(presenter)).toBe('s2');
   });
 
+  it('tell each other whether the window is full screen, when it changes, and know nothing before then', async () => {
+    const { presenter, audience } = await pair();
+    expect(presenter.handle.current!.peerFull).toBeNull();
+    act(() => audience.handle.current!.reportWindow(false));
+    await settle();
+    expect(presenter.handle.current!.peerFull).toBe(false);
+    act(() => audience.handle.current!.reportWindow(true));
+    await settle();
+    expect(presenter.handle.current!.peerFull).toBe(true);
+    // What the audience said is not the presenter's own: it is the other window's.
+    expect(audience.handle.current!.peerFull).toBeNull();
+  });
+
+  it('answer hello with the window’s state, so a presenter that opens after the audience hears it', async () => {
+    const { factory } = fakeChannels();
+    const name = channelName('doc', 'show1234');
+    const audience = open(modelOf(testDeck(slides(3))), 'audience', 0, { name, factory });
+    act(() => audience.handle.current!.reportWindow(true));
+    await settle();
+    const presenter = open(modelOf(testDeck(slides(3))), 'presenter', 0, { name, factory });
+    await settle();
+    expect(presenter.handle.current!.peerFull).toBe(true);
+  });
+
+  it('forget what the other window said once it has gone', async () => {
+    const { presenter, audience } = await pair();
+    act(() => audience.handle.current!.reportWindow(false));
+    await settle();
+    expect(presenter.handle.current!.peerFull).toBe(false);
+    audience.unmount();
+    await settle();
+    expect(presenter.handle.current!.peerFull).toBeNull();
+  });
+
+  it('send the window’s state when it is reported, and a show on its own has nobody to tell', async () => {
+    const { factory, sent } = fakeChannels();
+    const w = open(modelOf(testDeck(slides(3))), 'audience', 0, { name: 'x', factory });
+    sent.length = 0;
+    act(() => w.handle.current!.reportWindow(true));
+    expect(sent.filter((m) => (m.data as { t: string }).t === 'window')).toHaveLength(1);
+    const solo = open(modelOf(testDeck(slides(3))), 'solo', 0);
+    expect(() => act(() => solo.handle.current!.reportWindow(true))).not.toThrow();
+  });
+
   it('keep the slides in step through a deck that changes under both', async () => {
     const { presenter, audience, a, b } = await pair(5);
     await press(presenter, 'ArrowRight');

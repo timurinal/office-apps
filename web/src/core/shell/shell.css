@@ -9,7 +9,9 @@
 .oa-shell {
   position: fixed;
   inset: 0;
-  overflow: hidden;
+  /* Clip, not hidden: a hidden box still scrolls to show what is focused past its edge, and the
+     whole editor then sits a few px aside until something lays it out again. */
+  overflow: clip;
   background: var(--app-desk);
   color: var(--fg-2);
   font-family: var(--font-body), Inter, 'Helvetica Neue', Arial, sans-serif;
@@ -168,6 +170,7 @@
   border-radius: 6px;
   background: transparent;
   max-width: 100%;
+  text-overflow: ellipsis;
   transition:
     border-color var(--dur-fast) var(--ease-out),
     background-color var(--dur-fast) var(--ease-out);
@@ -285,12 +288,18 @@
   align-items: center;
   padding: 0 8px;
 }
+/* Short of room the tabs scroll sideways; a tab name never wraps or is cut. */
 .oa-rb-tablist {
   position: relative;
   display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
   --ind-color: var(--app-solid);
 }
 .oa-rb-tab {
+  flex-shrink: 0;
+  white-space: nowrap;
   height: 34px;
   padding: 0 10px;
   border: 0;
@@ -709,6 +718,7 @@
   color: var(--app-text);
 }
 .oa-zoom {
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -760,6 +770,47 @@
   text-align: right;
   font-family: var(--font-mono), 'JetBrains Mono', monospace;
   font-size: 11px;
+}
+
+/* ── Short of room ───────────────────────────────────────────────────────────
+   The steps squeeze.ts takes, least needed first, until nothing in the bar overflows. Words go by
+   taking no room rather than by `display: none`, so a button keeps its name. */
+/* The title has the room first: the search narrows to its least, and the title's half stops
+   matching the other half's width to keep the search in the middle. */
+.oa-hd[data-squeeze~='title'] .oa-hd-left {
+  flex-basis: auto;
+}
+.oa-hd[data-squeeze~='title'] .oa-hd-mid {
+  flex-basis: 200px;
+}
+.oa-hd[data-squeeze~='words'] .oa-hd-right .oa-btn:has(> .oa-ico) {
+  gap: 0;
+  font-size: 0;
+}
+.oa-hd[data-squeeze~='extras'] :is(.oa-hd-save, .oa-hd-note, .oa-hd-star) {
+  display: none;
+}
+.oa-footer[data-squeeze~='slider']:not([data-tall]),
+.oa-footer[data-squeeze~='slider'] .oa-footer-left {
+  gap: 10px;
+}
+.oa-footer[data-squeeze~='slider'] .oa-zoom input[type='range'] {
+  display: none;
+}
+.oa-footer[data-squeeze~='words'] .oa-status:has(> .oa-dot),
+.oa-footer[data-squeeze~='words'] > :not(.oa-footer-left) button:has(> .oa-ico) {
+  gap: 0;
+  font-size: 0;
+}
+.oa-footer[data-squeeze~='extras'] > :not(.oa-footer-left) :is([role='group'], button[data-icon]) {
+  display: none;
+}
+.oa-footer[data-squeeze~='zoom'] .oa-zoom .oa-sb {
+  display: none;
+}
+/* Past the last step, the left half is cut at its edge rather than drawn under the right. */
+.oa-footer[data-squeeze~='zoom'] .oa-footer-left {
+  overflow-x: clip;
 }
 
 /* ── Narrow screens ──────────────────────────────────────────────────────────

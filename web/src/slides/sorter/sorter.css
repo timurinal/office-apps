@@ -87,6 +87,11 @@
   color: var(--app-solid);
 }
 
+/* The transition marker (present/present.css) sits in the number's row here, and not in a column. */
+.sl-sort-num .sp-mark {
+  align-self: center;
+}
+
 .sl-sort-drop {
   position: absolute;
   width: 2px;

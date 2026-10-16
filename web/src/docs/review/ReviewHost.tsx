@@ -32,7 +32,7 @@ import type { AnchorDraft, DocsAnchor } from '../anchors';
 import { useMountedEditor, viewOf } from '../core/hooks';
 import type { DocsContext } from '../modules/types';
 import { decide, DRAFT_ID, DRAFT_KEY, startComment } from './actions';
-import { DraftCard, SuggestionCard, ThreadCard } from './cards';
+import { DraftCard, Pictures, SuggestionCard, ThreadCard } from './cards';
 import { highlightKey, rangeOf, setHighlights, type HighlightsStorage, type HighlightThread } from './highlights';
 import { awarenessOf, linkRoom } from './live';
 import { drawnId, suggestionKey, threadKey, useReview, type ReviewSnapshot, type ReviewStore, type Writer } from './store';
@@ -56,7 +56,8 @@ type Item =
   | { key: string; rkey: string; kind: 'thread'; thread: CommentThread }
   | { key: string; rkey: string; kind: 'suggestion'; suggestion: Suggestion };
 
-export const writerOf = (me: { id: string; name: string } | null): Writer => (me ? { id: me.id, name: me.name } : { id: null, name: 'Guest' });
+export const writerOf = (me: { id: string; name: string; avatarUrl: string | null } | null): Writer =>
+  me ? { id: me.id, name: me.name, avatarUrl: me.avatarUrl } : { id: null, name: 'Guest' };
 
 /** The open threads, and the comment being written, as the page draws them. */
 function drawnThreads(snap: ReviewSnapshot): HighlightThread[] {
@@ -190,6 +191,13 @@ function Margin({
 }) {
   const paper = useMemo(() => viewOf(editor)?.dom.closest<HTMLElement>('.oa-paper') ?? null, [editor]);
   const [roomy, setRoomy] = useState(false);
+  // Everyone's picture the threads know of, and the writer's own: a suggestion and a message being sent carry none.
+  const pictures = useMemo(() => {
+    const out = new Map<string, string>();
+    for (const t of snap.threads ?? []) for (const m of t.messages) if (m.authorId && m.authorAvatarUrl) out.set(m.authorId, m.authorAvatarUrl);
+    if (writer.id && writer.avatarUrl) out.set(writer.id, writer.avatarUrl);
+    return out;
+  }, [snap.threads, writer]);
   const zoom = useRef(1);
 
   const measure = useCallback(() => {
@@ -458,7 +466,7 @@ function Margin({
             data-on={!ghost && snap.active === it.key ? 'true' : undefined}
             aria-hidden={ghost ? true : undefined}
           >
-            {card(it, ghost)}
+            <Pictures.Provider value={pictures}>{card(it, ghost)}</Pictures.Provider>
           </div>
         );
       })}

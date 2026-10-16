@@ -209,7 +209,7 @@ describe('the buttons and the keys', () => {
     setup(deck());
     click(button('Black screen'));
     expect(button('Black screen')!.getAttribute('aria-pressed')).toBe('true');
-    expect(text('.sp-cur-note')).toBe('Black screen');
+    expect(text('.sp-banner-title')).toBe('Black screen');
     // The presenter still sees the slide: the black is the audience's.
     expect(q('.sp-cur .sp-screen')).toBeNull();
     keydown('b');
@@ -257,6 +257,102 @@ describe('the buttons and the keys', () => {
   });
 });
 
+describe('the banner over the current slide', () => {
+  const banner = () => q('.sp-cur .sp-banner')!;
+  const last = (t: ReturnType<typeof setup>) => [...t.heard].reverse().find((m): m is Extract<ShowMessage, { t: 'state' }> => m.t === 'state')!;
+
+  it('is there but off while the slide is on screen, and holds nothing to press', () => {
+    setup(deck());
+    expect(banner().getAttribute('data-on')).toBe('false');
+    expect(banner().getAttribute('aria-hidden')).toBe('true');
+    expect(banner().querySelector<HTMLButtonElement>('button')!.disabled).toBe(true);
+  });
+
+  it('says a black screen in large type, with the key back and a Resume button', () => {
+    setup(deck());
+    keydown('b');
+    expect(banner().getAttribute('data-on')).toBe('true');
+    expect(banner().getAttribute('aria-hidden')).toBe('false');
+    expect(banner().getAttribute('data-screen')).toBe('black');
+    expect(text('.sp-banner-title')).toBe('Black screen');
+    expect(q('.sp-banner-how kbd')!.textContent).toBe('B');
+    expect(button('Resume')!.disabled).toBe(false);
+  });
+
+  it('says a white screen the same way, with its own key', () => {
+    setup(deck());
+    keydown('w');
+    expect(banner().getAttribute('data-screen')).toBe('white');
+    expect(text('.sp-banner-title')).toBe('White screen');
+    expect(q('.sp-banner-how kbd')!.textContent).toBe('W');
+  });
+
+  it('says the end of the show, and goes back one slide with Resume rather than leaving', async () => {
+    const t = setup(deck());
+    keydown('End');
+    keydown('ArrowRight');
+    expect(banner().getAttribute('data-screen')).toBe('end');
+    expect(text('.sp-banner-title')).toBe('End of slide show');
+    expect(q('.sp-banner-how kbd')!.textContent).toBe('Left arrow');
+    click(button('Resume'));
+    await settle();
+    expect(banner().getAttribute('data-on')).toBe('false');
+    expect(text('.sp-where')).toBe('Slide 4 of 4');
+    expect(t.close).not.toHaveBeenCalled();
+    expect(last(t).state.screen).toBe('none');
+  });
+
+  it('puts the slide back with Resume, in both windows, and gives the keyboard back to the show', async () => {
+    const t = setup(deck());
+    t.link.send({ t: 'hello' });
+    keydown('b');
+    await settle();
+    expect(last(t).state.screen).toBe('black');
+    click(button('Resume'));
+    await settle();
+    expect(last(t).state.screen).toBe('none');
+    expect(button('Black screen')!.getAttribute('aria-pressed')).toBe('false');
+    expect(document.activeElement).toBe(q('.sp-console'));
+    keydown(' ');
+    expect(text('.sp-where')).toBe('Slide 3 of 4');
+  });
+
+  it('keeps its words while it fades out, and has no button then', () => {
+    setup(deck());
+    keydown('w');
+    keydown('w');
+    expect(banner().getAttribute('data-on')).toBe('false');
+    expect(text('.sp-banner-title')).toBe('White screen');
+    expect(banner().querySelector<HTMLButtonElement>('button')!.disabled).toBe(true);
+  });
+
+  it('changes its words when a black screen becomes a white one', () => {
+    setup(deck());
+    keydown('b');
+    keydown('w');
+    expect(banner().getAttribute('data-on')).toBe('true');
+    expect(text('.sp-banner-title')).toBe('White screen');
+  });
+
+  it('is told to a screen reader when it comes, and not when it goes', () => {
+    setup(deck());
+    const spoken = () => q('.sp-banner-status')!.textContent;
+    expect(spoken()).toBe('');
+    keydown('b');
+    expect(spoken()).toBe('Black screen');
+    keydown('b');
+    expect(spoken()).toBe('');
+  });
+
+  it('is part of the Tab cycle only while it is on', () => {
+    setup(deck());
+    const tabStops = () => [...document.body.querySelectorAll<HTMLElement>('.sp-console button:not(:disabled)')].map((b) => b.textContent?.trim() || b.getAttribute('aria-label'));
+    expect(tabStops()).not.toContain('Resume');
+    keydown('b');
+    expect(tabStops()).toContain('Resume');
+  });
+});
+
 describe('the audience’s window', () => {
   it('is told where the show is, and what it does is done here', async () => {
     const t = setup(deck());
@@ -284,6 +380,88 @@ describe('the audience’s window', () => {
     await settle();
     expect(text('.sp-bar')).toContain('Audience window closed');
     expect(button('Open audience window')).toBeDefined();
+  });
+
+  describe('and whether it is full screen', () => {
+    const bar = () => text('.sp-bar')!;
+    const hint = () => q('.sp-aud-hint');
+
+    it('says nothing about it until the window has said, which an older window never does', async () => {
+      const t = setup(deck());
+      t.link.send({ t: 'hello' });
+      await settle();
+      expect(bar()).toContain('Audience window open');
+      expect(bar()).not.toMatch(/full screen|windowed/);
+      expect(hint()).toBeNull();
+    });
+
+    it('says it is full screen, and nothing more', async () => {
+      const t = setup(deck());
+      t.link.send({ t: 'hello' });
+      t.link.send({ t: 'window', full: true });
+      await settle();
+      expect(bar()).toContain('Audience window open, full screen');
+      expect(hint()).toBeNull();
+    });
+
+    it('says it is a window, and how to make it full screen from there', async () => {
+      const t = setup(deck());
+      t.link.send({ t: 'hello' });
+      t.link.send({ t: 'window', full: false });
+      await settle();
+      expect(bar()).toContain('Audience window open, windowed');
+      expect(hint()!.textContent).toBe('Click it and press F11 or F.');
+    });
+
+    it('follows the window as it goes in and out of full screen', async () => {
+      const t = setup(deck());
+      t.link.send({ t: 'hello' });
+      t.link.send({ t: 'window', full: false });
+      await settle();
+      expect(hint()).not.toBeNull();
+      t.link.send({ t: 'window', full: true });
+      await settle();
+      expect(bar()).toContain('full screen');
+      expect(hint()).toBeNull();
+      t.link.send({ t: 'window', full: false });
+      await settle();
+      expect(hint()).not.toBeNull();
+    });
+
+    it('does not offer to do it from here: a window cannot be made full screen by another', async () => {
+      const t = setup(deck());
+      t.link.send({ t: 'hello' });
+      t.link.send({ t: 'window', full: false });
+      await settle();
+      expect(hint()!.closest('button')).toBeNull();
+      expect(button('Full screen')).toBeUndefined();
+    });
+
+    it('forgets it when the window closes, so a closed window is not called a window', async () => {
+      const t = setup(deck());
+      t.link.send({ t: 'hello' });
+      t.link.send({ t: 'window', full: false });
+      await settle();
+      t.link.send({ t: 'bye' });
+      await settle();
+      expect(bar()).toContain('Audience window closed');
+      expect(bar()).not.toMatch(/full screen|windowed/);
+      expect(hint()).toBeNull();
+    });
+
+    it('says nothing about a window the browser closed without a word', async () => {
+      vi.useFakeTimers();
+      const popup = fakeWindow();
+      const t = setup(deck(), { audience: popup });
+      t.link.send({ t: 'hello' });
+      t.link.send({ t: 'window', full: false });
+      await act(async () => void (await vi.advanceTimersByTimeAsync(10)));
+      expect(hint()).not.toBeNull();
+      (popup as unknown as { closed: boolean }).closed = true;
+      await act(async () => void (await vi.advanceTimersByTimeAsync(1600)));
+      expect(bar()).toContain('Audience window closed');
+      expect(hint()).toBeNull();
+    });
   });
 
   it('is opening while the window it opened has not yet said hello', async () => {
@@ -332,6 +510,31 @@ describe('the audience’s window', () => {
     t.link.send({ t: 'end' });
     await settle();
     expect(t.close).toHaveBeenCalledTimes(1);
+  });
+
+  it('is not ended by the browser taking this window out of full screen: the keys that do it are the browser’s', async () => {
+    Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: true });
+    let current: Element | null = null;
+    Object.defineProperty(document, 'fullscreenElement', { configurable: true, get: () => current });
+    (HTMLElement.prototype as unknown as { requestFullscreen: unknown }).requestFullscreen = vi.fn(async function (this: HTMLElement) {
+      current = this;
+      document.dispatchEvent(new Event('fullscreenchange'));
+    });
+    try {
+      const t = setup(deck());
+      keydown('f');
+      await settle();
+      expect(current).toBe(q('.sp-console'));
+      current = null;
+      act(() => void document.dispatchEvent(new Event('fullscreenchange')));
+      await settle();
+      expect(t.close).not.toHaveBeenCalled();
+      expect(t.heard.some((m) => m.t === 'end')).toBe(false);
+    } finally {
+      delete (document as unknown as Record<string, unknown>).fullscreenElement;
+      delete (document as unknown as Record<string, unknown>).fullscreenEnabled;
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>).requestFullscreen;
+    }
   });
 
   it('is kept when the audience’s window is closed by hand: the show goes on', async () => {

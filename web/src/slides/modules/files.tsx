@@ -1,10 +1,12 @@
 /**
- * Files: File > Export as PowerPoint, and Save as template, in the File menu and the Ctrl+K box.
+ * Files: File > Download a copy (a presentation, by its extension: core/formatNames.ts), and Save as
+ * template, in the File menu and the Ctrl+K box, where the old name of the format still finds it.
  *
  * The pptx writer and its worker are not imported here: a press loads them
  * (`formats/browser/slidesDownload`), so the editor opens without a file writer. The deck is taken
  * as the model has it, so a download of a version being previewed is that version. Gated on
- * `can.download`, the switch a link owner turns off for viewers.
+ * `can.download`, the switch a link owner turns off for viewers. A file on the computer is saved
+ * through Save as instead (local/LocalDocument.tsx), so it has no Download.
  *
  * The template rows are Docs' (docs/templates/offer.ts): the same three acts, the same optimism,
  * the same shelf on Home. The footer item draws nothing; it asks, once the page is quiet, whether
@@ -14,6 +16,7 @@
 import { useEffect } from 'react';
 import downloadSimpleRaw from '@phosphor-icons/core/assets/regular/download-simple.svg?raw';
 import filePptRaw from '@phosphor-icons/core/assets/regular/file-ppt.svg?raw';
+import { downloadTitle, formatLabel } from '../../core/formatNames';
 import { buildingsIcon, cardsIcon, ph, xIcon } from '../../core/icons';
 import { whenIdle } from '../../core/prefetch';
 import { canOfferToOrganisation, loadOrganisation, offer, scopeOf } from '../../docs/templates/offer';
@@ -33,7 +36,7 @@ async function download(c: SlidesContext): Promise<void> {
   });
 }
 
-const allowed = (c: SlidesContext): boolean => c.can.download;
+const allowed = (c: SlidesContext): boolean => c.can.download && c.source.kind !== 'local';
 const unsaved = (c: SlidesContext) => c.can.template && scopeOf(c.meta) === null;
 const company = (c: SlidesContext) => c.can.template && canOfferToOrganisation() && scopeOf(c.meta) !== 'org';
 const saved = (c: SlidesContext) => c.can.template && scopeOf(c.meta) !== null;
@@ -49,7 +52,7 @@ export const filesModule: SlidesModule = {
   ribbon: [],
 
   commands: [
-    { id: 'file.download-pptx', title: 'Export as PowerPoint', section: 'File', icon: downloadIcon, keywords: ['pptx', 'powerpoint', 'export', 'save', 'download'], visible: allowed, run: (c) => void download(c) },
+    { id: 'file.download-pptx', title: downloadTitle('pptx'), section: 'File', icon: downloadIcon, keywords: ['pptx', 'powerpoint', 'presentation', 'export', 'save', 'download'], visible: allowed, run: (c) => void download(c) },
     { id: 'file.template', title: 'Save as template', section: 'File', icon: cardsIcon, keywords: ['template'], visible: unsaved, run: (c) => void offer(c, 'user') },
     { id: 'file.template-company', title: 'Save as company template', section: 'File', icon: buildingsIcon, keywords: ['template', 'organisation'], visible: company, run: (c) => void offer(c, 'org') },
     { id: 'file.template-remove', title: 'Remove from templates', section: 'File', icon: xIcon, keywords: ['template'], visible: saved, run: (c) => void offer(c, null) }
@@ -62,6 +65,15 @@ export const filesModule: SlidesModule = {
     { id: 'file.template-company', label: 'Save as company template', icon: buildingsIcon, section: 'Document', order: 460, visible: company, run: (c) => void offer(c, 'org') },
     { id: 'file.template-remove', label: 'Remove from templates', icon: xIcon, section: 'Document', order: 470, visible: saved, run: (c) => void offer(c, null) },
     // The Export section's slot is 600 to 690 (types.ts), as Docs' and Sheets' are.
-    { id: 'file.download-pptx', label: 'Export as PowerPoint (.pptx)', icon: pptIcon, section: 'Export', order: 610, visible: allowed, run: (c) => void download(c) }
+    {
+      id: 'file.download',
+      label: 'Download a copy',
+      icon: downloadIcon,
+      section: 'Export',
+      order: 610,
+      visible: allowed,
+      run: () => undefined,
+      submenu: [{ id: 'file.download-pptx', label: formatLabel('pptx'), icon: pptIcon, run: (c) => void download(c) }]
+    }
   ]
 };

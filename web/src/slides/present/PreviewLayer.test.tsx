@@ -1,13 +1,13 @@
 // @vitest-environment happy-dom
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AnimateOptions } from '../../motion';
 import type { Transition } from '../model/deck';
 import { modelOf, testDeck } from '../model/testing';
 import type { CanvasFrame, SlidesContext } from '../modules/types';
 import { requestPreview } from './previewBus';
-import { TransitionPreviewLayer } from './PreviewLayer';
+import { ThumbPreview, TransitionPreviewLayer } from './PreviewLayer';
 import type { Animator } from './Stage';
 import { flush } from './testing';
 
@@ -143,5 +143,88 @@ describe('the preview over the canvas', () => {
     act(() => requestPreview());
     expect(preview()).toBeNull();
     expect(calls).toHaveLength(0);
+  });
+});
+
+describe('the preview of a slide that is not the one on the canvas', () => {
+  // The rail's marker asks for the slide it is on, and selects it in the same press. The slide on the canvas may not
+  // have caught up when the layer reads, so what was asked for is the layer's own to look up.
+  it('plays that slide’s transition, from the slide before it', () => {
+    const { animator, calls } = fake();
+    layer(animator, setup(0, { s2: { kind: 'push', from: 'top' }, s3: { kind: 'wipe', from: 'left' } }));
+    act(() => requestPreview('s3'));
+    expect(roles()).toEqual(['out', 'in']);
+    // A wipe's mask comes in from the left, and the slide inside it goes back by as much.
+    expect(calls[0]!.frames[0]).toEqual({ transform: 'translate(-100%, 0%)' });
+    const out = host.querySelector('.sp-layer[data-role="out"] .sl-view') as HTMLElement;
+    expect(out).not.toBeNull();
+    for (const c of calls) c.finish();
+  });
+
+  it('is a fade under reduced motion, as the Preview button’s is, and no longer than the fade is allowed to be', () => {
+    document.documentElement.dataset.motion = 'off';
+    const { animator, calls } = fake();
+    layer(animator, setup(0, { s3: { kind: 'wipe', from: 'left', duration: 4000 } }));
+    act(() => requestPreview('s3'));
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.frames).toEqual([{ opacity: 0 }, { opacity: 1 }]);
+    expect(calls[0]!.options.duration).toBeLessThanOrEqual(500);
+  });
+
+  it('is the slide on the canvas again when a request names none, so the Preview button is as it was', () => {
+    const { animator, calls } = fake();
+    layer(animator, setup(1, { s2: { kind: 'push', from: 'bottom' }, s3: { kind: 'wipe' } }));
+    act(() => requestPreview('s3'));
+    for (const c of calls) c.finish();
+    act(() => requestPreview());
+    expect(calls.at(-1)!.frames[0]).toEqual({ transform: 'translate(0%, 100%)' });
+  });
+
+  it('plays nothing for a slide the deck no longer has', () => {
+    const { animator, calls } = fake();
+    layer(animator, setup(1, { s2: { kind: 'fade' } }));
+    act(() => requestPreview('gone'));
+    expect(preview()).toBeNull();
+    expect(calls).toHaveLength(0);
+  });
+});
+
+describe('the preview inside a thumbnail, where the slide sorter has no canvas', () => {
+  const thumb = (a: Animator, s: ReturnType<typeof setup>, id: string, onSettled = () => undefined) =>
+    act(() => root.render(<div style={{ position: 'relative' }}><ThumbPreview model={s.model} design={s.ctx.design} id={id} width={146} onSettled={onSettled} animator={a} /></div>));
+
+  it('plays the slide’s transition at the width of the thumbnail, over it, and says so when it is done', async () => {
+    const { animator, calls } = fake();
+    const done = vi.fn();
+    thumb(animator, setup(1, { s2: { kind: 'push', from: 'bottom' } }), 's2', done);
+    expect(roles()).toEqual(['out', 'in']);
+    expect(calls).toHaveLength(2);
+    expect((host.querySelector('.sp-box') as HTMLElement).style.width).toBe('146px');
+    expect(done).not.toHaveBeenCalled();
+    for (const c of calls) c.finish();
+    await act(async () => void (await flush()));
+    expect(done).toHaveBeenCalledTimes(1);
+  });
+
+  it('takes no pointer events and is hidden from a screen reader', () => {
+    const { animator } = fake();
+    thumb(animator, setup(1, { s2: { kind: 'fade' } }), 's2');
+    expect(preview()!.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('is a fade under reduced motion', () => {
+    document.documentElement.dataset.motion = 'off';
+    const { animator, calls } = fake();
+    thumb(animator, setup(1, { s2: { kind: 'wipe' } }), 's2');
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.frames).toEqual([{ opacity: 0 }, { opacity: 1 }]);
+  });
+
+  it('is done at once for a slide with no transition', async () => {
+    const { animator } = fake();
+    const done = vi.fn();
+    thumb(animator, setup(1), 's2', done);
+    await act(async () => void (await flush()));
+    expect(done).toHaveBeenCalled();
   });
 });

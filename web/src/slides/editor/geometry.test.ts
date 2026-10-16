@@ -4,6 +4,7 @@ import {
   angleTo,
   handleCursor,
   handlePoint,
+  HIT_PX,
   hitTest,
   inBox,
   lineEndAt,
@@ -52,6 +53,69 @@ describe('hit testing', () => {
     const group = { id: 'g', type: 'group', x: 0, y: 0, w: 300, h: 100, flipH: true, children: [rect('c1', 0, 0, 100, 100)] } as ElementJSON;
     expect(hitTest([group], { x: 250, y: 50 }, 0)?.path).toEqual(['g', 'c1']);
     expect(hitTest([group], { x: 50, y: 50 }, 0)).toBeNull();
+  });
+
+  describe('thin things, measured on screen from the stroke', () => {
+    /** The hit test as the canvas runs it at `scale` screen px per slide px, for a point given in screen px. */
+    const at = (els: ElementJSON[], x: number, y: number, scale = 1) => hitTest(els, { x: x / scale, y: y / scale }, HIT_PX / scale)?.id ?? null;
+    const line = (id: string, x: number, y: number, w: number, h: number, width = 1, extra: Partial<ElementJSON> = {}): ElementJSON =>
+      ({ id, type: 'line', x, y, w, h, line: { color: '#000000', width }, ...extra }) as ElementJSON;
+
+    it('catches a 1 px line 8 px off it, and not 14 px off', () => {
+      const els = [line('l', 0, 100, 300, 0)];
+      expect(at(els, 150, 108)).toBe('l');
+      expect(at(els, 150, 92)).toBe('l');
+      expect(at(els, 150, 114)).toBeNull();
+      // The same on screen at 50% and at 200%: the tolerance is screen px, not slide px.
+      const half = [line('l', 0, 200, 600, 0)];
+      expect(at(half, 150, 108, 0.5)).toBe('l');
+      expect(at(half, 150, 114, 0.5)).toBeNull();
+      const twice = [line('l', 0, 50, 150, 0)];
+      expect(at(twice, 150, 108, 2)).toBe('l');
+      expect(at(twice, 150, 114, 2)).toBeNull();
+    });
+
+    it('misses a diagonal line inside its box but away from the stroke', () => {
+      const els = [line('l', 0, 0, 300, 300)];
+      expect(at(els, 150, 150)).toBe('l');
+      expect(at(els, 250, 50)).toBeNull();
+      expect(at(els, 40, 260)).toBeNull();
+      // Flipped, it is the other diagonal.
+      expect(at([line('l', 0, 0, 300, 300, 1, { flipH: true })], 250, 50)).toBe('l');
+    });
+
+    it('measures from the edge of a thick stroke', () => {
+      const els = [line('l', 0, 100, 300, 0, 12)];
+      // 6 px of half the stroke, then the tolerance.
+      expect(at(els, 150, 115)).toBe('l');
+      expect(at(els, 150, 118)).toBeNull();
+    });
+
+    it('catches a rectangle 2 px tall 8 px away', () => {
+      const els = [rect('r', 0, 100, 300, 2)];
+      expect(at(els, 150, 110)).toBe('r');
+      expect(at(els, 150, 92)).toBe('r');
+      expect(at(els, 150, 116)).toBeNull();
+      // Past its end, by the distance to the corner and not the box grown square.
+      expect(at(els, 308, 109)).toBeNull();
+      // A big shape gets no slop: its edge is where it ends.
+      expect(at([rect('big', 0, 0, 300, 300)], 150, 305)).toBeNull();
+    });
+
+    it('lets a big shape under a line keep the clicks away from the line, and the line the ones near it', () => {
+      const els = [rect('big', 0, 0, 400, 400), line('l', 0, 200, 400, 0)];
+      expect(at(els, 200, 205)).toBe('l');
+      expect(at(els, 200, 230)).toBe('big');
+      expect(at(els, 200, 170)).toBe('big');
+      // Topmost still wins: with the shape over the line, the shape has it.
+      expect(at([els[1]!, els[0]!], 200, 205)).toBe('big');
+    });
+
+    it('reaches a thin child of a group the same way', () => {
+      const group = { id: 'g', type: 'group', x: 0, y: 0, w: 300, h: 300, children: [line('c', 0, 150, 300, 0), rect('d', 0, 0, 50, 50)] } as ElementJSON;
+      expect(hitTest([group], { x: 150, y: 158 }, HIT_PX)?.path).toEqual(['g', 'c']);
+      expect(hitTest([group], { x: 150, y: 200 }, HIT_PX)).toBeNull();
+    });
   });
 
   it('selects with a marquee only what it holds whole', () => {

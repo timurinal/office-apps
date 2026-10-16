@@ -6,6 +6,11 @@
  * a dot there. Ending the show here closes the audience's window; ending it there (Escape) ends it
  * here; closing the audience's window by hand leaves the show running, and this view offers to open
  * it again.
+ *
+ * What the audience sees when it is not the slide is said across the slide here, large (`ScreenBanner`),
+ * since the copy of the slide in this window stays on view. Whether the audience's window is full
+ * screen is said in the bar, from what that window reports; this window cannot make another full screen,
+ * so it only says how.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -23,6 +28,7 @@ import { Live } from './Live';
 import { noteLines } from './notes';
 import { channelName, newShowToken, type ChannelFactory } from './protocol';
 import { useLeave, type HostProps } from './SlideShow';
+import type { Screen, ShowAction } from './state';
 import { nextVisible } from './stepping';
 import { Stopwatch, formatElapsed } from './timer';
 import { useShow, viewOf, type ShowHandle } from './useShow';
@@ -115,6 +121,47 @@ function Clock() {
   return <span className="sp-clock">{new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>;
 }
 
+type Blank = Exclude<Screen, 'none'>;
+
+/** What each blanked screen is called here, the key that brings the slide back, and what Resume does: the same. */
+const BLANKS: Record<Blank, { title: string; key: string; how: string; back: ShowAction }> = {
+  black: { title: 'Black screen', key: 'B', how: 'to resume', back: { type: 'screen', screen: 'black' } },
+  white: { title: 'White screen', key: 'W', how: 'to resume', back: { type: 'screen', screen: 'white' } },
+  // Next from here leaves the show; Previous is the way back.
+  end: { title: 'End of slide show', key: 'Left arrow', how: 'to go back', back: { type: 'prev' } }
+};
+
+/**
+ * Across the top of the slide: the audience is not seeing it. It is always drawn, and faded by opacity, so that
+ * it can leave as it came; while it is off its button is disabled, which keeps it out of the Tab cycle
+ * (`useShowKeys`), and it keeps the words it last had for the length of the fade.
+ */
+function ScreenBanner({ screen, resume }: { screen: Screen; resume: (blank: Blank) => void }) {
+  const [kept, setKept] = useState<Blank>('black');
+  if (screen !== 'none' && screen !== kept) setKept(screen);
+  const on = screen !== 'none';
+  const b = BLANKS[kept];
+  return (
+    <>
+      <div className="sp-banner" data-on={on} data-screen={kept} aria-hidden={!on}>
+        <span className="sp-banner-swatch" aria-hidden="true" />
+        <span className="sp-banner-text">
+          <span className="sp-banner-title">{b.title}</span>
+          <span className="sp-banner-how">
+            Press <kbd>{b.key}</kbd> {b.how}.
+          </span>
+        </span>
+        <button type="button" className="sp-banner-resume" disabled={!on} onClick={() => resume(kept)}>
+          Resume
+        </button>
+      </div>
+      <span className="sp-sr sp-banner-status" role="status">
+        {on ? b.title : ''}
+      </span>
+    </>
+  );
+}
+
 export function PresenterView({ ctx, from, close, launch, factory }: HostProps & { launch: Launch; factory?: ChannelFactory }) {
   const root = useRef<HTMLDivElement>(null);
   const handle = useRef<ShowHandle | null>(null);
@@ -157,13 +204,23 @@ export function PresenterView({ ctx, from, close, launch, factory }: HostProps &
     return () => clearInterval(t);
   }, [audience]);
   const open = !!show && show.peers > 0 && !audienceClosed;
+  // Whether the window is full screen is the window's to say: an older one says nothing, and so does a closed one.
+  const audienceFull = open ? (show?.peerFull ?? null) : null;
   // A window just opened has not said hello yet: that is opening, not closed.
-  const audienceSaid = open ? 'Audience window open' : audience && !audienceClosed && !show?.heard ? 'Audience window opening' : 'Audience window closed';
+  const audienceSaid = open
+    ? `Audience window open${audienceFull === null ? '' : audienceFull ? ', full screen' : ', windowed'}`
+    : audience && !audienceClosed && !show?.heard
+      ? 'Audience window opening'
+      : 'Audience window closed';
 
   /** A button pressed with the mouse gives the keyboard back to the show, so Space is Next again. */
   const pressed = useCallback(() => root.current?.focus({ preventScroll: true }), []);
   const run = (fn: () => void) => () => {
     fn();
+    pressed();
+  };
+  const resume = (blank: Blank) => {
+    show?.act(BLANKS[blank].back);
     pressed();
   };
 
@@ -192,7 +249,10 @@ export function PresenterView({ ctx, from, close, launch, factory }: HostProps &
         <Clock />
         {show?.heard || audience ? (
           <span className="sp-bar-group">
-            <span className="sp-clock">{audienceSaid}</span>
+            <span className="sp-aud">
+              <span className="sp-clock">{audienceSaid}</span>
+              {audienceFull === false && <span className="sp-aud-hint">Click it and press F11 or F.</span>}
+            </span>
             {!open && (
               <Button size="sm" variant="secondary" onClick={run(openAudience)}>
                 Open audience window
@@ -211,7 +271,7 @@ export function PresenterView({ ctx, from, close, launch, factory }: HostProps &
       <div className="sp-body">
         <div className="sp-main">
           <div className="sp-cur">
-            {show && show.state.screen !== 'none' && <span className="sp-cur-note">{show.state.screen === 'end' ? 'End of slide show' : show.state.screen === 'black' ? 'Black screen' : 'White screen'}</span>}
+            {show && <ScreenBanner screen={show.state.screen} resume={resume} />}
             {show && <Live model={model} design={design} show={show} mirror />}
           </div>
           <div className="sp-controls">

@@ -260,7 +260,7 @@ function ConnectionStatus({ ctx }: { ctx: DocsContext }) {
   const c = CONNECTION[ctx.connection];
   if (!c) return null;
   return (
-    <span className="oa-status" role="status">
+    <span className="oa-status" role="status" title={c.label}>
       <span className="oa-dot" data-tone={c.warn ? 'warn' : undefined} />
       {c.label}
     </span>

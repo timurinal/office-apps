@@ -179,6 +179,36 @@ describe('the View tab', () => {
     expect(button('Zoom out').disabled).toBe(true);
   });
 
+  it('zooms the grid, not the page, for Ctrl and the wheel anywhere and for Ctrl with = - 0', async () => {
+    await open();
+    await frame();
+    const pct = () => q('.oa-zoom-pct')!.textContent;
+    const wheel = (target: Element, deltaY: number) => {
+      const e = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY });
+      // happy-dom's WheelEvent drops the modifier keys and the pointer's position.
+      Object.defineProperties(e, { ctrlKey: { value: true }, clientX: { value: 300 }, clientY: { value: 200 } });
+      act(() => void target.dispatchEvent(e));
+      return e.defaultPrevented;
+    };
+    const key = (target: Element, k: string) => {
+      const e = new KeyboardEvent('keydown', { key: k, ctrlKey: true, bubbles: true, cancelable: true });
+      act(() => void target.dispatchEvent(e));
+      return e.defaultPrevented;
+    };
+    expect(wheel(q('.sg-scroller')!, -100)).toBe(true);
+    expect(pct()).toBe('110%');
+    // The chrome too.
+    expect(wheel(q('.oa-footer')!, -100)).toBe(true);
+    expect(pct()).toBe('120%');
+    expect(key(document.body, '-')).toBe(true);
+    expect(pct()).toBe('110%');
+    // A field outside the grid keeps the key: the formula bar.
+    expect(key(q('.sg-fwrap textarea')!, '=')).toBe(false);
+    expect(pct()).toBe('110%');
+    expect(key(q('[role="grid"]')!, '0')).toBe(true);
+    expect(pct()).toBe('100%');
+  });
+
   it('turns the gridlines off and on', async () => {
     await open();
     act(() => tab('View').click());

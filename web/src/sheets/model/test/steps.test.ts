@@ -120,6 +120,52 @@ describe('fill', () => {
     a.fill(sheet, { r1: 0, c1: 0, r2: 0, c2: 0 }, { r1: 0, c1: 0, r2: 2, c2: 0 });
     expect(text(a, sheet, 'A3')).toBe('01/02/2024');
   });
+
+  it('continues text as Excel does: days, months, quarters, and a number at the end', () => {
+    const { a, sheet } = two();
+    const down = (col: number, rows: number, to: number) =>
+      a.fill(sheet, { r1: 0, c1: col, r2: rows - 1, c2: col }, { r1: 0, c1: col, r2: to - 1, c2: col });
+    type(a, sheet, 'A1', 'Monday');
+    type(a, sheet, 'A2', 'Tuesday');
+    down(0, 2, 8);
+    type(a, sheet, 'B1', 'jan');
+    down(1, 1, 13);
+    type(a, sheet, 'C1', 'Q3');
+    down(2, 1, 4);
+    type(a, sheet, 'D1', 'Item 1');
+    type(a, sheet, 'D2', 'Item 3');
+    down(3, 2, 4);
+    type(a, sheet, 'E1', 'MON');
+    type(a, sheet, 'E2', 'WED');
+    down(4, 2, 5);
+    type(a, sheet, 'F1', 'Room 007');
+    down(5, 1, 3);
+    type(a, sheet, 'G1', 'Pending');
+    down(6, 1, 3);
+    expect(grid(a, sheet, 8, 7)).toEqual([
+      ['Monday', 'jan', 'Q3', 'Item 1', 'MON', 'Room 007', 'Pending'],
+      ['Tuesday', 'feb', 'Q4', 'Item 3', 'WED', 'Room 008', 'Pending'],
+      ['Wednesday', 'mar', 'Q1', 'Item 5', 'FRI', 'Room 009', 'Pending'],
+      ['Thursday', 'apr', 'Q2', 'Item 7', 'SUN', '', ''],
+      ['Friday', 'may', '', '', 'TUE', '', ''],
+      ['Saturday', 'jun', '', '', '', '', ''],
+      ['Sunday', 'jul', '', '', '', '', ''],
+      ['Monday', 'aug', '', '', '', '', '']
+    ]);
+    expect([text(a, sheet, 'B12'), text(a, sheet, 'B13')]).toEqual(['dec', 'jan']);
+  });
+
+  it('counts text back when filled up, as far as nought', () => {
+    const { a, sheet } = two();
+    type(a, sheet, 'A3', 'Week 1');
+    type(a, sheet, 'B3', 'Feb');
+    a.fill(sheet, { r1: 2, c1: 0, r2: 2, c2: 1 }, { r1: 0, c1: 0, r2: 2, c2: 1 });
+    expect(grid(a, sheet, 3, 2)).toEqual([
+      ['Week 1', 'Dec'],
+      ['Week 0', 'Jan'],
+      ['Week 1', 'Feb']
+    ]);
+  });
 });
 
 describe('sort', () => {

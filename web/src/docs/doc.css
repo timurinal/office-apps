@@ -364,6 +364,11 @@ article.oa-paper:not([data-page='dark']) .oa-chip-doc[data-app='slides'] {
 }
 
 @media print {
+  /* Paper does not scroll: a long line wraps rather than printing a scrollbar. */
+  .oa-doc .ProseMirror pre {
+    overflow: visible;
+    white-space: pre-wrap;
+  }
   .oa-paper {
     width: auto;
     min-height: 0;

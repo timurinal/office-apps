@@ -6,7 +6,9 @@
  *   Insert › Images         Picture, from a file: made smaller, stored as an asset of the document
  *   Insert › Illustrations  Shapes ▾ (every preset, with the text box, line and arrow), Line, Arrow,
  *                           and Chart ▾ (column, bar, line, pie and scatter, with sample data)
- *   Home › Drawing          the same Shapes ▾, in the slot types.ts reserves for it
+ *   Home › Drawing          the shapes used most as a gallery of small tiles with a button for the rest, while
+ *                           the strip has room, and the same Shapes ▾ when it has not; in the slot types.ts
+ *                           reserves for it
  *
  * A shape, a text box or a line is drawn: choosing it arms a tool, and the next click on the slide
  * places it at a default size and a drag draws it (insert/DrawLayer.tsx). A table's cells are typed
@@ -26,7 +28,7 @@ import { arrowUpRightIcon, arrowsMergeIcon, arrowsSplitIcon, chartBarHorizontalI
 import { keepSelection } from './insert/menus';
 import { addPictures, pickPictureFiles } from './insert/picture';
 import { insertChart, insertLine, insertShape, insertTable } from './insert/place';
-import { GALLERY_KINDS, ShapesButton, SHAPE_NAMES } from './insert/ShapeGallery';
+import { GALLERY_KINDS, HomeShapes, ShapesButton, SHAPE_NAMES } from './insert/ShapeGallery';
 import { addColumn, addRow, mergeable, mergeChosen, removeColumns, removeRows, selectedTable, splittable, splitChosen, type TableHost } from './insert/tableActions';
 import { TableButton } from './insert/TablePicker';
 import { TableLayer } from './insert/TableLayer';
@@ -80,8 +82,9 @@ const tableEntries: MenuEntry<SlidesContext>[] = [
 ];
 
 const ribbon: RibbonGroup<SlidesContext>[] = [
-  // Home's Drawing group, as the board draws it: the shapes, before Arrange.
-  { id: 'home.drawing', tab: 'home', order: 500, label: 'Drawing', items: [{ type: 'custom', id: 'home.shapes', render: (c) => <ShapesButton ctx={c} id="home.shapes" /> }] },
+  // Home's Drawing group, as the board draws it: the shapes, before Arrange. The strip shows the ones used most while it
+  // has room, and the Shapes button when it has not.
+  { id: 'home.drawing', tab: 'home', order: 500, label: 'Drawing', items: [{ type: 'custom', id: 'home.shapes', render: (c) => <HomeShapes ctx={c} /> }] },
   {
     id: 'insert.tables',
     tab: 'insert',

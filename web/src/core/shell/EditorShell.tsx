@@ -45,6 +45,8 @@ import {
   type PhIcon
 } from '../icons';
 import { Ribbon, type RibbonProps } from './Ribbon';
+import { FOOTER_STEPS, HEADER_STEPS, useSqueeze } from './squeeze';
+import { useHoldStill, useZoomGesture, type Pt } from './zoomGesture';
 import './shell.css';
 
 // ── the shell's own state, for the pieces inside ────────────────────────────
@@ -147,6 +149,7 @@ function PeerStack({ peers }: { peers: Peer[] }) {
           <Avatar
             name={p.name}
             color={p.color}
+            src={p.avatar}
             size={28}
             ring
             title={p.self ? `${p.name} (you)${p.tabs > 1 ? `, ${p.tabs} tabs` : ''}` : p.name}
@@ -168,10 +171,18 @@ function PeerStack({ peers }: { peers: Peer[] }) {
   );
 }
 
+/** The title is cut short: it has the room before anything else goes (squeeze.ts). */
+const titleCut = (row: HTMLElement): boolean => {
+  const title = row.querySelector('.oa-hd-sizer, h1.oa-hd-title');
+  return !!title && title.scrollWidth > title.clientWidth + 1;
+};
+
 function HeaderRow({ header, search }: { header: ShellHeader; search: React.ReactNode }) {
   const share = useRef<HTMLButtonElement>(null);
+  const row = useRef<HTMLElement>(null);
+  useSqueeze(row, HEADER_STEPS, (el) => !el.dataset.squeeze && titleCut(el));
   return (
-    <header className="oa-hd">
+    <header ref={row} className="oa-hd">
       <span className="oa-hd-left">
         <Link to="/" className="oa-badge" aria-label="Home" style={{ color: 'var(--app-on-solid)' }}>
           <Icon icon={header.badgeIcon} size={17} />
@@ -214,6 +225,7 @@ function HeaderRow({ header, search }: { header: ShellHeader; search: React.Reac
             variant="secondary"
             icon={chatCircleTextIcon}
             className="hide-sm"
+            title="Comments"
             aria-pressed={header.comments.active}
             onClick={header.comments.onClick}
           >
@@ -227,6 +239,7 @@ function HeaderRow({ header, search }: { header: ShellHeader; search: React.Reac
             ref={share}
             variant="primary"
             icon={usersIcon}
+            title="Share"
             onClick={() => share.current && header.share?.onClick(share.current)}
           >
             Share
@@ -333,9 +346,14 @@ export interface EditorShellProps<C> {
   bleed?: boolean;
   /**
    * The zoom, when the editor needs it too (a View tab's buttons). Without it the shell keeps its
-   * own, at 100%.
+   * own, at 100%, and Ctrl and the wheel hold the page still under the pointer.
+   *
+   * Ctrl and the wheel, and Ctrl with = and -, call `onChange` with `at`: the client point to hold
+   * still, or null for the centre of the view (zoomGesture.ts). The footer does not pass it. Ctrl+0
+   * calls `onReset`, or zooms to 100%. `gesture: false` leaves the wheel and the keys to the browser
+   * while the content is not on screen (Slides' show).
    */
-  zoom?: { value: number; onChange: (percent: number) => void };
+  zoom?: { value: number; onChange: (percent: number, at?: Pt | null) => void; onReset?: () => void; gesture?: boolean };
   /** An id that changes when the page's identity does, so the shell does not glide it. */
   children: React.ReactNode;
 }
@@ -348,6 +366,19 @@ export function EditorShell<C>(props: EditorShellProps<C>) {
   const setZoom = props.zoom?.onChange ?? setOwnZoom;
   const root = useRef<HTMLDivElement>(null);
   const banner = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const footer = useRef<HTMLElement>(null);
+  useSqueeze(footer, FOOTER_STEPS);
+
+  // Ctrl and the wheel, and the zoom keys, are this zoom's and not the browser's. The shell's own
+  // zoom is Docs': the page scrolls so that the line under the pointer stays under it.
+  const holdPage = useHoldStill(() => stage.current, () => stage.current?.querySelector('[data-doc-page]') ?? null, zoom);
+  const zoomTo = (percent: number, at: Pt | null) => {
+    if (props.zoom) return props.zoom.onChange(percent, at);
+    holdPage(at);
+    setOwnZoom(percent);
+  };
+  useZoomGesture({ enabled: props.zoom?.gesture !== false, value: zoom, min: ZOOM.min, max: ZOOM.max, set: zoomTo, reset: () => (props.zoom?.onReset ? props.zoom.onReset() : zoomTo(100, null)) });
 
   // The stage starts below the banner, however tall the banner is: wrapped on a
   // phone, or with the strip collapsed. The height is also state, so that the page
@@ -385,6 +416,7 @@ export function EditorShell<C>(props: EditorShellProps<C>) {
           style={{ ['--page-zoom' as string]: zoom / 100 }}
         >
           <div
+            ref={stage}
             className={bleed ? 'oa-stage' : 'oa-stage oa-scroll'}
             data-kind={kind}
             data-bleed={bleed ? 'true' : undefined}
@@ -421,7 +453,7 @@ export function EditorShell<C>(props: EditorShellProps<C>) {
           <PaneHost side="left" pane={left} />
           <PaneHost side="right" pane={right} />
 
-          <footer className="oa-footer glass" data-tall={tallFooter ? 'true' : undefined}>
+          <footer ref={footer} className="oa-footer glass" data-tall={tallFooter ? 'true' : undefined}>
             <span className="oa-footer-left">{statusLeft}</span>
             <span style={{ flex: 1 }} />
             {statusRight}

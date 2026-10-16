@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useContextMenu } from '../../core/contextHost';
 import { SelectionStore } from '../editor/selection';
+import type { Transition } from '../model/deck';
 import { modelOf, testDeck } from '../model/testing';
 import { contextItems } from '../modules/menus';
 import type { SlidesContext, SlidesMenuTarget } from '../modules/types';
@@ -45,8 +46,8 @@ afterEach(() => {
   }
 });
 
-function setup(over: { edit?: boolean; hidden?: string[] } = {}) {
-  const model = modelOf(testDeck(IDS.map((id) => ({ id, layout: 'blank', elements: [], ...(over.hidden?.includes(id) ? { hidden: true } : {}) }))));
+function setup(over: { edit?: boolean; hidden?: string[]; transitions?: Record<string, Transition> } = {}) {
+  const model = modelOf(testDeck(IDS.map((id) => ({ id, layout: 'blank', elements: [], ...(over.hidden?.includes(id) ? { hidden: true } : {}), ...(over.transitions?.[id] ? { transition: over.transitions[id] } : {}) }))));
   const selection = new SelectionStore();
   selection.set({ slide: 'a', slides: ['a'], focus: 'canvas' });
   const setView = vi.fn();
@@ -403,5 +404,99 @@ describe('after a drop', () => {
     const t = setup();
     t.render({ zoom: 140 });
     expect(animations).toEqual([]);
+  });
+});
+
+describe('the transition marker in the sorter', () => {
+  const TRANSITIONS: Record<string, Transition> = { b: { kind: 'fade' }, c: { kind: 'push', from: 'left' }, d: { kind: 'none' } };
+  const marker = (id: string): HTMLButtonElement | null => host.querySelector<HTMLButtonElement>(`[data-slide="${id}"] [data-preview]`);
+  const mouse = (el: Element, type: string, init: MouseEventInit = {}) => {
+    const e = type.startsWith('pointer') ? new PointerEvent(type, { bubbles: true, cancelable: true, button: 0, pointerId: 1, ...init }) : new MouseEvent(type, { bubbles: true, cancelable: true, button: 0, ...init });
+    act(() => void el.dispatchEvent(e));
+    return e;
+  };
+  const press = (el: Element) => {
+    mouse(el, 'pointerdown');
+    mouse(el, 'pointerup');
+    mouse(el, 'click');
+  };
+  const previewIn = (id: string) => host.querySelector(`[data-slide="${id}"] .sl-sort-thumb .sp-preview`);
+
+  // A DOM with no animations finishes a transition at once; this one holds it until the test lets go.
+  let release: (() => void)[] = [];
+  beforeEach(() => {
+    release = [];
+    (HTMLElement.prototype as unknown as { animate: unknown }).animate = () => {
+      let done!: () => void;
+      const finished = new Promise<void>((r) => (done = r));
+      release.push(done);
+      return { finished, cancel: () => undefined };
+    };
+  });
+  afterEach(() => {
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>).animate;
+  });
+
+  it('is on the slides that have a transition, named for it, and on no other', () => {
+    setup({ transitions: TRANSITIONS });
+    expect(IDS.map((id) => !!marker(id))).toEqual([false, true, true, false, false, false, false]);
+    expect(marker('b')!.getAttribute('aria-label')).toBe('Preview transition: Fade');
+    expect(marker('c')!.getAttribute('aria-label')).toBe('Preview transition: Push');
+    // With the number, under the slide.
+    expect(item('b').querySelector('.sl-sort-num')!.contains(marker('b'))).toBe(true);
+  });
+
+  it('plays the transition inside that slide’s thumbnail, chooses the slide, and stays in the sorter', async () => {
+    const t = setup({ transitions: TRANSITIONS });
+    press(marker('c')!);
+    expect(t.selection.get().slide).toBe('c');
+    expect(t.selection.get().slides).toEqual(['c']);
+    expect(previewIn('c')).not.toBeNull();
+    expect(previewIn('b')).toBeNull();
+    expect(t.setView).not.toHaveBeenCalled();
+    // Gone when it has finished.
+    act(() => release.forEach((r) => r()));
+    await act(async () => void (await new Promise((r) => setTimeout(r, 0))));
+    expect(previewIn('c')).toBeNull();
+  });
+
+  it('keeps the slides chosen with the one on the canvas, when it is on that one', () => {
+    const t = setup({ transitions: TRANSITIONS });
+    t.selection.set({ slide: 'b', slides: ['a', 'b'] });
+    press(marker('b')!);
+    expect(t.selection.get().slides).toEqual(['a', 'b']);
+    expect(previewIn('b')).not.toBeNull();
+  });
+
+  it('is not a press on the slide: no drag begins, and a double press does not open the slide', () => {
+    const t = setup({ transitions: TRANSITIONS });
+    const capture = vi.fn();
+    (host.querySelector('.sl-sort-list') as unknown as { setPointerCapture: unknown }).setPointerCapture = capture;
+    mouse(marker('c')!, 'pointerdown', { clientX: 5, clientY: 5 });
+    mouse(marker('c')!, 'pointermove', { clientX: 5, clientY: 200 });
+    mouse(marker('c')!, 'pointerup', { clientX: 5, clientY: 200 });
+    expect(capture).not.toHaveBeenCalled();
+    expect(t.selection.get().slide).toBe('a');
+    expect(order(t.model)).toBe('abcdefg');
+    mouse(marker('c')!, 'dblclick');
+    expect(t.setView).not.toHaveBeenCalled();
+  });
+
+  it('takes no focus from the sorter, so its keys stay', () => {
+    setup({ transitions: TRANSITIONS });
+    expect(mouse(marker('b')!, 'mousedown').defaultPrevented).toBe(true);
+    expect(marker('b')!.tabIndex).toBe(-1);
+  });
+
+  it('plays a fade under reduced motion, as the Preview button does', () => {
+    document.documentElement.dataset.motion = 'off';
+    try {
+      setup({ transitions: { b: { kind: 'wipe', from: 'left' } } });
+      press(marker('b')!);
+      expect(previewIn('b')).not.toBeNull();
+      expect(item('b').querySelectorAll('.sp-layer')).toHaveLength(2);
+    } finally {
+      delete document.documentElement.dataset.motion;
+    }
   });
 });

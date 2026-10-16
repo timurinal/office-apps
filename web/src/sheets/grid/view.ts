@@ -34,6 +34,11 @@ export interface ViewInputs {
   session: GridSession;
   /** A factor: 1 is 100%. */
   zoom: number;
+  /**
+   * The client point a change of `zoom` holds still, or null for the centre of the grid (Ctrl and
+   * the wheel, and the zoom keys). Absent, the first visible row and column stay (the footer).
+   */
+  zoomAt?: { x: number; y: number } | null;
   /** Room kept free at the bottom, so the last row can scroll clear of the footer. */
   insetBottom: number;
   readOnly: boolean;
@@ -99,7 +104,10 @@ export class GridView {
   setInputs(inputs: ViewInputs): void {
     const prev = this.inputs;
     this.inputs = inputs;
-    if (prev && prev.zoom !== inputs.zoom) this.keepTopLeft();
+    if (prev && prev.zoom !== inputs.zoom) {
+      if (inputs.zoomAt !== undefined) this.keepPoint(inputs.zoomAt);
+      else this.keepTopLeft();
+    }
     const changed = !prev || prev.data !== inputs.data || this.dataVersion !== inputs.data.version || prev.zoom !== inputs.zoom || prev.readOnly !== inputs.readOnly;
     this.dataVersion = inputs.data.version;
     this.invalidate(changed ? 'data' : 'select');
@@ -271,6 +279,30 @@ export class GridView {
     if (!now) return;
     if (row !== undefined) this.scrollOffsetTo('row', this.rows.start(row) - now.frozenH);
     if (col !== undefined) this.scrollOffsetTo('col', this.cols.start(col) - now.frozenW);
+  }
+
+  /**
+   * Keep the point of the sheet under `at` (client px; null, the grid's centre) where it is when the
+   * zoom changes. On a header or a frozen pane, where nothing scrolls under the pointer, that axis
+   * keeps its first visible line instead.
+   */
+  private keepPoint(at: { x: number; y: number } | null): void {
+    const was = this.layout;
+    if (!was) return;
+    const box = this.els.scroller.getBoundingClientRect();
+    const x = at ? at.x - box.left : was.viewW / 2;
+    const y = at ? at.y - box.top : was.viewH / 2;
+    const row = was.scrolledRows()?.[0];
+    const col = was.scrolledCols()?.[0];
+    this.axesKey = '';
+    const now = this.buildLayout();
+    if (!now) return;
+    // Positions in the scrolled pane scale with the zoom: every size is the size at 100% times it.
+    const k = now.zoom / was.zoom;
+    if (y >= was.headerH + was.frozenH) this.scrollOffsetTo('row', now.headerH + (y - was.headerH + was.offsetY) * k - y);
+    else if (row !== undefined) this.scrollOffsetTo('row', this.rows.start(row) - now.frozenH);
+    if (x >= was.headerW + was.frozenW) this.scrollOffsetTo('col', now.headerW + (x - was.headerW + was.offsetX) * k - x);
+    else if (col !== undefined) this.scrollOffsetTo('col', this.cols.start(col) - now.frozenW);
   }
 
   // ── the frame ─────────────────────────────────────────────────────────────
