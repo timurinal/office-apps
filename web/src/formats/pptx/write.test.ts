@@ -393,7 +393,7 @@ describe('pictures', () => {
   it('are left out when they are not a picture, whatever getAsset says they are', async () => {
     const r = await writePptxReport(one([picture({ id: 'x' })]), async () => ({ bytes: new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"/>'), mime: 'image/png' }));
     expect(Object.keys(unzipSync(r.bytes)).some((n) => n.startsWith('ppt/media/'))).toBe(false);
-    expect(r.warnings.map((w) => w.message)).toEqual(['1 picture in a format PowerPoint does not take was left out.']);
+    expect(r.warnings.map((w) => w.message)).toEqual(['1 picture in a format a .pptx file cannot hold was left out.']);
   });
 
   it('a getAsset that throws costs that picture, not the file', async () => {

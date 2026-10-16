@@ -31,6 +31,7 @@ import { errorText } from '../api';
 import { versions as versionsApi } from '../client';
 import { capsFor } from '../core/caps';
 import { colorFor } from '../core/color';
+import { useContextMenu } from '../core/contextHost';
 import { Button } from '../core/controls';
 import { HomeButton, SignInButton } from '../core/EditorFrame';
 import { HistoryPanel } from '../core/HistoryPanel';
@@ -42,7 +43,8 @@ import { EditorShell, type ShellPane } from '../core/shell/EditorShell';
 import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
-import type { PaneSpec } from '../core/shell/types';
+import type { FileItem, PaneSpec } from '../core/shell/types';
+import type { Pt } from '../core/shell/zoomGesture';
 import { AppKindProvider, Banner, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -60,7 +62,8 @@ import type { GridIntent } from './grid';
 import { applyIntent, type ModelNotice, type SheetSource } from './model';
 import { collect } from './modules/collect';
 import { SHEETS_MODULES } from './modules';
-import { SHEETS_TABS, type Connection, type PaneApi, type SheetsActions, type SheetsCan, type SheetsContext } from './modules/types';
+import { SHEETS_TABS, type Connection, type PaneApi, type SheetsActions, type SheetsCan, type SheetsContext, type SheetsMenuTarget } from './modules/types';
+import { darkCellsPref } from './darkCells';
 import { useDocumentActions } from './useDocumentActions';
 import { sameSheets, shallowEqual, useModelSlice, useSaving, useSheetModel, useVersionModel } from './useSheetModel';
 import { anchorAt, followAnchor, type EditAnchor } from './editAnchor';
@@ -92,6 +95,8 @@ export interface SheetsEditorProps {
   refresh?: () => Promise<void>;
   /** Start over, with the loading state. */
   reload?: () => void;
+  /** File menu rows the page adds: the desktop app's Save, the web's "Open in the desktop app". */
+  fileItems?: readonly FileItem<unknown>[];
 }
 
 const nothing = (): void => undefined;
@@ -103,19 +108,25 @@ const toastFor = (n: ModelNotice): { text: string; tone?: 'danger' } | null => {
   return n.kind === 'read-only' ? { text: n.message } : { text: n.message, tone: 'danger' };
 };
 
-export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing }: SheetsEditorProps) {
+export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing, fileItems }: SheetsEditorProps) {
   const { me } = useApp();
   const { navigate } = useRouter();
   const notify = useNotify();
   const caps = capsFor(meta);
   const features = source.features;
+  const fileRows = useMemo(() => (fileItems?.length ? [...COLLECTED.fileItems, ...fileItems] : COLLECTED.fileItems), [fileItems]);
   const act = useDocumentActions(meta, setMeta, reload, source.kind === 'local');
 
   const [tab, setTab] = useState('home');
   const [mode, setMode] = useState('editing');
   const [panes, setPanes] = useState<{ left: string | null; right: string | null }>({ left: null, right: null });
-  const [zoom, setZoom] = useState(100);
+  // The zoom, and the point its last change holds still: Ctrl and the wheel, and the zoom keys,
+  // give one (zoomGesture.ts); the footer and the View tab do not, and keep the top-left cell.
+  const [zoomed, setZoomed] = useState<{ value: number; at?: Pt | null }>({ value: 100 });
+  const zoom = zoomed.value;
+  const setZoom = useCallback((value: number, at?: Pt | null) => setZoomed(at === undefined ? { value } : { value, at }), []);
   const [gridlines, setGridlines] = useState(true);
+  const darkCells = darkCellsPref.use();
   const [shareOpen, setShareOpen] = useState(false);
   const [preview, setPreview] = useState<VersionSummary | null>(null);
   const [restoring, setRestoring] = useState<VersionSummary | null>(null);
@@ -128,7 +139,8 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
     () => ({
       name: me?.name ?? 'Guest',
       // A guest has no account id to hash; a random one is theirs for the visit.
-      color: colorFor(me?.id ?? `guest:${Math.random().toString(36).slice(2)}`)
+      color: colorFor(me?.id ?? `guest:${Math.random().toString(36).slice(2)}`),
+      avatar: me?.avatarUrl ?? null
     }),
     [me]
   );
@@ -303,6 +315,14 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
   // The grid's intents that no step answers (the filter button) are the modules', and are read at the time they arrive.
   const ctxRef = useRef(ctx);
   ctxRef.current = ctx;
+
+  // The right-click menu over the grid: each module says what goes in it for what was clicked.
+  const menu = useContextMenu<SheetsMenuTarget, SheetsContext>({
+    ctx,
+    hooks: COLLECTED.context,
+    label: (t) => (t.kind === 'cell' ? 'Cells' : t.kind === 'col' ? 'Columns' : 'Rows'),
+    returnFocus: () => session.focusGrid()
+  });
 
   // The ribbon re-reads what its controls show when the model changes or the selection moves.
   const subscribe = useCallback(
@@ -527,7 +547,7 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
           ctx,
           active: tab,
           onActive: setTab,
-          fileMenu: <FileMenu items={COLLECTED.fileItems} ctx={ctx} />,
+          fileMenu: <FileMenu items={fileRows} ctx={ctx} />,
           modeSlot: <EditingModeMenu modes={modes} mode={activeMode} onMode={setMode} />,
           subscribe
         }}
@@ -561,11 +581,14 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
               data={ctx.data}
               onIntent={onIntent}
               zoom={zoom}
+              zoomAt={zoomed.at}
               readOnly={!can.edit}
               onReadOnlyEdit={() => notify({ text: readOnlyMessage })}
               insetBottom={FOOTER_INSET}
               gridlines={gridlines}
+              darkCells={darkCells}
               label={meta.title}
+              onContextMenu={(target, at, from) => void menu.open(target, at, from)}
             />
           )}
           {loading.present && <div className="oa-fade oa-sheet-skel oa-skel-lines" data-state={loading.state} aria-hidden="true" />}
@@ -579,6 +602,7 @@ export function SheetsEditor({ source, meta, setMeta = nothing, refresh = nothin
               {o.render(ctx)}
             </div>
           ))}
+          {menu.element}
         </div>
       </EditorShell>
 

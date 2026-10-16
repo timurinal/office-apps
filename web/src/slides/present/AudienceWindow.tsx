@@ -7,7 +7,11 @@
  * other half of a presenter's view and follows it; without one it is a show of its own.
  *
  * It cannot ask for full screen when it opens (a window opened by script has had no click of its
- * own), so it says to press F, once. Escape ends the show in both windows.
+ * own), so it says to press F, once. It takes F11 too: Firefox gives a pop-up window no full screen
+ * of its own. Whether it is full screen is sent to the presenter's view as it changes, since the
+ * presenter's window cannot make another window full screen itself. Escape ends the show in both
+ * windows; in a window that F or F11 made full screen the first Escape and the second F11 are the
+ * browser's, and only take it out of full screen (`useFullscreen`).
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -18,7 +22,7 @@ import { useConnection } from '../../docs/useConnection';
 import type { DocumentSource } from '../../docs/source';
 import { documentAssets, SlideAssets } from '../render';
 import { useDeckSlice, useSlideModel } from '../useSlideModel';
-import { fullscreenAvailable, useFullscreen } from './fullscreen';
+import { fullscreenAvailable, useFullscreen, useReportFull } from './fullscreen';
 import { Live } from './Live';
 import { channelName } from './protocol';
 import { useShow, type ShowHandle } from './useShow';
@@ -76,7 +80,18 @@ function Running({ model, doc, show: token, at, onEnded }: { model: SlideModel; 
   const show = useShow({ model, from: at, role: 'audience', channel, onExit: onEnded, onFullscreen: fullscreen.toggle });
   handle.current = show;
   useShowKeys(el, show);
+  useReportFull(show?.reportWindow);
   useEffect(() => el.current?.focus({ preventScroll: true }), []);
+  const toggle = fullscreen.toggle;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'F11' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || !fullscreenAvailable()) return;
+      e.preventDefault();
+      toggle();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [toggle]);
 
   const [hint, setHint] = useState<string | null>(fullscreenAvailable() ? 'Press F for full screen.' : null);
   useEffect(() => {

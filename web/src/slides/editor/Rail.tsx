@@ -5,23 +5,26 @@
  *   keys        arrows step, Home and End jump, Delete deletes, Enter makes a new slide after
  *   reorder     drag the chosen slides; a line shows where they will land, the rail scrolls near
  *               its edges, and the drop is one step. The others glide to their places after it.
- *   menu        right-click: New slide, Duplicate, Delete, Hide or Show
+ *   menu        right-click: the slide menu (modules/menus.tsx), asked for through `onMenu`
+ *   marker      under the number of a slide with a transition: its star plays it on the canvas
+ *               (present/TransitionMarker.tsx)
  *
  * It follows the model itself, not the page: a slide added, deleted or moved is drawn at once, and a
  * change inside a slide (a keystroke on the canvas) is drawn a moment later, in a transition, so the
  * thumbnail of the slide being typed on is never redrawn in the keystroke's own frame.
  */
 
-import { memo, startTransition, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, startTransition, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type React from 'react';
 import { eyeSlashIcon, Icon } from '../../core/icons';
-import { MenuList, Popover, type MenuItem } from '../../core/ui';
 import { useFlipList } from '../../motion/flip';
 import type { Aspect, SlideJSON } from '../model/deck';
 import type { SlideModel } from '../model/model';
 import type { Design } from '../model/styles';
+import { requestPreview } from '../present/previewBus';
+import { onMarker, TransitionMarker } from '../present/TransitionMarker';
 import { Thumbnail } from '../render/Thumbnail';
-import { chosenHidden, deleteSlides, duplicateSlides, newSlide, stepSlide, toggleHidden } from './actions';
+import { deleteSlides, newSlide, stepSlide } from './actions';
 import type { PeerView } from './presence';
 import { useSelection, type SelectionStore } from './selection';
 
@@ -81,9 +84,11 @@ interface ItemProps {
   /** Other people's colours on this slide, joined, so the item stays memoised. */
   peers: string;
   flip: (el: HTMLElement | null) => void;
+  /** The marker was pressed: the slide is chosen and its transition plays. */
+  onPreview: (id: string) => void;
 }
 
-const RailItem = memo(function RailItem({ id, index, slide, design, active, chosen, dragging, peers, flip }: ItemProps) {
+const RailItem = memo(function RailItem({ id, index, slide, design, active, chosen, dragging, peers, flip, onPreview }: ItemProps) {
   const hidden = slide.hidden === true;
   return (
     <li
@@ -98,16 +103,17 @@ const RailItem = memo(function RailItem({ id, index, slide, design, active, chos
       aria-selected={chosen}
       aria-label={`Slide ${index + 1}${hidden ? ', hidden' : ''}`}
     >
-      <span className="sl-rail-num" aria-hidden="true">
-        {index + 1}
+      <span className="sl-rail-num">
+        <span aria-hidden="true">{index + 1}</span>
         {hidden && <Icon icon={eyeSlashIcon} size={12} />}
         {peers && (
-          <span className="sl-rail-dots">
+          <span className="sl-rail-dots" aria-hidden="true">
             {peers.split(',').map((c, i) => (
               <span key={i} className="sl-rail-dot" style={{ background: c }} />
             ))}
           </span>
         )}
+        <TransitionMarker transition={slide.transition} onPreview={() => onPreview(id)} />
       </span>
       <span className="sl-rail-thumb">
         <Thumbnail design={design} slide={slide} width={THUMB_WIDTH} number={index + 1} eager={index < 8} />
@@ -123,6 +129,11 @@ export interface RailProps {
   peers: readonly PeerView[];
   /** The keyboard goes to the slide: after Enter on a new slide. */
   focusCanvas: () => void;
+  /**
+   * Ask for the slide menu for these slides at a point in window pixels. False when there is none to
+   * show, and the browser's own is left alone. Without it the rail has no menu.
+   */
+  onMenu?: (ids: readonly string[], at: { x: number; y: number }, from: Element) => boolean;
 }
 
 interface Drag {
@@ -133,7 +144,7 @@ interface Drag {
   line: number;
 }
 
-export function Rail({ model, selection, editable, peers, focusCanvas }: RailProps) {
+export function Rail({ model, selection, editable, peers, focusCanvas, onMenu }: RailProps) {
   const deck = useRailDeck(model);
   const active = useSelection(selection, (s) => s.slide);
   const chosen = useSelection(selection, (s) => s.slides);
@@ -141,10 +152,19 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
   const list = useRef<HTMLOListElement | null>(null);
   const flip = useFlipList(deck.order);
   const [drag, setDrag] = useState<Drag | null>(null);
-  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
   const press = useRef<{ id: string; x: number; y: number; pointer: number; deferred: boolean; tops: number[]; heights: number[] } | null>(null);
   const scroll = useRef<{ frame: number; speed: number }>({ frame: 0, speed: 0 });
   const target = { model, selection };
+
+  // A press on the marker chooses its slide as a click on the thumbnail does, unless that is the slide on the canvas already,
+  // which keeps the slides chosen with it. Then the slide's transition plays on the canvas.
+  const latest = useRef({ selection, order: deck.order });
+  latest.current = { selection, order: deck.order };
+  const preview = useCallback((id: string) => {
+    const { selection: s, order } = latest.current;
+    if (s.get().slide !== id) s.showSlide(id, order);
+    requestPreview(id);
+  }, []);
 
   // The slide on the canvas stays in sight: after a step, a new slide, an undo.
   useLayoutEffect(() => {
@@ -195,7 +215,7 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
 
   const onPointerDown = (e: React.PointerEvent<HTMLOListElement>) => {
     const id = itemAt(e);
-    if (!id || e.button !== 0) return;
+    if (!id || e.button !== 0 || onMarker(e.target)) return;
     rail.current?.focus({ preventScroll: true });
     const order = deck.order;
     const sel = selection.get();
@@ -279,7 +299,7 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
       case 'ContextMenu': {
         const el = s.slide ? list.current?.querySelector<HTMLElement>(`[data-slide="${CSS.escape(s.slide)}"]`) : null;
         const r = el?.getBoundingClientRect();
-        if (r && editable) setMenu({ x: r.left + 24, y: r.top + 24 });
+        if (r && rail.current) onMenu?.(s.slides, { x: r.left + 24, y: r.top + 24 }, rail.current);
         break;
       }
       default:
@@ -292,21 +312,13 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
   };
 
   const onContextMenu = (e: React.MouseEvent) => {
+    // Shift asks for the browser's own menu.
     const id = itemAt(e);
-    if (!id || !editable) return;
-    e.preventDefault();
+    if (!id || !onMenu || e.shiftKey || !rail.current) return;
     if (!selection.get().slides.includes(id)) selection.showSlide(id, deck.order);
     selection.set({ focus: 'rail' });
-    setMenu({ x: e.clientX, y: e.clientY });
+    if (onMenu(selection.get().slides, { x: e.clientX, y: e.clientY }, rail.current)) e.preventDefault();
   };
-
-  const many = chosen.length > 1;
-  const menuItems: MenuItem[] = [
-    { label: 'New slide', onSelect: () => newSlide(target) },
-    { label: many ? 'Duplicate slides' : 'Duplicate slide', onSelect: () => void duplicateSlides(target) },
-    { label: many ? 'Delete slides' : 'Delete slide', danger: true, disabled: chosen.length >= deck.order.length, onSelect: () => void deleteSlides(target) },
-    { label: chosenHidden(target) ? (many ? 'Show slides' : 'Show slide') : many ? 'Hide slides' : 'Hide slide', separated: true, onSelect: () => void toggleHidden(target) }
-  ];
 
   return (
     <div ref={rail} className="sl-rail" tabIndex={0} aria-label="Slides" onKeyDown={onKeyDown} onFocus={(e) => e.target === e.currentTarget && selection.set({ focus: 'rail' })}>
@@ -340,18 +352,12 @@ export function Rail({ model, selection, editable, peers, focusCanvas }: RailPro
               dragging={!!drag && drag.ids.includes(id)}
               peers={peerColours.get(id)?.join(',') ?? ''}
               flip={flip.item(id)}
+              onPreview={preview}
             />
           );
         })}
         {drag && <li className="sl-rail-drop" aria-hidden="true" style={{ top: drag.line }} />}
       </ol>
-      {menu && (
-        <div className="sl-ctx oa-pop-wrap" style={{ left: menu.x, top: menu.y }}>
-          <Popover open onClose={() => setMenu(null)} role="menu" label="Slide">
-            <MenuList items={menuItems} onDone={() => setMenu(null)} />
-          </Popover>
-        </div>
-      )}
     </div>
   );
 }

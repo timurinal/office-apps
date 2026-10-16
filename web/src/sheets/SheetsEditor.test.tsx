@@ -7,6 +7,7 @@ import type { DocumentMeta } from '@shared/api';
 
 vi.mock('../state', () => ({ useApp: () => ({ me: { id: 'u_ada', name: 'Ada Rowe' } }) }));
 
+import type { FileItem } from '../core/shell/types';
 import { ToastHost } from '../core/ui';
 import { localMeta } from '../docs/source';
 import { RouterProvider } from '../router';
@@ -37,7 +38,7 @@ const meta = (over: Partial<DocumentMeta> = {}): DocumentMeta => ({ ...localMeta
 /** The structure document of the workbook that is open, for a test to be somebody else with. */
 let theirs: Y.Doc | null = null;
 
-async function open(over: Partial<DocumentMeta> = {}) {
+async function open(over: Partial<DocumentMeta> = {}, fileItems?: readonly FileItem<unknown>[]) {
   const seed = buildSheetSeed((b) => {
     const s = b.addSheet('Costs');
     s.cell(0, 0, { value: 10 }).cell(1, 0, { value: 20 });
@@ -56,7 +57,7 @@ async function open(over: Partial<DocumentMeta> = {}) {
     root.render(
       <RouterProvider>
         <ToastHost>
-          <SheetsEditor source={source} meta={meta(over)} />
+          <SheetsEditor source={source} meta={meta(over)} fileItems={fileItems} />
         </ToastHost>
       </RouterProvider>
     )
@@ -104,7 +105,13 @@ const wait = (ms: number) => act(async () => void (await new Promise((r) => setT
 const toast = () => document.body.querySelector('.oa-toast')?.textContent ?? null;
 
 beforeEach(() => {
-  Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, get: () => VIEW.w });
+  // The grid's size, everywhere but the ribbon, which then has no layout and draws every group.
+  Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.closest('.oa-rb-strip') ? 0 : VIEW.w;
+    }
+  });
   Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, get: () => VIEW.h });
   Element.prototype.getBoundingClientRect = function () {
     return { left: 0, top: 0, right: VIEW.w, bottom: VIEW.h, width: VIEW.w, height: VIEW.h, x: 0, y: 0, toJSON: () => ({}) };
@@ -170,6 +177,36 @@ describe('the View tab', () => {
     for (let i = 0; i < 8; i++) act(() => button('Zoom out').click());
     expect(q('.oa-zoom-pct')!.textContent).toBe('50%');
     expect(button('Zoom out').disabled).toBe(true);
+  });
+
+  it('zooms the grid, not the page, for Ctrl and the wheel anywhere and for Ctrl with = - 0', async () => {
+    await open();
+    await frame();
+    const pct = () => q('.oa-zoom-pct')!.textContent;
+    const wheel = (target: Element, deltaY: number) => {
+      const e = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY });
+      // happy-dom's WheelEvent drops the modifier keys and the pointer's position.
+      Object.defineProperties(e, { ctrlKey: { value: true }, clientX: { value: 300 }, clientY: { value: 200 } });
+      act(() => void target.dispatchEvent(e));
+      return e.defaultPrevented;
+    };
+    const key = (target: Element, k: string) => {
+      const e = new KeyboardEvent('keydown', { key: k, ctrlKey: true, bubbles: true, cancelable: true });
+      act(() => void target.dispatchEvent(e));
+      return e.defaultPrevented;
+    };
+    expect(wheel(q('.sg-scroller')!, -100)).toBe(true);
+    expect(pct()).toBe('110%');
+    // The chrome too.
+    expect(wheel(q('.oa-footer')!, -100)).toBe(true);
+    expect(pct()).toBe('120%');
+    expect(key(document.body, '-')).toBe(true);
+    expect(pct()).toBe('110%');
+    // A field outside the grid keeps the key: the formula bar.
+    expect(key(q('.sg-fwrap textarea')!, '=')).toBe(false);
+    expect(pct()).toBe('110%');
+    expect(key(q('[role="grid"]')!, '0')).toBe(true);
+    expect(pct()).toBe('100%');
   });
 
   it('turns the gridlines off and on', async () => {
@@ -359,5 +396,88 @@ describe('a sheet that takes a moment to open', () => {
     expect(q('[role="progressbar"]')).toBeNull();
     await wait(650);
     expect(q('[role="progressbar"]')).toBeNull();
+  });
+});
+
+describe('the right-click menu', () => {
+  const scroller = () => q<HTMLElement>('.sg-scroller')!;
+  const rightClick = (x: number, y: number, init: MouseEventInit = {}) => {
+    let e!: MouseEvent;
+    act(() => {
+      scroller().dispatchEvent(new MouseEvent('pointerdown', { clientX: x, clientY: y, button: 2, bubbles: true, cancelable: true }));
+      e = new MouseEvent('contextmenu', { clientX: x, clientY: y, button: 2, bubbles: true, cancelable: true, ...init });
+      scroller().dispatchEvent(e);
+    });
+    return e;
+  };
+  const menu = () => document.body.querySelector<HTMLElement>('[role="menu"]');
+  const labels = () => [...(menu()?.querySelectorAll('[role="menuitem"], [role="menuitemcheckbox"]') ?? [])].map((r) => r.querySelector('.oa-menu-label')!.textContent);
+  const row = (label: string) => [...menu()!.querySelectorAll<HTMLElement>('[role^="menuitem"]')].find((r) => r.querySelector('.oa-menu-label')!.textContent === label)!;
+  // The row header is 46px wide and the column header 26px tall; a cell is 112 by 26.
+  const cellAt = (r: number, c: number) => ({ x: 46 + (c === 0 ? 20 : 180 + (c - 1) * 112 + 20), y: 26 + r * 26 + 13 });
+
+  it('opens over a cell with the cell menu, takes the browser\'s, and runs a row on the cell that was clicked', async () => {
+    await open();
+    const { x, y } = cellAt(1, 0);
+    const e = rightClick(x, y);
+    expect(e.defaultPrevented).toBe(true);
+    expect(menu()!.getAttribute('aria-label')).toBe('Cells');
+    expect(labels()).toEqual(['Cut', 'Copy', 'Paste', 'Paste values', 'Insert', 'Delete', 'Clear contents', 'Sort', 'Filter', 'Format cells…']);
+    expect(spoken()).toBe('A2, 20');
+    act(() => row('Clear contents').click());
+    // The menu is leaving. Asked before the frame, which on a loaded machine can outlast the exit.
+    expect(menu()!.getAttribute('data-state')).toBe('closed');
+    await frame();
+    expect(spoken()).toBe('A2, empty');
+    // The keyboard is back on the grid.
+    expect(document.activeElement).toBe(grid());
+  });
+
+  it('opens over a column header with the column menu, and Column width opens its dialog', async () => {
+    await open();
+    rightClick(46 + 20, 13);
+    expect(menu()!.getAttribute('aria-label')).toBe('Columns');
+    expect(labels()).toContain('Column width…');
+    act(() => row('Column width…').click());
+    await wait(50);
+    await flush();
+    expect(document.body.querySelector('[role="dialog"] h2')!.textContent).toBe('Column width');
+  });
+
+  it('is the browser\'s with Shift held', async () => {
+    await open();
+    const { x, y } = cellAt(0, 0);
+    const e = rightClick(x, y, { shiftKey: true });
+    expect(e.defaultPrevented).toBe(false);
+    expect(menu()).toBeNull();
+  });
+
+  it('is only Copy for a viewer', async () => {
+    await open({ role: 'viewer' });
+    const { x, y } = cellAt(0, 0);
+    rightClick(x, y);
+    expect(labels()).toEqual(['Copy']);
+  });
+
+  it('draws no menu for a viewer who may not download, and does not show the browser\'s either', async () => {
+    await open({ role: 'viewer', canDownload: false, principal: 'link' });
+    const { x, y } = cellAt(0, 0);
+    const e = rightClick(x, y);
+    expect(menu()).toBeNull();
+    expect(e.defaultPrevented).toBe(true);
+  });
+});
+
+describe('the File menu', () => {
+  // The desktop app's Save rows, and the web's "Open in the desktop app", come from the page.
+  it('carries the rows the page adds, and runs them', async () => {
+    const run = vi.fn();
+    await open({}, [{ id: 'file.extra', label: 'Save', section: 'Save', order: 10, run }]);
+    const file = [...host.querySelectorAll('button')].find((b) => b.textContent === 'File')!;
+    act(() => file.click());
+    const row = [...document.body.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')].find((b) => b.textContent === 'Save');
+    expect(row).toBeDefined();
+    act(() => row!.click());
+    expect(run).toHaveBeenCalledTimes(1);
   });
 });

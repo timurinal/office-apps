@@ -12,11 +12,27 @@
  * you need from it and never reach past it: `ctx.can` already says what this person
  * may do on this source, so a module does not recompute roles or ask whether it is a
  * local file.
+ *
+ * ── The right-click menu ────────────────────────────────────────────────────
+ * A module's `contextItems(target, ctx)` answers with groups of rows (`ContextGroup`: an
+ * `order` and the entries); the editor joins every module's groups by `order` with a rule
+ * between, and the menu (core/ContextMenu.tsx) draws them. `target` is what was clicked
+ * (`DocsMenuTarget`: a link, a picture, a table, or more than one at once: a link in a cell).
+ * Core's (modules/menus.tsx) fills the slots marked *:
+ *
+ *   Link 100* (Open, Copy link, Edit link, Remove link) · Picture 200* (Alt text, Delete) ·
+ *   Table 300* (insert and delete rows and columns, merge and split, delete the table)
+ *
+ * **Only there.** On plain text the browser's menu stays, because its spelling suggestions
+ * cannot be read by a page and a menu of ours would hide them. Nor does a reader get a menu
+ * with nothing in it: when no module has a row, the browser's own is left alone. Shift and a
+ * right click is the browser's everywhere.
  */
 
 import type { AnyExtension, Editor } from '@tiptap/core';
 import type { DocKind, DocumentMeta } from '@shared/api';
 import type { Caps } from '../../core/caps';
+import type { ContextHook } from '../../core/ContextMenu';
 import type { Toast } from '../../core/ui';
 import type {
   Command,
@@ -117,6 +133,16 @@ export interface DocsContext {
   notify: (toast: Toast) => void;
 }
 
+/**
+ * What a right click landed on. Each part is there when the click was on one: a link in a table
+ * cell has both. `link.href` is what the link points to; `image.pos` is where the picture is.
+ */
+export interface DocsMenuTarget {
+  link?: { href: string };
+  image?: { pos: number };
+  table?: true;
+}
+
 export interface DocsModule {
   /** `core`, `layout`, `review`. Unique. */
   id: string;
@@ -132,4 +158,6 @@ export interface DocsModule {
   fileItems?: FileItem<DocsContext>[];
   /** Entries in the "Editing" menu at the right of the tab row. */
   modes?: EditingMode[];
+  /** Rows for the right-click menu over a link, a picture or a table. Empty groups are skipped. */
+  contextItems?: ContextHook<DocsMenuTarget, DocsContext>;
 }

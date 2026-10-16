@@ -77,6 +77,7 @@ export function TableButton({ ctx, id }: { ctx: SlidesContext; id: string }) {
         data-rb-item
         data-id={id}
         className="oa-rb-tl"
+        title="Table"
         aria-haspopup="dialog"
         aria-expanded={o.open}
         disabled={disabled}

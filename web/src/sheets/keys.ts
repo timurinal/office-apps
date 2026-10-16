@@ -14,11 +14,10 @@
  *   Ctrl+-                          delete the selected rows or columns
  *   Ctrl++ (Ctrl+Shift+=)           insert rows or columns, in the same places
  *
- * **Ctrl+- and Ctrl++ are the browser's zoom**, and docs/core/keys.ts leaves its own Ctrl+= alone
- * for that reason. Here they are Excel's insert and delete, and are taken only where that is
- * unambiguous: with whole rows or columns selected, which Excel too acts on without asking. With
- * cells selected (Excel asks what to shift) the key is left to the browser, so zoom still zooms.
- * Plain Ctrl+= is never taken. The page has a zoom of its own in the footer.
+ * **Ctrl+- and Ctrl++ are also the zoom keys.** Here they are Excel's insert and delete, and are
+ * taken only where that is unambiguous: with whole rows or columns selected, which Excel too acts
+ * on without asking. With cells selected (Excel asks what to shift) they are left alone, and the
+ * editor's zoom (`core/shell/zoomGesture.ts`) takes them. Plain Ctrl+= is never taken here.
  *
  * A key is not taken while the caret is in a field (the cell's editor, the formula bar, the name
  * box, the command box), where Ctrl+Z is the field's own undo, nor in a dialog or a menu.

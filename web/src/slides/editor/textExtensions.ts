@@ -13,7 +13,8 @@
  * ── Carets ──────────────────────────────────────────────────────────────────
  * A caret is a position in one fragment, and the awareness field `cursor` is shared by every box
  * and the notes. Each editor draws only the carets of people whose `slides.text` names its own
- * fragment (presence.ts), so a caret in another box is not resolved against this one.
+ * fragment (presence.ts), so a caret in another box is not resolved against this one. They are
+ * drawn beside the text, not in it (core/carets), inside the scaled slide.
  *
  * ── The look ────────────────────────────────────────────────────────────────
  * A paragraph's size, font, colour, spacing and indents come from the cascade, not from the
@@ -25,9 +26,10 @@
 import { Extension, type AnyExtension } from '@tiptap/core';
 import { Plugin, PluginKey, type EditorState } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
-import { yCursorPlugin, ySyncPlugin } from '@tiptap/y-tiptap';
+import { ySyncPlugin } from '@tiptap/y-tiptap';
 import type { Awareness } from 'y-protocols/awareness';
 import type * as Y from 'yjs';
+import { caretsPlugin } from '../../core/carets';
 import type { ThemeJSON } from '../model/deck';
 import type { SlideModel } from '../model/model';
 import { slideTextExtensions } from '../model/schema';
@@ -44,8 +46,11 @@ export interface BindingOptions {
   theme: ThemeJSON;
   /** Other people's carets: null on a local file and in a version. */
   awareness: Awareness | null;
-  /** `slide/element` or `slide/notes`: whose carets this editor draws (presence.ts). */
-  textKey: string;
+  /**
+   * `slide/element` or `slide/notes`: whose carets this editor draws (presence.ts). Null in a table
+   * cell, which nobody names: there it is whoever's caret is in the cell's own text.
+   */
+  textKey: string | null;
   /** Escape: leave the box. */
   onEscape: () => void;
   /** Draw the cascade (a text box), or leave the paragraphs plain (the notes). */
@@ -88,19 +93,6 @@ export function lookDecorations(state: EditorState, styleOf: BindingOptions['sty
   return DecorationSet.create(state.doc, decos);
 }
 
-/** Another person's caret, sized for the slide's coordinates (the label is scaled back up by CSS). */
-function caretBuilder(user: { name?: string; color?: string }): HTMLElement {
-  const caret = document.createElement('span');
-  caret.className = 'sl-caret';
-  caret.style.borderColor = user.color ?? '#888888';
-  const label = document.createElement('span');
-  label.className = 'sl-caret-label';
-  label.style.backgroundColor = user.color ?? '#888888';
-  label.textContent = user.name ?? '';
-  caret.appendChild(label);
-  return caret;
-}
-
 export function slideBinding(o: BindingOptions): AnyExtension {
   return Extension.create({
     name: 'slideBinding',
@@ -109,17 +101,8 @@ export function slideBinding(o: BindingOptions): AnyExtension {
     addProseMirrorPlugins() {
       const plugins: Plugin[] = [ySyncPlugin(o.fragment)];
       if (o.awareness) {
-        plugins.push(
-          yCursorPlugin(
-            o.awareness,
-            {
-              awarenessStateFilter: (self, other, state) => self !== other && textKeyOf(state) === o.textKey,
-              cursorBuilder: (user) => caretBuilder(user),
-              selectionBuilder: (user) => ({ style: `background-color: ${user.color ?? '#888888'}33`, class: 'sl-caret-selection' })
-            },
-            'cursor'
-          )
-        );
+        const key = o.textKey;
+        plugins.push(caretsPlugin({ awareness: o.awareness, accept: key === null ? null : (state) => textKeyOf(state) === key }));
       }
       if (o.cascade) {
         plugins.push(

@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Button, Select, TextField } from '../../core/controls';
+import { inPortalledPopup } from '../../core/popupScope';
 import { Icon } from '../../core/icons';
 import { DUR } from '../../motion';
 import { usePresence } from '../../motion/presence';
@@ -125,7 +126,7 @@ export default function FilterMenu({ ctx, onClose, col }: ToolProps & { col: num
     const opened = performance.now();
     const away = (e: PointerEvent) => {
       if (e.timeStamp < opened) return;
-      if (root.current && !root.current.contains(e.target as Node)) leave();
+      if (root.current && !root.current.contains(e.target as Node) && !inPortalledPopup(e.target)) leave();
     };
     const key = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

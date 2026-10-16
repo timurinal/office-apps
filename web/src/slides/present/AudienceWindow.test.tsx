@@ -152,6 +152,62 @@ describe('the slide, once the deck has come', () => {
     expect(q('.sp-chip')).toBeNull();
   });
 
+  it('takes F11 for full screen, which Firefox has no other way to give a window a script opened', async () => {
+    // F11 did nothing in the audience window in Zen.
+    Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: true });
+    const enter = vi.fn(() => Promise.resolve());
+    (HTMLElement.prototype as unknown as { requestFullscreen: unknown }).requestFullscreen = enter;
+    try {
+      const t = setup();
+      t.sync();
+      await settle();
+      const e = keydown('F11');
+      expect(e.defaultPrevented).toBe(true);
+      expect(enter).toHaveBeenCalledTimes(1);
+      // With a key held with it, it is the browser's.
+      expect(keydown('F11', { ctrlKey: true }).defaultPrevented).toBe(false);
+      expect(enter).toHaveBeenCalledTimes(1);
+    } finally {
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>).requestFullscreen;
+    }
+  });
+
+  it('is not ended by the browser taking it out of full screen, which F11 and Escape both do and cannot be told apart', async () => {
+    // Headed Zen and headed Chromium, 2026-10-16: with a window full screen by the Fullscreen API the browser keeps both
+    // keys. The page hears only that full screen ended. A second F11 used to end the show, in both windows.
+    const close = vi.spyOn(window, 'close').mockImplementation(() => undefined);
+    Object.defineProperty(document, 'fullscreenEnabled', { configurable: true, value: true });
+    let current: Element | null = null;
+    Object.defineProperty(document, 'fullscreenElement', { configurable: true, get: () => current });
+    (HTMLElement.prototype as unknown as { requestFullscreen: unknown }).requestFullscreen = vi.fn(async function (this: HTMLElement) {
+      current = this;
+      document.dispatchEvent(new Event('fullscreenchange'));
+    });
+    try {
+      const t = setup();
+      t.sync();
+      await settle();
+      keydown('F11');
+      await settle();
+      expect(current).not.toBeNull();
+      current = null;
+      act(() => void document.dispatchEvent(new Event('fullscreenchange')));
+      await settle();
+      expect(close).not.toHaveBeenCalled();
+      expect(t.heard.some((m) => m.t === 'end')).toBe(false);
+      expect(q('.sp-surface')).not.toBeNull();
+      // And the presenter is told it is a window again.
+      expect(t.heard.filter((m): m is Extract<ShowMessage, { t: 'window' }> => m.t === 'window').map((m) => m.full)).toEqual([false, true, false]);
+      // Escape, with the window as it is, ends the show as it always did.
+      keydown('Escape');
+      await settle();
+      expect(close).toHaveBeenCalledTimes(1);
+    } finally {
+      delete (document as unknown as Record<string, unknown>).fullscreenElement;
+      delete (HTMLElement.prototype as unknown as Record<string, unknown>).requestFullscreen;
+    }
+  });
+
   it('keeps the show, and its place, through a reconnect', async () => {
     const t = setup({ show: null });
     t.sync();
@@ -170,6 +226,64 @@ describe('the slide, once the deck has come', () => {
     t.sync();
     await settle();
     expect(q('.sp-chip')).toBeNull();
+  });
+});
+
+describe('telling the presenter whether it is full screen', () => {
+  const windowMessages = (heard: ShowMessage[]) => heard.filter((m): m is Extract<ShowMessage, { t: 'window' }> => m.t === 'window').map((m) => m.full);
+  const setFullscreenElement = (el: Element | null) => Object.defineProperty(document, 'fullscreenElement', { configurable: true, value: el });
+  afterEach(() => {
+    delete (document as unknown as Record<string, unknown>).fullscreenElement;
+    delete (window as unknown as Record<string, unknown>).fullScreen;
+  });
+
+  it('says so when it opens: windowed, from a pop-up with no full screen of its own', async () => {
+    const t = setup();
+    t.sync();
+    await settle();
+    expect(windowMessages(t.heard)).toEqual([false]);
+  });
+
+  it('says so when the Fullscreen API takes the window, and when it lets go', async () => {
+    const t = setup();
+    t.sync();
+    await settle();
+    setFullscreenElement(q('.sp-root'));
+    act(() => void document.dispatchEvent(new Event('fullscreenchange')));
+    await settle();
+    setFullscreenElement(null);
+    act(() => void document.dispatchEvent(new Event('fullscreenchange')));
+    await settle();
+    expect(windowMessages(t.heard)).toEqual([false, true, false]);
+  });
+
+  it('says so when the browser’s own F11 fills the screen: no Fullscreen API element, only the browser’s flag', async () => {
+    const t = setup();
+    t.sync();
+    await settle();
+    (window as unknown as Record<string, unknown>).fullScreen = true;
+    act(() => void window.dispatchEvent(new Event('resize')));
+    await settle();
+    expect(windowMessages(t.heard)).toEqual([false, true]);
+  });
+
+  it('says so once for a change, however many resizes there are', async () => {
+    const t = setup();
+    t.sync();
+    await settle();
+    for (let i = 0; i < 5; i++) act(() => void window.dispatchEvent(new Event('resize')));
+    await settle();
+    expect(windowMessages(t.heard)).toEqual([false]);
+  });
+
+  it('says it again to a presenter that opens later and says hello', async () => {
+    const t = setup();
+    t.sync();
+    await settle();
+    t.heard.length = 0;
+    t.link.send({ t: 'hello' });
+    await settle();
+    expect(windowMessages(t.heard)).toEqual([false]);
   });
 });
 

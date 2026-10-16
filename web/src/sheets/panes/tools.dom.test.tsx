@@ -2,6 +2,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { chooseCombo, comboValue, isCombobox } from '../../core/selectTestkit';
 import { ToastHost } from '../../core/ui';
 import { toggleFilter, validationRules } from '../modules/dataActions';
 import { rulesOf } from '../modules/conditionalActions';
@@ -78,18 +79,21 @@ const render = (node: React.ReactNode) => act(() => root.render(<ToastHost>{node
 const q = <T extends Element>(sel: string): T => document.body.querySelector<T>(sel)!;
 const all = <T extends Element>(sel: string): T[] => [...document.body.querySelectorAll<T>(sel)];
 
-const labelled = (text: string): HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement => {
+const labelled = (text: string): HTMLInputElement => {
   const label = all<HTMLLabelElement>('label').find((l) => l.textContent === text);
   if (!label) throw new Error(`no field labelled ${text}`);
   return document.getElementById(label.htmlFor) as HTMLInputElement;
 };
 
-const setValue = (el: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement, value: string) =>
-  act(() => {
-    const proto = el instanceof HTMLSelectElement ? HTMLSelectElement.prototype : el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+const setValue = (el: HTMLElement, value: string) => {
+  // A dropdown is the page's own: a button that opens a list.
+  if (isCombobox(el)) return chooseCombo(el, value);
+  return act(() => {
+    const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
     Object.getOwnPropertyDescriptor(proto, 'value')!.set!.call(el, value);
-    el.dispatchEvent(new Event(el instanceof HTMLSelectElement ? 'change' : 'input', { bubbles: true }));
+    el.dispatchEvent(new Event('input', { bubbles: true }));
   });
+};
 
 const press = (text: string) => {
   const b = all<HTMLButtonElement>('button').find((x) => x.textContent?.trim() === text && !x.disabled);
@@ -159,6 +163,33 @@ describe('the filter menu', () => {
     render(<FilterMenu ctx={ctx} onClose={onClose} col={2} />);
     press('OK');
     expect(t.model.filterCriterion(ctx.sheetId, 2)).toEqual({ kind: 'condition', op: 'gt', a: 15 });
+  });
+
+  it('stays open while a choice is made in its dropdown, whose list is drawn outside it', async () => {
+    const { t, ctx, onClose, closed } = await page();
+    t.select(rect(1, 1));
+    toggleFilter(ctx);
+    render(<FilterMenu ctx={ctx} onClose={onClose} col={0} />);
+    pressStarting('Text filters');
+    const trigger = labelled('Keep rows where the value');
+    act(() => trigger.click());
+    const list = document.getElementById(trigger.getAttribute('aria-controls')!)!;
+    const option = list.querySelector<HTMLElement>('[role="option"][data-value="begins"]')!;
+    // The menu ignores a press that began before it opened; these are later ones.
+    const press = (target: Element) => {
+      const e = new MouseEvent('pointerdown', { bubbles: true });
+      Object.defineProperty(e, 'timeStamp', { value: performance.now() + 10_000 });
+      act(() => void target.dispatchEvent(e));
+    };
+    // A press on the list is a press inside the menu that holds the dropdown.
+    press(option);
+    expect(document.body.querySelector('.sx-menu')!.getAttribute('data-state')).toBe('open');
+    act(() => option.click());
+    expect(comboValue(trigger)).toBe('begins');
+    expect(closed).toHaveLength(0);
+    // A press anywhere else still closes it.
+    press(document.body);
+    expect(document.body.querySelector('.sx-menu')!.getAttribute('data-state')).toBe('closed');
   });
 
   it('keeps rows by a condition on text, and by one on numbers', async () => {
@@ -305,7 +336,7 @@ describe('data validation', () => {
     expect(t.model.input(ctx.sheetId, { row: 1, col: 2 }, '150')).toBe(false);
     expect(t.model.input(ctx.sheetId, { row: 1, col: 2 }, '75')).toBe(true);
     act(() => root.render(<ToastHost><ValidationDialog ctx={ctx} onClose={onClose} key="again" /></ToastHost>));
-    expect((labelled('Allow') as HTMLSelectElement).value).toBe('integer');
+    expect(comboValue(labelled('Allow'))).toBe('integer');
     expect((labelled('Minimum') as HTMLInputElement).value).toBe('0');
     expect((labelled('Maximum') as HTMLInputElement).value).toBe('100');
   });

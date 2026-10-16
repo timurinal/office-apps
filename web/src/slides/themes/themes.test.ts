@@ -9,23 +9,28 @@ const known = new Set([...FONTS.map((f) => f.name), 'Trebuchet MS']);
 
 /** A theme this file has never heard of, as an imported deck would bring. */
 const custom = (id: string, accent1: string): ThemeJSON => ({
-  ...THEMES[0]!,
+  ...themeById('violet')!,
   id,
   name: id,
-  colors: { ...THEMES[0]!.colors, accent1 }
+  colors: { ...themeById('violet')!.colors, accent1 }
 });
 
 describe('the themes', () => {
-  it('are eight, and the first is Violet: violet, Trebuchet MS for headings and Inter for body', () => {
-    expect(THEMES).toHaveLength(8);
+  it('are nine, and the first is the default (`plain.test.ts` has Plain)', () => {
+    expect(THEMES).toHaveLength(9);
     expect(DEFAULT_THEME_ID).toBe(THEMES[0]!.id);
-    expect(THEMES[0]).toMatchObject({ id: 'violet', name: 'Violet', fonts: { major: 'Trebuchet MS', minor: 'Inter' } });
-    expect(THEMES[0]!.colors.accent1).toBe('#796cbf');
-    expect(THEMES[0]!.colors.lt1.toLowerCase()).toBe('#fbfaff');
+  });
+
+  it('have Violet second: violet, Trebuchet MS for headings and Inter for body', () => {
+    const violet = themeById('violet')!;
+    expect(THEMES[1]).toBe(violet);
+    expect(violet).toMatchObject({ id: 'violet', name: 'Violet', fonts: { major: 'Trebuchet MS', minor: 'Inter' } });
+    expect(violet.colors.accent1).toBe('#796cbf');
+    expect(violet.colors.lt1.toLowerCase()).toBe('#fbfaff');
   });
 
   it('range from light to dark, serif to sans, and one hue to none', () => {
-    expect(THEMES.map((t) => t.id)).toEqual(['violet', 'midnight', 'paper', 'fern', 'harbour', 'ember', 'graphite', 'billboard']);
+    expect(THEMES.map((t) => t.id)).toEqual(['plain', 'violet', 'midnight', 'paper', 'fern', 'harbour', 'ember', 'graphite', 'billboard']);
     expect(THEME_PREVIEWS.filter((p) => p.dark).map((p) => p.id)).toEqual(['midnight']);
     expect(themeById('paper')!.fonts.major).toBe('Georgia');
     // The monochrome one has no hue worth the name: every colour is a grey, a cool one like the brand's slate.
@@ -93,7 +98,7 @@ const groundOf = (theme: ThemeJSON, master: ReturnType<typeof masterFor>): strin
 };
 
 describe('masterFor', () => {
-  for (const theme of [...THEMES, custom('plain', '#796cbf'), custom('yellow', '#ffe14d')]) {
+  for (const theme of [...THEMES, custom('imported', '#796cbf'), custom('yellow', '#ffe14d')]) {
     describe(theme.name, () => {
       const master = masterFor(theme);
       const ground = groundOf(theme, master);

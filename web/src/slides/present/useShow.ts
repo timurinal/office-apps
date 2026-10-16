@@ -57,11 +57,15 @@ export interface ShowHandle {
   peers: number;
   /** Another window has been on this show at some point. */
   heard: boolean;
+  /** Whether the other window says it is full screen. Null until it has said, and again once it has gone. */
+  peerFull: boolean | null;
   act: (a: ShowAction) => void;
   /** Feed a key; true when the show took it and the page must not see it. */
   key: (e: KeyLike) => boolean;
   /** Tell the other window where this window's laser is, as fractions of the slide. */
   pointer: (at: Pointer | null) => void;
+  /** Tell the other window whether this one is full screen. It is told again when it says hello. */
+  reportWindow: (full: boolean) => void;
   /** Leave, and tell the other window to. */
   end: () => void;
   /** The state now, for a handler that runs later. */
@@ -88,6 +92,8 @@ export function useShow(o: ShowOptions): ShowHandle | null {
   const [remote, setRemote] = useState<Pointer | null>(null);
   const [peerIds, setPeerIds] = useState<ReadonlySet<string>>(() => new Set());
   const [heard, setHeard] = useState(false);
+  const [peerFull, setPeerFull] = useState<boolean | null>(null);
+  const fullRef = useRef<boolean | null>(null);
   const linkRef = useRef<ShowLink | null>(null);
   const ended = useRef(false);
 
@@ -181,6 +187,7 @@ export function useShow(o: ShowOptions): ShowHandle | null {
     const off = link.listen((m) => {
       if (m.t === 'bye') {
         if (peers.delete(m.from)) setPeerIds(new Set(peers));
+        setPeerFull(null);
         return;
       }
       if (m.t === 'end') {
@@ -191,6 +198,9 @@ export function useShow(o: ShowOptions): ShowHandle | null {
       const cur = stateRef.current;
       if (m.t === 'hello') {
         if (cur) link.send({ t: 'state', state: cur });
+        if (fullRef.current !== null) link.send({ t: 'window', full: fullRef.current });
+      } else if (m.t === 'window') {
+        setPeerFull(m.full);
       } else if (m.t === 'state') {
         if (!cur || !wins(m.state, cur)) return;
         const next = repair(m.state, viewOf(latest.current.model));
@@ -200,6 +210,7 @@ export function useShow(o: ShowOptions): ShowHandle | null {
       }
     });
     link.send({ t: 'hello' });
+    if (fullRef.current !== null) link.send({ t: 'window', full: fullRef.current });
     // This window going away: the audience's is a window closing, and the show goes on; the
     // presenter's is the show ending.
     const role = latest.current.role;
@@ -215,6 +226,10 @@ export function useShow(o: ShowOptions): ShowHandle | null {
   }, [channelName, factory, id, commit, finish]);
 
   const pointer = useCallback((at: Pointer | null) => linkRef.current?.send({ t: 'pointer', at }), []);
+  const reportWindow = useCallback((full: boolean) => {
+    fullRef.current = full;
+    linkRef.current?.send({ t: 'window', full });
+  }, []);
   const peek = useCallback(() => stateRef.current!, []);
 
   const order = useOrder(model);
@@ -228,9 +243,11 @@ export function useShow(o: ShowOptions): ShowHandle | null {
     remote,
     peers: peerIds.size,
     heard,
+    peerFull,
     act,
     key,
     pointer,
+    reportWindow,
     end,
     peek
   };

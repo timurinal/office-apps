@@ -79,7 +79,13 @@ const keydown = (el: Element, key: string, init: KeyboardEventInit = {}) => {
 };
 
 beforeEach(() => {
-  Object.defineProperty(HTMLElement.prototype, 'clientWidth', { configurable: true, get: () => VIEW.w });
+  // The grid's size, everywhere but the ribbon, which then has no layout and draws every group.
+  Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.closest('.oa-rb-strip') ? 0 : VIEW.w;
+    }
+  });
   Object.defineProperty(HTMLElement.prototype, 'clientHeight', { configurable: true, get: () => VIEW.h });
   Element.prototype.getBoundingClientRect = function () {
     return { left: 0, top: 0, right: VIEW.w, bottom: VIEW.h, width: VIEW.w, height: VIEW.h, x: 0, y: 0, toJSON: () => ({}) };

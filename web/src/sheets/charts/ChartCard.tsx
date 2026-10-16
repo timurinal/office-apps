@@ -19,16 +19,16 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Icon, dotsThreeIcon, pencilSimpleIcon, trashIcon } from '../../core/icons';
 import type { Toast } from '../../core/ui';
-import type { MenuItem } from '../../core/ui';
+import { formatLabel } from '../../core/formatNames';
 import type { Box } from '../grid/geometry';
 import type { GridLayer } from '../grid/layer';
 import { defaultMeasure } from '../model/measure';
 import type { SheetModel } from '../model';
-import { ChartMenu, type MenuAt } from './ChartMenu';
+import { ContextMenu, type ContextEntry, type Point } from '../../core/ContextMenu';
 import { ChartView } from './ChartView';
 import { deleteChart, setBox } from './edit';
 import { downloadChart } from './export';
-import { downloadSimpleIcon } from './icons';
+import { imageIcon } from './icons';
 import { MIN_H, MIN_W, layoutChart, resolveInput } from './layout';
 import { MAX_H, MAX_W, anchorFor, boxOf } from './place';
 import type { ChartEntry, ChartStore } from './store';
@@ -90,7 +90,7 @@ export const ChartCard = memo(function ChartCard(p: ChartCardProps) {
   const el = useRef<HTMLDivElement>(null);
   const svg = useRef<SVGSVGElement | null>(null);
   const [live, setLive] = useState<{ w: number; h: number } | null>(null);
-  const [menu, setMenu] = useState<MenuAt | null>(null);
+  const [menu, setMenu] = useState<Point | null>(null);
   const drag = useRef<Drag | null>(null);
   const liveBox = useRef<Box | null>(null);
   const pending = useRef(0);
@@ -247,12 +247,20 @@ export const ChartCard = memo(function ChartCard(p: ChartCardProps) {
     }
   };
 
-  const items: MenuItem[] = [
+  const items: ContextEntry[] = [
     ...(editable ? [{ label: 'Edit chart', icon: pencilSimpleIcon, onSelect: p.onEdit }] : []),
+    // One wording across the apps: Slides' shapes say Save as picture and list the same two formats.
     ...(p.downloadable
       ? [
-          { label: 'Download as PNG', icon: downloadSimpleIcon, separated: editable, onSelect: () => void download('png') },
-          { label: 'Download as SVG', icon: downloadSimpleIcon, onSelect: () => void download('svg') }
+          {
+            label: 'Save as picture',
+            icon: imageIcon,
+            separated: editable,
+            submenu: [
+              { id: 'picture-png', label: formatLabel('png'), onSelect: () => void download('png') },
+              { id: 'picture-svg', label: formatLabel('svg'), onSelect: () => void download('svg') }
+            ]
+          }
         ]
       : []),
     ...(editable
@@ -306,6 +314,8 @@ export const ChartCard = memo(function ChartCard(p: ChartCardProps) {
         p.onEdit();
       }}
       onContextMenu={(e) => {
+        // Shift asks for the browser's own menu.
+        if (e.shiftKey) return;
         e.preventDefault();
         store.select(entry.id);
         el.current?.focus({ preventScroll: true });
@@ -336,7 +346,7 @@ export const ChartCard = memo(function ChartCard(p: ChartCardProps) {
         )}
         {p.selected && editable && HANDLES.map((h) => <span key={h} className="oac-h" data-h={h} aria-hidden="true" />)}
       </div>
-      {menu && <ChartMenu at={menu} items={items} onClose={closeMenu} />}
+      <ContextMenu at={menu} items={items} label="Chart" from={el.current} onClose={closeMenu} returnFocus={() => el.current?.focus({ preventScroll: true })} />
     </div>
   );
 });

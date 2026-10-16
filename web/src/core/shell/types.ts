@@ -209,6 +209,22 @@ export interface FileItem<C> {
   disabled?: (c: C) => boolean;
   danger?: boolean;
   run: (c: C) => void;
+  /**
+   * Opens a menu of these choices beside the row (a chevron), and `run` is then not called: "Download
+   * a copy", "Save as". The row goes when none of its choices is visible.
+   */
+  submenu?: readonly FileChoice<C>[];
+}
+
+/** What a submenu row lists: the kind's formats, "Document (.docx)". */
+export interface FileChoice<C> {
+  id: string;
+  label: string;
+  icon?: PhIcon;
+  shortcut?: string;
+  visible?: (c: C) => boolean;
+  disabled?: (c: C) => boolean;
+  run: (c: C) => void;
 }
 
 export interface EditingMode {

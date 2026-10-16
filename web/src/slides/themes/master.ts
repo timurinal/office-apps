@@ -31,8 +31,8 @@ export function masterFor(theme: ThemeJSON): MasterJSON {
   const tones = tonesOf(theme);
   const { major, minor } = theme.fonts;
   // The first bullet is the accent, when the accent shows on the ground; a pale one would not, and
-  // a theme brought in from a file can have one.
-  const bullet = contrast(resolveColor(tones.accent, theme), resolveColor(tones.ground, theme)) >= 3 ? tones.accent : tones.ink;
+  // a theme brought in from a file can have one. A plain theme draws no accent: its bullets are ink.
+  const bullet = !look.plain && contrast(resolveColor(tones.accent, theme), resolveColor(tones.ground, theme)) >= 3 ? tones.accent : tones.ink;
 
   const title: TextStyle = {
     fontFamily: major,

@@ -34,7 +34,7 @@ import { EditorShell, type ShellPane } from '../core/shell/EditorShell';
 import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
-import type { PaneSpec } from '../core/shell/types';
+import type { FileItem, PaneSpec } from '../core/shell/types';
 import { AppKindProvider, Banner, Bone, Modal, useModalClose, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -42,6 +42,7 @@ import { docPath } from '../home/home';
 import { viewTransition } from '../motion/viewTransition';
 import { useRouter } from '../router';
 import { useApp } from '../state';
+import { useDocsContextMenu } from './core/contextMenu';
 import { baseExtensions, documentExtensions } from './extensions';
 import { collect } from './modules/collect';
 import { DOCS_MODULES } from './modules';
@@ -51,6 +52,7 @@ import { startComment } from './review/actions';
 import { useOpenThreads } from './review/store';
 import { liveStatus, type StopReason } from './room';
 import type { DocumentSource } from './source';
+import { avatarSrc } from '../theme';
 import { usePeers, useConnection } from './useConnection';
 
 const STOP_TEXT: Record<StopReason, string> = {
@@ -153,17 +155,20 @@ export interface DocsEditorProps {
   refresh?: () => Promise<void>;
   /** Start over, with the loading state. */
   reload?: () => void;
+  /** File menu rows the page adds: the desktop app's Save, the web's "Open in the desktop app". */
+  fileItems?: readonly FileItem<unknown>[];
 }
 
 const nothing = (): void => undefined;
 const nothingAsync = async (): Promise<void> => undefined;
 
-export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing }: DocsEditorProps) {
+export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing, fileItems }: DocsEditorProps) {
   const { me } = useApp();
   const { navigate } = useRouter();
   const notify = useNotify();
   const caps = capsFor(meta);
   const features = source.features;
+  const fileRows = useMemo(() => (fileItems?.length ? [...COLLECTED.fileItems, ...fileItems] : COLLECTED.fileItems), [fileItems]);
 
   const rs = useConnection(source, { onRoleChanged: () => void refresh(), checkAccess: () => checkAccess(meta.id) });
   const peers = usePeers(rs.conn?.awareness ?? null);
@@ -187,7 +192,8 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
     () => ({
       name: me?.name ?? 'Guest',
       // A guest has no account id to hash; their client id is theirs for the visit.
-      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`)
+      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`),
+      avatar: me?.avatarUrl ?? null
     }),
     [me, rs.conn]
   );
@@ -442,6 +448,9 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
     notify
   };
 
+  // The right-click menu over a link, a picture or a table: each module says what goes in it.
+  const contextMenu = useDocsContextMenu(ctx, COLLECTED.context);
+
   // The ribbon re-reads what its controls show when the selection moves, at once,
   // and a beat after typing stops: a keystroke must not pay for thirty buttons.
   const subscribe = useCallback(
@@ -499,7 +508,7 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
 
   const note = caps.trashed ? 'In the trash' : meta.role === 'viewer' ? 'View only' : meta.role === 'commenter' ? 'Comment only' : null;
 
-  const self = me ? [{ clientId: 0, name: me.name, color: colorFor(me.id), self: true, tabs: 1 }] : [];
+  const self = me ? [{ clientId: 0, name: me.name, color: colorFor(me.id), avatar: avatarSrc(me.avatarUrl), self: true, tabs: 1 }] : [];
 
   const sharesLocked = source.kind === 'locked' && caps.owner;
 
@@ -604,7 +613,7 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
           ctx,
           active: tab,
           onActive: setTab,
-          fileMenu: <FileMenu items={COLLECTED.fileItems} ctx={ctx} />,
+          fileMenu: <FileMenu items={fileRows} ctx={ctx} />,
           modeSlot: <EditingModeMenu modes={modes} mode={activeMode} onMode={setMode} />,
           subscribe
         }}
@@ -636,6 +645,8 @@ export function DocsEditor({ source, meta, setMeta = nothing, refresh = nothingA
           ) : null}
         </Page>
       </EditorShell>
+
+      {contextMenu}
 
       {shareOpen &&
         (source.kind === 'locked' ? (

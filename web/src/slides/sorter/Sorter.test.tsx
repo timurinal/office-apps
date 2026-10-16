@@ -2,9 +2,12 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useContextMenu } from '../../core/contextHost';
 import { SelectionStore } from '../editor/selection';
+import type { Transition } from '../model/deck';
 import { modelOf, testDeck } from '../model/testing';
-import type { SlidesContext } from '../modules/types';
+import { contextItems } from '../modules/menus';
+import type { SlidesContext, SlidesMenuTarget } from '../modules/types';
 import { Sorter } from './Sorter';
 
 (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -43,15 +46,39 @@ afterEach(() => {
   }
 });
 
-function setup(over: { edit?: boolean; hidden?: string[] } = {}) {
-  const model = modelOf(testDeck(IDS.map((id) => ({ id, layout: 'blank', elements: [], ...(over.hidden?.includes(id) ? { hidden: true } : {}) }))));
+function setup(over: { edit?: boolean; hidden?: string[]; transitions?: Record<string, Transition> } = {}) {
+  const model = modelOf(testDeck(IDS.map((id) => ({ id, layout: 'blank', elements: [], ...(over.hidden?.includes(id) ? { hidden: true } : {}), ...(over.transitions?.[id] ? { transition: over.transitions[id] } : {}) }))));
   const selection = new SelectionStore();
   selection.set({ slide: 'a', slides: ['a'], focus: 'canvas' });
   const setView = vi.fn();
   const focusCanvas = vi.fn();
-  const ctx = { model, selection, can: { edit: over.edit ?? true }, zoom: 100, fit: false, setView, actions: { focusCanvas } } as unknown as SlidesContext;
-  act(() => root.render(<Sorter ctx={ctx} />));
-  return { model, selection, ctx, setView, focusCanvas };
+  // The editor builds the menu from the modules' rows and the sorter asks it, through the context.
+  const open: { current: ((t: SlidesMenuTarget, at: { x: number; y: number }, from?: Element | null) => boolean) | null } = { current: null };
+  const ctx = {
+    model,
+    selection,
+    can: { edit: over.edit ?? true, download: true },
+    design: model.design(),
+    zoom: 100,
+    fit: false,
+    setView,
+    actions: { focusCanvas },
+    contextMenu: (t: SlidesMenuTarget, at: { x: number; y: number }, from?: Element | null) => open.current?.(t, at, from) ?? false
+  } as unknown as SlidesContext;
+  function WithMenu({ ctx: now }: { ctx: SlidesContext }) {
+    const menu = useContextMenu<SlidesMenuTarget, SlidesContext>({ ctx: now, hooks: [contextItems], label: () => 'Slide', returnFocus: () => focusCanvas() });
+    open.current = menu.open;
+    return (
+      <>
+        <Sorter ctx={now} />
+        {menu.element}
+      </>
+    );
+  }
+  /** The same page again, with something about the context changed. */
+  const render = (over: Partial<SlidesContext> = {}) => act(() => root.render(<WithMenu ctx={{ ...ctx, ...over }} />));
+  render();
+  return { model, selection, ctx, setView, focusCanvas, render };
 }
 
 const options = (): HTMLElement[] => [...host.querySelectorAll<HTMLElement>('[role="option"]')];
@@ -88,9 +115,9 @@ describe('the slide sorter', () => {
     const t = setup();
     const list = host.querySelector<HTMLElement>('.sl-sort-list')!;
     expect(list.style.getPropertyValue('--sl-sort-w')).toBe('320px');
-    act(() => root.render(<Sorter ctx={{ ...t.ctx, zoom: 150 }} />));
+    t.render({ zoom: 150 });
     expect(list.style.getPropertyValue('--sl-sort-w')).toBe('480px');
-    act(() => root.render(<Sorter ctx={{ ...t.ctx, fit: true }} />));
+    t.render({ fit: true });
     expect(list.style.getPropertyValue('--sl-sort-w')).toBe('224px');
   });
 
@@ -269,7 +296,7 @@ describe('the menu', () => {
   it('has the rail’s rows, and acts on the slide it was opened on', () => {
     const t = setup();
     rightClick('c');
-    expect(rows()).toEqual(['New slide', 'Duplicate slide', 'Delete slide', 'Hide slide']);
+    expect(rows()).toEqual(['New slide', 'Duplicate slide', 'Delete slide', 'Hide slide', 'Layout']);
     expect(t.selection.get().slide).toBe('c');
     pick('Hide slide');
     expect(t.model.slide('c')!.hidden).toBe(true);
@@ -284,15 +311,33 @@ describe('the menu', () => {
     click('a');
     click('b', { shiftKey: true });
     rightClick('a');
-    expect(rows()).toEqual(['New slide', 'Duplicate slides', 'Delete slides', 'Hide slides']);
+    expect(rows()).toEqual(['New slide', 'Duplicate slides', 'Delete slides', 'Hide slides', 'Layout']);
     pick('Duplicate slides');
     expect(t.model.order()).toHaveLength(9);
   });
 
-  it('is not offered to a reader', () => {
+  it('is not offered to a reader, and is left to the browser', () => {
     setup({ edit: false });
-    rightClick('c');
+    const e = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40 });
+    act(() => void item('c').dispatchEvent(e));
     expect(rows()).toEqual([]);
+    expect(e.defaultPrevented).toBe(false);
+  });
+
+  it('takes the browser\'s menu, and leaves it to the browser with Shift', () => {
+    setup();
+    const plain = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40 });
+    act(() => void item('c').dispatchEvent(plain));
+    expect(plain.defaultPrevented).toBe(true);
+    const shift = new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 40, clientY: 40, shiftKey: true });
+    act(() => void item('d').dispatchEvent(shift));
+    expect(shift.defaultPrevented).toBe(false);
+  });
+
+  it('opens on the menu key at the slide that is on the canvas', () => {
+    setup();
+    key('ContextMenu');
+    expect(rows()).toEqual(['New slide', 'Duplicate slide', 'Delete slide', 'Hide slide', 'Layout']);
   });
 });
 
@@ -357,7 +402,101 @@ describe('after a drop', () => {
 
   it('plays nothing for a change of size, which is not a drop', () => {
     const t = setup();
-    act(() => root.render(<Sorter ctx={{ ...t.ctx, zoom: 140 }} />));
+    t.render({ zoom: 140 });
     expect(animations).toEqual([]);
+  });
+});
+
+describe('the transition marker in the sorter', () => {
+  const TRANSITIONS: Record<string, Transition> = { b: { kind: 'fade' }, c: { kind: 'push', from: 'left' }, d: { kind: 'none' } };
+  const marker = (id: string): HTMLButtonElement | null => host.querySelector<HTMLButtonElement>(`[data-slide="${id}"] [data-preview]`);
+  const mouse = (el: Element, type: string, init: MouseEventInit = {}) => {
+    const e = type.startsWith('pointer') ? new PointerEvent(type, { bubbles: true, cancelable: true, button: 0, pointerId: 1, ...init }) : new MouseEvent(type, { bubbles: true, cancelable: true, button: 0, ...init });
+    act(() => void el.dispatchEvent(e));
+    return e;
+  };
+  const press = (el: Element) => {
+    mouse(el, 'pointerdown');
+    mouse(el, 'pointerup');
+    mouse(el, 'click');
+  };
+  const previewIn = (id: string) => host.querySelector(`[data-slide="${id}"] .sl-sort-thumb .sp-preview`);
+
+  // A DOM with no animations finishes a transition at once; this one holds it until the test lets go.
+  let release: (() => void)[] = [];
+  beforeEach(() => {
+    release = [];
+    (HTMLElement.prototype as unknown as { animate: unknown }).animate = () => {
+      let done!: () => void;
+      const finished = new Promise<void>((r) => (done = r));
+      release.push(done);
+      return { finished, cancel: () => undefined };
+    };
+  });
+  afterEach(() => {
+    delete (HTMLElement.prototype as unknown as Record<string, unknown>).animate;
+  });
+
+  it('is on the slides that have a transition, named for it, and on no other', () => {
+    setup({ transitions: TRANSITIONS });
+    expect(IDS.map((id) => !!marker(id))).toEqual([false, true, true, false, false, false, false]);
+    expect(marker('b')!.getAttribute('aria-label')).toBe('Preview transition: Fade');
+    expect(marker('c')!.getAttribute('aria-label')).toBe('Preview transition: Push');
+    // With the number, under the slide.
+    expect(item('b').querySelector('.sl-sort-num')!.contains(marker('b'))).toBe(true);
+  });
+
+  it('plays the transition inside that slide’s thumbnail, chooses the slide, and stays in the sorter', async () => {
+    const t = setup({ transitions: TRANSITIONS });
+    press(marker('c')!);
+    expect(t.selection.get().slide).toBe('c');
+    expect(t.selection.get().slides).toEqual(['c']);
+    expect(previewIn('c')).not.toBeNull();
+    expect(previewIn('b')).toBeNull();
+    expect(t.setView).not.toHaveBeenCalled();
+    // Gone when it has finished.
+    act(() => release.forEach((r) => r()));
+    await act(async () => void (await new Promise((r) => setTimeout(r, 0))));
+    expect(previewIn('c')).toBeNull();
+  });
+
+  it('keeps the slides chosen with the one on the canvas, when it is on that one', () => {
+    const t = setup({ transitions: TRANSITIONS });
+    t.selection.set({ slide: 'b', slides: ['a', 'b'] });
+    press(marker('b')!);
+    expect(t.selection.get().slides).toEqual(['a', 'b']);
+    expect(previewIn('b')).not.toBeNull();
+  });
+
+  it('is not a press on the slide: no drag begins, and a double press does not open the slide', () => {
+    const t = setup({ transitions: TRANSITIONS });
+    const capture = vi.fn();
+    (host.querySelector('.sl-sort-list') as unknown as { setPointerCapture: unknown }).setPointerCapture = capture;
+    mouse(marker('c')!, 'pointerdown', { clientX: 5, clientY: 5 });
+    mouse(marker('c')!, 'pointermove', { clientX: 5, clientY: 200 });
+    mouse(marker('c')!, 'pointerup', { clientX: 5, clientY: 200 });
+    expect(capture).not.toHaveBeenCalled();
+    expect(t.selection.get().slide).toBe('a');
+    expect(order(t.model)).toBe('abcdefg');
+    mouse(marker('c')!, 'dblclick');
+    expect(t.setView).not.toHaveBeenCalled();
+  });
+
+  it('takes no focus from the sorter, so its keys stay', () => {
+    setup({ transitions: TRANSITIONS });
+    expect(mouse(marker('b')!, 'mousedown').defaultPrevented).toBe(true);
+    expect(marker('b')!.tabIndex).toBe(-1);
+  });
+
+  it('plays a fade under reduced motion, as the Preview button does', () => {
+    document.documentElement.dataset.motion = 'off';
+    try {
+      setup({ transitions: { b: { kind: 'wipe', from: 'left' } } });
+      press(marker('b')!);
+      expect(previewIn('b')).not.toBeNull();
+      expect(item('b').querySelectorAll('.sp-layer')).toHaveLength(2);
+    } finally {
+      delete document.documentElement.dataset.motion;
+    }
   });
 });

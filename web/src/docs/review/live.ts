@@ -23,9 +23,8 @@ const AGAIN_MS = 1000;
 /** The room's awareness, which the caret extension was given, or null where there is none. */
 export function awarenessOf(editor: Editor | null): Awareness | null {
   if (!editor) return null;
-  const caret = editor.extensionManager.extensions.find((e) => e.name === 'collaborationCaret');
-  const provider = (caret?.options as { provider?: { awareness?: Awareness } } | undefined)?.provider;
-  return provider?.awareness ?? null;
+  const caret = editor.extensionManager.extensions.find((e) => e.name === 'remoteCarets');
+  return (caret?.options as { awareness?: Awareness | null } | undefined)?.awareness ?? null;
 }
 
 /** Nudge the room when this person saves, and look again when someone else does. */

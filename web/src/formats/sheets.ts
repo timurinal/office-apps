@@ -10,7 +10,7 @@ export type SheetFormat = 'xlsx' | 'csv' | 'tsv';
 export type SheetExportFormat = SheetFormat;
 
 export const SHEET_EXPORT_FORMATS: Record<SheetExportFormat, { label: string; extension: string; mime: string }> = {
-  xlsx: { label: 'Excel workbook (.xlsx)', extension: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+  xlsx: { label: 'Workbook (.xlsx)', extension: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
   csv: { label: 'Comma-separated values (.csv)', extension: 'csv', mime: 'text/csv;charset=utf-8' },
   tsv: { label: 'Tab-separated values (.tsv)', extension: 'tsv', mime: 'text/tab-separated-values;charset=utf-8' }
 };

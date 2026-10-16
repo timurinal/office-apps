@@ -1,8 +1,11 @@
+// @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest';
 import { colorFor } from './color';
 import { peersFrom, readUser, samePeers, splitVisible } from './presence';
 
 const state = (name: string, color = colorFor(name)) => ({ user: { name, color } });
+/** The account site's avatar route, as `accountOrigin()` names it on localhost. */
+const PICTURES = `http://${window.location.hostname}:8787/api/account/avatar/avatars`;
 
 describe('peersFrom', () => {
   it('lists each person once however many tabs they have open', () => {
@@ -98,8 +101,8 @@ describe('splitVisible', () => {
 });
 
 describe('samePeers', () => {
-  const ada = { clientId: 1, name: 'Ada Rowe', color: '#aabbcc', self: true, tabs: 1 };
-  const ben = { clientId: 2, name: 'Ben Okoro', color: '#112233', self: false, tabs: 1 };
+  const ada = { clientId: 1, name: 'Ada Rowe', color: '#aabbcc', avatar: null, self: true, tabs: 1 };
+  const ben = { clientId: 2, name: 'Ben Okoro', color: '#112233', avatar: null, self: false, tabs: 1 };
 
   it('is the same list when nobody came or went, whatever they were doing', () => {
     expect(samePeers([ada, ben], [{ ...ada }, { ...ben }])).toBe(true);
@@ -112,5 +115,44 @@ describe('samePeers', () => {
     expect(samePeers([ada, ben], [ada, { ...ben, tabs: 2 }])).toBe(false);
     expect(samePeers([ada, ben], [ada, { ...ben, name: 'Bea Okoro' }])).toBe(false);
     expect(samePeers([ada, ben], [{ ...ada, self: false }, ben])).toBe(false);
+  });
+
+  it("is a different list when somebody's picture arrives", () => {
+    expect(samePeers([ada, ben], [ada, { ...ben, avatar: `${PICTURES}/usr_ben/0f6c1d2e-8a3b-4c5d-9e7f-0123456789ab` }])).toBe(false);
+  });
+});
+
+describe('the picture', () => {
+  const ben = `${PICTURES}/usr_ben/0f6c1d2e-8a3b-4c5d-9e7f-0123456789ab`;
+
+  it('is read from the state the room stamped', () => {
+    expect(readUser({ user: { name: 'Ben Okoro', avatar: ben } })?.avatar).toBe(ben);
+    expect(readUser({ user: { name: 'Ben Okoro' } })?.avatar).toBeNull();
+  });
+
+  it('is only ever the account site\'s avatar route', () => {
+    for (const bad of [
+      'https://tracker.example/pixel.gif',
+      `${PICTURES.replace('8787', '8788')}/usr_ben/abc`,
+      `${PICTURES}/usr_ben/abc?x=1`,
+      `${PICTURES}/../../account`,
+      `${PICTURES}/usr_ben`,
+      'javascript:alert(1)',
+      42
+    ]) {
+      expect(readUser({ user: { name: 'Ben Okoro', avatar: bad } })?.avatar).toBeNull();
+    }
+  });
+
+  it('is one per person, from whichever of their tabs has it', () => {
+    const peers = peersFrom(
+      new Map<number, unknown>([
+        [1, { user: { name: 'Ben Okoro', color: '#112233' } }],
+        [2, { user: { name: 'Ben Okoro', color: '#112233', avatar: ben } }]
+      ]),
+      99
+    );
+    expect(peers).toHaveLength(1);
+    expect(peers[0]!.avatar).toBe(ben);
   });
 });

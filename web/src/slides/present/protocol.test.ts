@@ -6,14 +6,16 @@ import { fakeChannels, flush } from './testing';
 const state: ShowState = { rev: 3, by: 'win-a', slide: 's2', index: 1, screen: 'none', laser: false };
 
 describe('a message from the channel', () => {
-  it('is accepted in each of its five shapes', () => {
+  it('is accepted in each of its shapes', () => {
     const good: ShowMessage[] = [
       { t: 'hello', from: 'a' },
       { t: 'state', from: 'a', state },
       { t: 'pointer', from: 'a', at: { x: 0.25, y: 0.5 } },
       { t: 'pointer', from: 'a', at: null },
       { t: 'end', from: 'a' },
-      { t: 'bye', from: 'a' }
+      { t: 'bye', from: 'a' },
+      { t: 'window', from: 'a', full: true },
+      { t: 'window', from: 'a', full: false }
     ];
     for (const m of good) expect(parseMessage(JSON.parse(JSON.stringify(m)))).toEqual(m);
   });
@@ -43,6 +45,14 @@ describe('a message from the channel', () => {
     expect(parseMessage({ t: 'pointer', from: 'a', at: { x: 'left', y: 0 } })).toBeNull();
     expect(parseMessage({ t: 'pointer', from: 'a', at: { x: Number.NaN, y: 0 } })).toBeNull();
     expect(parseMessage({ t: 'pointer', from: 'a' })).toBeNull();
+  });
+
+  it('says whether the other window is full screen, and is refused when that is not a yes or a no', () => {
+    expect(parseMessage({ t: 'window', from: 'a', full: true })).toEqual({ t: 'window', from: 'a', full: true });
+    for (const full of ['true', 1, 0, null, undefined, {}]) expect(parseMessage({ t: 'window', from: 'a', full }), String(full)).toBeNull();
+    expect(parseMessage({ t: 'window', from: 'a' })).toBeNull();
+    // Only the fields it knows ride along.
+    expect(parseMessage({ t: 'window', from: 'a', full: false, size: [1, 1] })).toEqual({ t: 'window', from: 'a', full: false });
   });
 
   it('copies only the fields it knows, so nothing else rides along', () => {

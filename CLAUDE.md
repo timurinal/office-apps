@@ -5,10 +5,11 @@ PySide6 / Qt WebEngine shell in `shell/`. Read `HANDOFF.md` first. Write in Brit
 
 ## Two kinds of code, and the `base` branch
 
-Most of `web/src` (the editors, the converters, the shell UI) and `tests/corpus` arrive on the
-**`base` branch**, which is only ever updated by a tool, with the commit message `Update base`, and
-merged into the work. **Never commit to `base` by hand**, and keep edits to files that come from it
-as small as possible: every one is a merge conflict the next time `base` moves.
+Most of `web/src` (the editors, the converters, the shell UI), `web/public/theme-init.js` and
+`tests/corpus` arrive on the **`base` branch**, which is only ever updated by a tool, with the
+commit message `Update base`, and merged into the work. **Never commit to `base` by hand**, and
+keep edits to files that come from it as small as possible: every one is a merge conflict the next
+time `base` moves.
 
 The app's own code, edited freely:
 
@@ -32,7 +33,10 @@ The edits to base files, all of them; add to this list if you must add one:
 8. `web/src/slides/modules/index.ts`: `desktopSlidesModule` appended.
 9. `web/src/slides/render/assets.tsx`: `setLocalAssets`; `documentAssets` asks it first.
 10. `web/src/slides/modules/insert/picture.ts`: `setPictureUpload` replaces the upload step.
-11. `web/src/slides/modules/files.tsx`: PowerPoint export reads a local deck's pictures too.
+
+`web/src/companion/` is upstream code for a different desktop shell, renamed on the way into `base`
+so it never mixes with `web/src/desktop/`. It acts only when the user agent carries that shell's
+mark, which this shell never sends; leave it be.
 
 Code from `base` that needs a server (sharing, comments, history, `client.ts`, `docs/room.ts`) is
 kept as it is and never reached: the editors hide it when `source.features` says there is no

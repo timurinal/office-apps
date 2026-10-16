@@ -377,7 +377,7 @@ export class Measurer {
       const len = text.length;
       if (!len) continue;
       // Text inside a node view that is not ours to read (a footnote's number) has no position.
-      if (text.parentElement?.closest('.pg-fn-ref, .collaboration-carets__label')) continue;
+      if (text.parentElement?.closest('.pg-fn-ref')) continue;
       range.selectNodeContents(text);
       const rects = range.getClientRects();
       for (let ri = 0; ri < rects.length; ri++) {

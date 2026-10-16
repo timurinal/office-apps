@@ -39,7 +39,7 @@ const thread = (id: string, over: Partial<CommentThread> = {}): CommentThread =>
   resolved: false,
   resolvedById: null,
   resolvedAt: null,
-  messages: [{ id: `${id}_m0`, authorId: ADA.id, authorName: ADA.name, body: 'First', mentions: [], createdAt: 1, editedAt: null }],
+  messages: [{ id: `${id}_m0`, authorId: ADA.id, authorName: ADA.name, body: 'First', mentions: [], createdAt: 1, editedAt: null, authorAvatarUrl: null }],
   createdAt: 1,
   ...over
 });
@@ -144,7 +144,7 @@ describe('replying, resolving and editing', () => {
   it('takes the server’s copy of a reply when it answers', async () => {
     const { store } = await loaded([thread('th_1')]);
     const saved = thread('th_1');
-    saved.messages.push({ id: 'm_real', authorId: ADA.id, authorName: ADA.name, body: 'Agreed', mentions: [], createdAt: 2, editedAt: null });
+    saved.messages.push({ id: 'm_real', authorId: ADA.id, authorName: ADA.name, body: 'Agreed', mentions: [], createdAt: 2, editedAt: null, authorAvatarUrl: null });
     api.reply.mockResolvedValueOnce(saved);
     store.reply('th_1', 'Agreed', [], ADA);
     await flush();
@@ -211,7 +211,7 @@ describe('deleting', () => {
 
   it('deletes one reply, not the thread, when it is not the first message', async () => {
     const t = thread('th_1');
-    t.messages.push({ id: 'm_2', authorId: ADA.id, authorName: ADA.name, body: 'Reply', mentions: [], createdAt: 2, editedAt: null });
+    t.messages.push({ id: 'm_2', authorId: ADA.id, authorName: ADA.name, body: 'Reply', mentions: [], createdAt: 2, editedAt: null, authorAvatarUrl: null });
     const { store } = await loaded([t]);
     api.removeMessage.mockResolvedValueOnce(undefined);
     store.remove('th_1', 'm_2');

@@ -183,6 +183,23 @@ describe('replacing', () => {
     expect(findState(t.editor).current).toBe(1);
   });
 
+  it('undoes a replace with the replaced word selected again', () => {
+    const shown = () => t.editor.state.doc.textBetween(t.editor.state.selection.from, t.editor.state.selection.to);
+    for (const [query, replace] of [['colour', 'color'], ['cat', 'bird'], ['dog', 'hound']] as const) {
+      t?.destroy();
+      t = makeEditor(docOf(p('the dog and the cat chose a colour, then the dog left')));
+      yUndoPluginKey.getState(t.editor.state)!.undoManager.stopCapturing();
+      openFind(t.editor, { replace: true });
+      setFind(t.editor, { query, replace });
+      // As in the bar: the current match is drawn, not selected, when Replace is pressed.
+      const at = findState(t.editor).matches[0]!;
+      replaceCurrent(t.editor);
+      t.editor.commands.undo();
+      expect(text(t)).toBe('the dog and the cat chose a colour, then the dog left');
+      expect([t.editor.state.selection.from, t.editor.state.selection.to, shown()]).toEqual([at.from, at.to, query]);
+    }
+  });
+
   it('replaces all, as one transaction and one undo step', () => {
     t = makeEditor(docOf(p('cat dog cat'), p('a cat')));
     // The undo history merges edits made within half a second; the document being set up

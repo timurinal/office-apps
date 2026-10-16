@@ -1,0 +1,18 @@
+/* "On this PC" (LocalFiles.tsx): a recent file's name is a button, drawn as Home's row title is. */
+
+.oa-local-open {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--fg-1);
+  text-align: left;
+  cursor: pointer;
+}
+.oa-local-open:focus-visible {
+  outline: none;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}

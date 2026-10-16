@@ -38,12 +38,19 @@
   -webkit-user-select: none;
   contain: layout paint;
 }
+/* Dark cells: only the dark theme draws what a person set as a dark ground would (theme.ts reads this). */
+[data-theme='dark'] .sg-root[data-dark-cells='on'] {
+  --sg-dark-cells: 1;
+}
 [data-theme='dark'] .sg-root {
   --sg-line: rgba(233, 233, 237, 0.08);
   --sg-head-bg: #1b1d2c;
   --sg-head-line: rgba(233, 233, 237, 0.12);
   --sg-head-ink: #9397ab;
-  --sg-head-on-bg: rgba(249, 168, 116, 0.14);
+  /* The header of a selected whole row or column is the app's solid with the app's ink on it: the
+     600 with white is 3:1 on a dark ground. (`--sg-head-on-bg` is the app's own tint at any theme.) */
+  --sg-head-solid: var(--app-solid, #82d1a8);
+  --sg-head-solid-ink: var(--app-on-solid, #0b2318);
   --sg-frozen: #4a4d63;
 }
 
@@ -356,7 +363,8 @@
   padding: 6px 10px;
   border-radius: 8px;
   background: var(--fg-1, #292b31);
-  color: #ffffff;
+  /* The ink of the theme's own paper: white on the light theme's dark tip, dark on the dark theme's light one. */
+  color: var(--paper, #ffffff);
   font: 500 12px/1.35 var(--font-body), Inter, sans-serif;
   /* A validation prompt has a title line over its message. */
   white-space: pre-line;
@@ -372,6 +380,8 @@
 }
 
 /* ── The formula bar ─────────────────────────────────────────────────────── */
+/* The bar and the sheet tabs are outside `.sg-root`, where the `--sg-*` tokens are set, so they wear the
+   theme's own paper. */
 
 .sg-fbar {
   position: relative;
@@ -379,7 +389,7 @@
   display: flex;
   align-items: center;
   border-radius: 9px;
-  background: var(--sg-paper, #ffffff);
+  background: var(--paper);
   box-shadow: 0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07));
   font: 400 12.5px/1 var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
   color: var(--fg-1, #292b31);
@@ -511,7 +521,7 @@
   background: var(--app-hover);
 }
 .sg-tab[aria-selected='true'] {
-  background: var(--sg-paper, #ffffff);
+  background: var(--paper);
   color: var(--app-text);
   font-weight: 600;
   box-shadow: 0 0 0 1px var(--bd-faint, rgba(40, 28, 45, 0.07));
@@ -539,7 +549,7 @@
   padding: 0 14px;
   border: 0;
   border-radius: 7px;
-  background: var(--sg-paper, #ffffff);
+  background: var(--paper);
   color: var(--app-text);
   font: 600 13px/1 var(--font-body), Inter, sans-serif;
   outline: none;

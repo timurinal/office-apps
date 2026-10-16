@@ -77,7 +77,8 @@ async function fetchImage(src: string, format: ExportFormat): Promise<ImageData 
   return { bytes, mime, name: src.split('/').pop() ?? 'image' };
 }
 
-async function fetchImages(sources: string[], format: ExportFormat): Promise<Record<string, ImageData>> {
+/** The pictures a model names, by `src`: inline data read where it is, this document's own assets fetched. */
+export async function fetchImages(sources: string[], format: ExportFormat): Promise<Record<string, ImageData>> {
   const out: Record<string, ImageData> = {};
   let at = 0;
   // A few at a time: a document with forty pictures should not open forty requests at once.

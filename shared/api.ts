@@ -173,6 +173,8 @@ export interface MeResponse {
   id: string;
   name: string;
   email: string;
+  /** The profile picture on the account site, or null. */
+  avatarUrl: string | null;
   plan: string;
   orgId: string | null;
   branding: OrgBranding | null;
@@ -374,6 +376,8 @@ export interface CommentMessage {
   /** A user id, or null for a link guest. */
   authorId: string | null;
   authorName: string;
+  /** The author's profile picture on the account site, or null. */
+  authorAvatarUrl: string | null;
   body: string;
   /** User ids mentioned. Each is emailed once, if they can open the document. */
   mentions: string[];
@@ -432,6 +436,7 @@ export interface MentionCandidate {
   name: string;
   /** `users.username`, which `@handle` in a comment's text resolves. */
   handle: string | null;
+  avatarUrl: string | null;
 }
 
 /**
@@ -467,6 +472,8 @@ export interface AssetMeta {
 export interface Person {
   userId: string;
   name: string;
+  /** The profile picture on the account site, or null. */
+  avatarUrl: string | null;
   handle: string | null;
   email: string;
 }
@@ -482,6 +489,8 @@ export interface Member {
   email: string | null;
   name: string | null;
   handle: string | null;
+  /** The profile picture on the account site, or null (always, for a pending invite). */
+  avatarUrl: string | null;
   role: ShareRole;
   /** Unix seconds, after which the share stops applying. */
   expiresAt: number | null;

@@ -2,6 +2,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { chooseCombo, comboValue, isCombobox } from '../../core/selectTestkit';
 import { room } from '../model/test/helpers';
 import type { SheetModel } from '../model';
 import type { SheetsContext } from '../modules/types';
@@ -54,15 +55,17 @@ async function mount(over: { edit?: boolean; type?: ChartSpec['type']; select?: 
 
 const q = <T extends Element>(sel: string) => host.querySelector<T>(sel);
 const field = (label: string): HTMLInputElement | null => [...host.querySelectorAll<HTMLInputElement>('input')].find((i) => host.querySelector(`label[for="${i.id}"]`)?.textContent === label) ?? null;
-const select = (label: string) => [...host.querySelectorAll('select')].find((s) => host.querySelector(`label[for="${s.id}"]`)?.textContent === label)!;
+const select = (label: string) => [...host.querySelectorAll<HTMLElement>('button[role="combobox"]')].find((s) => host.querySelector(`label[for="${s.id}"]`)?.textContent === label)!;
 const toggle = (label: string) => host.querySelector<HTMLButtonElement>(`button[role="switch"][aria-label="${label}"]`);
 
-const setValue = (el: HTMLInputElement | HTMLSelectElement, value: string) =>
-  act(() => {
-    const proto = el instanceof HTMLSelectElement ? HTMLSelectElement.prototype : HTMLInputElement.prototype;
-    Object.getOwnPropertyDescriptor(proto, 'value')!.set!.call(el, value);
-    el.dispatchEvent(new Event(el instanceof HTMLSelectElement ? 'change' : 'input', { bubbles: true }));
+const setValue = (el: HTMLInputElement | HTMLElement, value: string) => {
+  // A dropdown is the page's own: a button that opens a list.
+  if (isCombobox(el)) return chooseCombo(el, value);
+  return act(() => {
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(el, value);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
   });
+};
 const blur = (el: HTMLElement) => act(() => void el.dispatchEvent(new FocusEvent('focusout', { bubbles: true })));
 const key = (el: HTMLElement, k: string) => act(() => void el.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })));
 const click = (el: Element) => act(() => (el as HTMLElement).click());
@@ -87,14 +90,14 @@ describe('with no chart selected', () => {
 describe('the pane', () => {
   it('shows the chart\'s settings: type, range, series in, headers, labels, title and the legend it has by default', async () => {
     await mount();
-    expect(select('Chart type').value).toBe('column');
+    expect(comboValue(select('Chart type'))).toBe('column');
     expect(field('Data range')!.value).toBe('A1:C5');
-    expect(select('Series in').value).toBe('cols');
+    expect(comboValue(select('Series in'))).toBe('cols');
     expect(toggle('Headers')!.getAttribute('aria-checked')).toBe('true');
     expect(toggle('Labels')!.getAttribute('aria-checked')).toBe('true');
     expect(field('Title')!.value).toBe('Spend');
     // Two series and nothing chosen: the legend at the bottom.
-    expect(select('Legend').value).toBe('bottom');
+    expect(comboValue(select('Legend'))).toBe('bottom');
     expect(host.textContent).toContain('First row is headers');
     expect(host.textContent).toContain('First column is labels');
   });

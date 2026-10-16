@@ -152,7 +152,7 @@ function ConnectionStatus({ ctx }: { ctx: SlidesContext }) {
   const c = CONNECTION[ctx.connection];
   if (!c) return null;
   return (
-    <span className="oa-status" role="status" style={{ marginLeft: 12 }}>
+    <span className="oa-status" role="status" title={c.label} style={{ marginLeft: 12 }}>
       <span className="oa-dot" data-tone={c.warn ? 'warn' : undefined} />
       {c.label}
     </span>
@@ -411,6 +411,7 @@ const ribbon: RibbonGroup<SlidesContext>[] = [
                 data-rb-item
                 data-id={`view.${v.id}`}
                 className="oa-rb-tl"
+                title={v.label}
                 aria-pressed={c.view === v.id}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => c.setView(v.id)}

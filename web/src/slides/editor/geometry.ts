@@ -87,17 +87,37 @@ function intoGroup(p: Pt, g: ElementJSON): Pt {
   return q;
 }
 
-/** Whether `p` is on the element: inside a shape's box, within `tol` of a line. */
+/**
+ * Screen px around a thin thing that still counts as on it: a line, measured from the edge of its
+ * stroke, and a shape narrower or shorter than this on screen, measured from its box. The canvas
+ * passes it to `hitTest` divided by its scale, so it is the same on screen at every zoom.
+ */
+export const HIT_PX = 10;
+
+/** How far `p` is from the box, in the box's own frame: 0 inside it. */
+function distanceToBox(p: Pt, b: Box & { rot?: number }): number {
+  const q = toLocal(p, b);
+  const dx = Math.max(b.x - q.x, 0, q.x - (b.x + b.w));
+  const dy = Math.max(b.y - q.y, 0, q.y - (b.y + b.h));
+  return Math.hypot(dx, dy);
+}
+
+/**
+ * Whether `p` is on the element: within `tol` of a line's stroke, inside a shape's box, or within
+ * `tol` of a shape too thin to catch otherwise. A shape bigger than `tol` both ways gets none, so a
+ * line over it takes only the clicks near the line.
+ */
 export function hits(el: ElementJSON, p: Pt, tol: number): boolean {
   if (el.type === 'line') {
     const q = toLocal(p, el);
     const { a, b } = lineEndsOf(el);
-    return distanceToSegment(q, a, b) <= Math.max(tol, (el.line?.width ?? 0) / 2);
+    return distanceToSegment(q, a, b) <= (el.line?.width ?? 0) / 2 + tol;
   }
   if (el.type === 'group') {
     const q = intoGroup(p, el);
     return el.children.some((c) => hits(c, q, tol));
   }
+  if (el.w < tol || el.h < tol) return distanceToBox(p, el) <= tol;
   return inBox(p, el);
 }
 
@@ -144,7 +164,7 @@ export function normalised(b: Box): Box {
 export interface ResizeOptions {
   /** Shift: the proportions stay. */
   keepAspect?: boolean;
-  /** Alt: the centre stays and both sides move. */
+  /** Ctrl, or Alt: the centre stays and both sides move. */
   fromCentre?: boolean;
   min?: number;
 }
@@ -165,7 +185,8 @@ export function resizeBox(start: Box & { rot?: number }, handle: Handle, delta: 
   if (opts.keepAspect && start.w > 0 && start.h > 0) {
     const ratio = start.w / start.h;
     if (sign.x && sign.y) {
-      if (Math.abs(w / start.w) >= Math.abs(h / start.h)) h = w / ratio;
+      // The axis the pointer moved most along leads, so a corner pulled in shrinks the box.
+      if (Math.abs(w / start.w - 1) >= Math.abs(h / start.h - 1)) h = w / ratio;
       else w = h * ratio;
     } else if (sign.x) h = w / ratio;
     else w = h * ratio;

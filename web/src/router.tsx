@@ -24,7 +24,8 @@ export function setNavigationGuard(next: ((url: URL) => boolean) | null): void {
   guard = next;
 }
 
-export function RouterProvider({ children }: { children: React.ReactNode }) {
+/** `navigate` replaces the History API's: the desktop app's local page has no other address to go to. */
+export function RouterProvider({ children, navigate: replaced }: { children: React.ReactNode; navigate?: RouterValue['navigate'] }) {
   const [path, setPath] = useState(() => window.location.pathname);
   const [search, setSearch] = useState(() => window.location.search);
 
@@ -57,8 +58,8 @@ export function RouterProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<RouterValue>(
-    () => ({ path, query: new URLSearchParams(search), navigate }),
-    [path, search, navigate]
+    () => ({ path, query: new URLSearchParams(search), navigate: replaced ?? navigate }),
+    [path, search, navigate, replaced]
   );
 
   return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>;

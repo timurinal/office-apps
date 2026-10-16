@@ -7,7 +7,7 @@
  * change and sends it after, and Accept and Reject are transactions on the page.
  */
 
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { createContext, Fragment, useContext, useEffect, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/core';
 import { PATHS, type CommentMessage, type CommentThread, type MentionCandidate, type MentionPeopleResponse } from '@shared/api';
 import { get } from '../../api';
@@ -242,7 +242,7 @@ export function MentionInput({
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => pick(p)}
             >
-              <Avatar name={p.name} color={colorFor(p.userId)} size={22} />
+              <Avatar name={p.name} color={colorFor(p.userId)} src={p.avatarUrl} size={22} />
               <span className="oa-ellipsis">{p.name}</span>
               {p.handle && <span className="rv-handle">@{p.handle}</span>}
             </button>
@@ -273,10 +273,14 @@ export function Body({ text }: { text: string }) {
   );
 }
 
+/** People's profile pictures by account id, as far as the margin knows them. */
+export const Pictures = createContext<ReadonlyMap<string, string>>(new Map());
+
 function Who({ name, id, when, size = 26, edited = false }: { name: string; id: string | null; when: number; size?: number; edited?: boolean }) {
+  const pictures = useContext(Pictures);
   return (
     <>
-      <Avatar name={name} color={colorFor(id ?? `guest:${name}`)} size={size} />
+      <Avatar name={name} color={colorFor(id ?? `guest:${name}`)} src={id ? pictures.get(id) : null} size={size} />
       <span className="rv-who">
         <b className="oa-ellipsis">{name}</b>
         <span>
@@ -537,7 +541,7 @@ export function DraftCard({
   return (
     <div className="rv-card" data-kind="draft" data-active="true">
       <span className="rv-head">
-        <Avatar name={writer.name} color={colorFor(writer.id ?? `guest:${writer.name}`)} size={26} />
+        <Avatar name={writer.name} color={colorFor(writer.id ?? `guest:${writer.name}`)} src={writer.avatarUrl} size={26} />
         <span className="rv-who">
           <b className="oa-ellipsis">{writer.name}</b>
         </span>

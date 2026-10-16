@@ -1,5 +1,5 @@
 /**
- * The eight themes a deck can start from, and the look each one gives its master and layouts.
+ * The themes a deck can start from, and the look each one gives its master and layouts.
  *
  * A theme is eleven colours and two typefaces (`ThemeJSON`). What a theme cannot say is how it
  * is *used*: which ground a title slide draws on, how big its titles are. That is the `Look`,
@@ -22,9 +22,21 @@
 import type { Color, ThemeJSON, ThemeSlot } from '../model/deck';
 import { contrast, resolveColor } from './color';
 
-export const DEFAULT_THEME_ID = 'violet';
+export const DEFAULT_THEME_ID = 'plain';
 
 export const THEMES: readonly ThemeJSON[] = [
+  // PowerPoint's Office Theme: white, near-black ink, the same six accents. One sans for both, Inter,
+  // because it is the one sans every browser draws the same (it is hosted); Calibri is not on a Mac without Office.
+  {
+    id: 'plain',
+    name: 'Plain',
+    colors: {
+      dk1: '#1a1a1a', lt1: '#ffffff', dk2: '#595959', lt2: '#f2f2f2',
+      accent1: '#4472c4', accent2: '#ed7d31', accent3: '#a5a5a5', accent4: '#ffc000', accent5: '#5b9bd5', accent6: '#70ad47',
+      hlink: '#0563c1', folHlink: '#954f72'
+    },
+    fonts: { major: 'Inter', minor: 'Inter' }
+  },
   {
     id: 'violet',
     name: 'Violet',
@@ -121,11 +133,24 @@ export interface Look {
   bold: boolean;
   /** The card behind a figure, and the ink on it. */
   card: { bg: Color; ink: Color };
+  /**
+   * Nothing is drawn but text: no ground on the title and section slides, no bar, band, rule or
+   * card, and the bullets are ink. The title slide is centred. `hero` is then the ground itself.
+   */
+  plain?: boolean;
 }
 
 export const slot = (theme: ThemeSlot, lum?: number): Color => (lum === undefined ? { theme } : { theme, lum });
 
 const LOOKS: Record<string, Look> = {
+  // There is no card to draw, so `card.ink` is only the figure's: the accent, which reads on white at 4.7 to 1.
+  plain: {
+    dark: false,
+    hero: { bg: slot('lt1'), ink: slot('dk1'), muted: slot('dk2'), accent: slot('accent1') },
+    title: 44, cover: 60, bold: false,
+    card: { bg: slot('lt1'), ink: slot('accent1') },
+    plain: true
+  },
   // White on the 600 violet is 4.46 to 1; three per cent darker clears 4.5 and is not a different violet.
   violet: {
     dark: false,

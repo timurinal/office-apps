@@ -6,8 +6,9 @@
  *              a marquee, Escape to let go (from a group's child to the group first). A second click
  *              on a chosen group goes into it; on a chosen shape it puts the caret where it landed.
  *   move       drag what is chosen; Shift keeps to one axis, Alt turns snapping off
- *   resize     eight handles; Shift keeps the proportions, Alt resizes from the centre. A line has a
- *              handle at each end instead.
+ *   resize     eight handles; Shift keeps the proportions, Ctrl (Option on a Mac, or Alt) resizes from
+ *              the centre, and the two together do both, as in PowerPoint. A line has a handle at each
+ *              end instead.
  *   turn       the handle above the box; Shift turns in steps of 15 degrees
  *   keys       arrows nudge (Shift for 10 px), Delete deletes, Tab goes to the next element, Enter or
  *              F2 or a typed character goes into the text, Page Up and Page Down change slide
@@ -28,7 +29,7 @@ import { SlideView } from '../render/SlideView';
 import { useDeckSlice, useOrder, useSlide } from '../useSlideModel';
 import { deleteElements, NUDGE, NUDGE_FAR, nudge, stepSlide } from './actions';
 import { clickTarget, DRAG_THRESHOLD, elementIndex, movePreview, resizePreview, rotatePreview, withChanges, type Preview } from './drag';
-import { HANDLES, handleCursor, hitTest, lineEndAt, marqueeHits, normalised, type Handle, type Pt } from './geometry';
+import { HANDLES, handleCursor, HIT_PX, hitTest, lineEndAt, marqueeHits, normalised, type Handle, type Pt } from './geometry';
 import type { PeerView } from './presence';
 import { useSelection, type SelectionStore } from './selection';
 import { TextEditor, type TextStart } from './TextEditor';
@@ -42,8 +43,6 @@ export interface EditStart {
 
 /** Screen px between the top of a box and its rotate handle. */
 const ROTATE_GAP = 24;
-/** Screen px around an element that still counts as on it. */
-const HIT_PX = 4;
 
 export interface CanvasProps {
   model: SlideModel;
@@ -89,9 +88,16 @@ export const Canvas = memo(function Canvas(p: CanvasProps) {
   const slide = useSlide(model, sel.slide);
   const canvas = useRef<HTMLDivElement>(null);
   const press = useRef<Press | null>(null);
-  const [live, setLive] = useState<Live | null>(null);
+  const [live, setLiveState] = useState<Live | null>(null);
+  // Over something that a press would move: the same hit test as the press.
+  const [overMovable, setOverMovable] = useState(false);
+  // Set with the state, not at render: a release can come before the last move is drawn, and it
+  // drops the box where that move put it.
   const liveRef = useRef(live);
-  liveRef.current = live;
+  const setLive = (next: Live | null) => {
+    liveRef.current = next;
+    setLiveState(next);
+  };
   const target = { model, selection };
 
   const W = model.width;
@@ -192,7 +198,12 @@ export const Canvas = memo(function Canvas(p: CanvasProps) {
 
   const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const pr = press.current;
-    if (!pr || pr.pointer !== e.pointerId) return;
+    if (!pr) {
+      const hit = editable && e.target instanceof Element && !e.target.closest('[data-handle]') ? hitTest(slide.elements, toSlide(e), HIT_PX / s) : null;
+      setOverMovable(!!hit && !model.element(slideId, hit.id)?.locked);
+      return;
+    }
+    if (pr.pointer !== e.pointerId) return;
     if (!liveRef.current && Math.hypot(e.clientX - pr.client.x, e.clientY - pr.client.y) < DRAG_THRESHOLD) return;
     const at = toSlide(e);
     const delta = { x: at.x - pr.at.x, y: at.y - pr.at.y };
@@ -215,7 +226,7 @@ export const Canvas = memo(function Canvas(p: CanvasProps) {
       if (els.length === 1) setLive({ kind: 'preview', preview: rotatePreview(els[0]!, at, e.shiftKey) });
       return;
     }
-    setLive({ kind: 'preview', preview: resizePreview(els, pr.handle, delta, { keepAspect: e.shiftKey, fromCentre: e.altKey, snap: snapper(e.altKey) }) });
+    setLive({ kind: 'preview', preview: resizePreview(els, pr.handle, delta, { keepAspect: e.shiftKey, fromCentre: e.ctrlKey || e.altKey, snap: snapper(e.altKey) }) });
   };
 
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>, cancelled = false) => {
@@ -334,7 +345,7 @@ export const Canvas = memo(function Canvas(p: CanvasProps) {
       {HANDLES.filter((h) => !only || only.includes(h)).map((h) => {
         const sx = h.includes('w') ? 0 : h.includes('e') ? 1 : 0.5;
         const sy = h.startsWith('n') ? 0 : h.startsWith('s') ? 1 : 0.5;
-        return <span key={h} className="sl-handle" data-handle={h} style={{ left: px(b.w) * sx, top: px(b.h) * sy, cursor: handleCursor(h, b.rot ?? 0) }} aria-hidden="true" />;
+        return <span key={h} className="sl-handle" data-handle={h} data-end={only ? '' : undefined} style={{ left: px(b.w) * sx, top: px(b.h) * sy, cursor: handleCursor(h, b.rot ?? 0) }} aria-hidden="true" />;
       })}
     </>
   );
@@ -394,8 +405,10 @@ export const Canvas = memo(function Canvas(p: CanvasProps) {
       data-fit={fit || undefined}
       tabIndex={0}
       aria-label="Slide"
+      style={overMovable ? { cursor: 'move' } : undefined}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
+      onPointerLeave={() => setOverMovable(false)}
       onPointerUp={(e) => onPointerUp(e)}
       onPointerCancel={(e) => onPointerUp(e, true)}
       onDoubleClick={onDoubleClick}

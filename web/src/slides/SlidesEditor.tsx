@@ -28,6 +28,7 @@ import { errorText } from '../api';
 import { versions as versionsApi } from '../client';
 import { capsFor } from '../core/caps';
 import { colorFor } from '../core/color';
+import { useContextMenu } from '../core/contextHost';
 import { Button } from '../core/controls';
 import { HomeButton, SignInButton } from '../core/EditorFrame';
 import { HistoryPanel } from '../core/HistoryPanel';
@@ -39,7 +40,8 @@ import { EditorShell, type ShellPane } from '../core/shell/EditorShell';
 import { FileMenu } from '../core/shell/FileMenu';
 import { EditingModeMenu } from '../core/shell/Ribbon';
 import { statusFor } from '../core/shell/registry';
-import type { PaneSpec } from '../core/shell/types';
+import type { FileItem, PaneSpec } from '../core/shell/types';
+import { useHoldStill, type Pt } from '../core/shell/zoomGesture';
 import { AppKindProvider, Banner, useNotify } from '../core/ui';
 import { checkAccess } from '../core/useDocument';
 import { versionTitle, whenPhrase } from '../core/versions';
@@ -78,10 +80,11 @@ import {
   type SlidesCan,
   type SlidesContext,
   type SlidesKey,
+  type SlidesMenuTarget,
   type SnapResult
 } from './modules/types';
 import { PresentMenu } from './present';
-import { documentAssets, SlideAssets } from './render';
+import { documentAssets, SlideAssets, type AssetUrl } from './render';
 import { useDeckSlice, useOrder, useSlideModel, useVersionModel } from './useSlideModel';
 import './editor/editor.css';
 
@@ -122,6 +125,10 @@ export interface SlidesEditorProps {
   refresh?: () => Promise<void>;
   /** Start over, with the loading state. */
   reload?: () => void;
+  /** File menu rows the page adds: the desktop app's Save, the web's "Open in the desktop app". */
+  fileItems?: readonly FileItem<unknown>[];
+  /** Where a picture is, for a deck that is not the server's: a local file's pictures in this page. */
+  assets?: AssetUrl;
 }
 
 const nothing = (): void => undefined;
@@ -166,12 +173,14 @@ function useSlidesKeys(keys: readonly SlidesKey[], ctx: React.MutableRefObject<S
   }, [keys, ctx]);
 }
 
-export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing }: SlidesEditorProps) {
+export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothingAsync, reload = nothing, fileItems, assets: assetsProp }: SlidesEditorProps) {
   const { me } = useApp();
   const { navigate } = useRouter();
   const notify = useNotify();
   const caps = capsFor(meta);
   const features = source.features;
+  const assets = useMemo(() => assetsProp ?? documentAssets(meta.id), [assetsProp, meta.id]);
+  const fileRows = useMemo(() => (fileItems?.length ? [...COLLECTED.fileItems, ...fileItems] : COLLECTED.fileItems), [fileItems]);
   const act = useDocumentActions(meta, setMeta, reload, source.kind === 'local');
 
   const [tab, setTab] = useState('home');
@@ -213,7 +222,8 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
     () => ({
       name: me?.name ?? 'Guest',
       // A guest has no account id to hash; their client id is theirs for the visit.
-      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`)
+      color: colorFor(me?.id ?? `guest:${rs.conn?.doc.clientID ?? 0}`),
+      avatar: me?.avatarUrl ?? null
     }),
     [me, rs.conn]
   );
@@ -323,6 +333,15 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
     setFit(false);
     setZoomValue(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, Math.round(value))));
   }, []);
+  // Ctrl and the wheel leave Fit holding the point under the pointer still; the keys hold the desk's centre.
+  const holdSlide = useHoldStill(() => desk.current, () => desk.current?.querySelector('.sl-canvas') ?? null, scale);
+  const zoomTo = useCallback(
+    (value: number, at?: Pt | null) => {
+      if (at !== undefined) holdSlide(at);
+      setZoom(value);
+    },
+    [holdSlide, setZoom]
+  );
   const onDeskSize = useCallback((w: number, h: number) => setDeskSize((d) => (d.w === w && d.h === h ? d : { w, h })), []);
 
   // ── panes ─────────────────────────────────────────────────────────────────
@@ -436,6 +455,9 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
     if (COLLECTED.presenter && order.length) setShow({ from: Math.max(0, Math.min(order.length - 1, from)) });
   };
 
+  // The right-click menu is built below, from the context that is built here: the context asks it to open.
+  const openMenu = useRef<((t: SlidesMenuTarget, at: { x: number; y: number }, from?: Element | null) => boolean) | null>(null);
+
   const ctx: SlidesContext | null =
     shown && design
       ? {
@@ -446,6 +468,8 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
           caps,
           can,
           connection,
+          assets,
+          awareness: previewing ? null : awareness,
           design,
           slideId,
           slideIndex,
@@ -473,12 +497,22 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
           panes: paneApi,
           actions,
           present,
+          contextMenu: (t, at, from) => openMenu.current?.(t, at, from) ?? false,
           notify
         }
       : null;
 
   const ctxRef = useRef(ctx);
   ctxRef.current = ctx;
+
+  // Each module says what goes in the menu for what was clicked (modules/types.ts, "The right-click menu").
+  const menu = useContextMenu<SlidesMenuTarget, SlidesContext>({
+    ctx,
+    hooks: COLLECTED.context,
+    label: (t) => (t.kind === 'shape' ? 'Shape' : 'Slide'),
+    returnFocus: (t) => (t.kind === 'slides' ? focusRail() : focusCanvas())
+  });
+  openMenu.current = menu.open;
   const scaleRef = useRef(scale);
   scaleRef.current = scale;
 
@@ -597,8 +631,6 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
     }
   };
 
-  const assets = useMemo(() => documentAssets(meta.id), [meta.id]);
-
   // The deck that has not come yet is drawn as its outline, which fades off it.
   const loading = usePresence(!ready, DUR.base);
 
@@ -693,7 +725,7 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
         <EditorShell
           kind="slides"
           bleed
-          zoom={{ value: zoomShown, onChange: (v) => setZoom(v) }}
+          zoom={{ value: zoomShown, onChange: zoomTo, onReset: () => setZoom('fit'), gesture: !show }}
           header={{
             title: meta.title,
             titleEditable: can.rename,
@@ -721,7 +753,7 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
             ctx,
             active: tab,
             onActive: setTab,
-            fileMenu: <FileMenu items={COLLECTED.fileItems} ctx={ctx} />,
+            fileMenu: <FileMenu items={fileRows} ctx={ctx} />,
             modeSlot: <EditingModeMenu modes={modes} mode={activeMode} onMode={setMode} />,
             subscribe
           }}
@@ -749,7 +781,14 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
           >
             {ready && !moduleView && (
               <div className="sl-normal" onCopy={(e) => onCopy(e, false)} onCut={(e) => onCopy(e, true)} onPaste={onPaste}>
-                <Rail model={ctx.model} selection={selection} editable={can.edit} peers={shownPeers} focusCanvas={focusCanvas} />
+                <Rail
+                  model={ctx.model}
+                  selection={selection}
+                  editable={can.edit}
+                  peers={shownPeers}
+                  focusCanvas={focusCanvas}
+                  onMenu={(ids, at, from) => ctx.contextMenu({ kind: 'slides', ids }, at, from)}
+                />
                 <div className="sl-main">
                   <Canvas
                     model={ctx.model}
@@ -805,6 +844,7 @@ export function SlidesEditor({ source, meta, setMeta = nothing, refresh = nothin
             {COLLECTED.overlays.map((o) => (
               <Fragment key={o.id}>{o.render(ctx)}</Fragment>
             ))}
+            {menu.element}
             {show &&
               COLLECTED.presenter?.render(ctx, {
                 from: show.from,

@@ -3,7 +3,7 @@
  *
  *   Home            Arrange ▾ (order, group, align, distribute, rotate and flip), in a group of its
  *                   own after the drawing tools
- *   canvas          the same rows in the right-click menu over an object (panes/format/ContextMenu.tsx)
+ *   canvas          the same rows in the right-click menu over an object, under Arrange ▸ (modules/menus.tsx)
  *   keys            Ctrl+G and Ctrl+Shift+G, Ctrl+] and Ctrl+[, and with Shift for the front and the back
  *   command box     each row, under Format
  *

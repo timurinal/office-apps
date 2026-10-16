@@ -18,7 +18,7 @@ export function PresentMenu({ ctx, disabled = false }: { ctx: SlidesContext | nu
   const from = ctx ? Math.max(0, ctx.slideIndex) : 0;
   return (
     <span className="sp-split">
-      <Button variant="secondary" icon={playIcon} className="sl-present" disabled={off} onClick={() => ctx?.present(from)}>
+      <Button variant="secondary" icon={playIcon} className="sl-present" title="Present from this slide" disabled={off} onClick={() => ctx?.present(from)}>
         Present
       </Button>
       <Menu

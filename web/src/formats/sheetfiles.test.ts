@@ -27,7 +27,7 @@ describe('what a file name says', () => {
   });
 
   it('labels each format for a menu', () => {
-    expect(Object.values(SHEET_EXPORT_FORMATS).map((f) => f.label)).toEqual(['Excel workbook (.xlsx)', 'Comma-separated values (.csv)', 'Tab-separated values (.tsv)']);
+    expect(Object.values(SHEET_EXPORT_FORMATS).map((f) => f.label)).toEqual(['Workbook (.xlsx)', 'Comma-separated values (.csv)', 'Tab-separated values (.tsv)']);
   });
 });
 

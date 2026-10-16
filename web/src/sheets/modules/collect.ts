@@ -5,9 +5,10 @@
  * modules may not share an id is checked in one place.
  */
 
+import type { ContextHook } from '../../core/ContextMenu';
 import type { Command, EditingMode, FileItem, PaneSpec, RibbonGroup, StatusItem } from '../../core/shell/types';
 import { duplicateIds } from '../../core/shell/registry';
-import type { SheetsContext, SheetsKey, SheetsModule, SheetsOverlay } from './types';
+import type { SheetsContext, SheetsKey, SheetsMenuTarget, SheetsModule, SheetsOverlay } from './types';
 
 export interface Collected {
   ribbon: RibbonGroup<SheetsContext>[];
@@ -19,10 +20,11 @@ export interface Collected {
   modes: EditingMode[];
   overlays: SheetsOverlay[];
   intents: NonNullable<SheetsModule['onIntent']>[];
+  context: ContextHook<SheetsMenuTarget, SheetsContext>[];
 }
 
 export function collect(modules: readonly SheetsModule[]): Collected {
-  const out: Collected = { ribbon: [], commands: [], keys: [], panes: [], statusItems: [], fileItems: [], modes: [], overlays: [], intents: [] };
+  const out: Collected = { ribbon: [], commands: [], keys: [], panes: [], statusItems: [], fileItems: [], modes: [], overlays: [], intents: [], context: [] };
   for (const m of modules) {
     out.ribbon.push(...m.ribbon);
     out.commands.push(...m.commands);
@@ -33,6 +35,7 @@ export function collect(modules: readonly SheetsModule[]): Collected {
     out.modes.push(...(m.modes ?? []));
     out.overlays.push(...(m.overlays ?? []));
     if (m.onIntent) out.intents.push(m.onIntent);
+    if (m.contextItems) out.context.push(m.contextItems);
   }
   return out;
 }

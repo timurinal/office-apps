@@ -112,9 +112,17 @@ export interface FileSection<C> {
   items: FileItem<C>[];
 }
 
-/** The File menu's rows, in sections. A section sits where its first row says. */
+/**
+ * The File menu's rows, in sections. A section sits where its first row says. A row with a submenu
+ * lists only the choices that are visible, and goes when there are none: a menu that opens on
+ * nothing is worse than no row.
+ */
 export function fileSections<C>(items: readonly FileItem<C>[], ctx: C): FileSection<C>[] {
-  const sorted = items.filter((i) => shown(i, ctx)).sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+  const sorted = items
+    .filter((i) => shown(i, ctx))
+    .map((i): FileItem<C> => (i.submenu ? { ...i, submenu: i.submenu.filter((c) => shown(c, ctx)) } : i))
+    .filter((i) => !i.submenu || i.submenu.length > 0)
+    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
   const out: FileSection<C>[] = [];
   for (const item of sorted) {
     let s = out.find((x) => x.section === item.section);

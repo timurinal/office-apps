@@ -6,9 +6,10 @@
  */
 
 import type { AnyExtension } from '@tiptap/core';
+import type { ContextHook } from '../../core/ContextMenu';
 import type { Command, EditingMode, FileItem, PaneSpec, RibbonGroup, StatusItem } from '../../core/shell/types';
 import { duplicateIds } from '../../core/shell/registry';
-import type { DocsContext, DocsModule } from './types';
+import type { DocsContext, DocsMenuTarget, DocsModule } from './types';
 
 export interface Collected {
   extensions: AnyExtension[];
@@ -18,10 +19,11 @@ export interface Collected {
   statusItems: StatusItem<DocsContext>[];
   fileItems: FileItem<DocsContext>[];
   modes: EditingMode[];
+  context: ContextHook<DocsMenuTarget, DocsContext>[];
 }
 
 export function collect(modules: readonly DocsModule[]): Collected {
-  const out: Collected = { extensions: [], ribbon: [], commands: [], panes: [], statusItems: [], fileItems: [], modes: [] };
+  const out: Collected = { extensions: [], ribbon: [], commands: [], panes: [], statusItems: [], fileItems: [], modes: [], context: [] };
   for (const m of modules) {
     out.extensions.push(...m.extensions);
     out.ribbon.push(...m.ribbon);
@@ -30,6 +32,7 @@ export function collect(modules: readonly DocsModule[]): Collected {
     out.statusItems.push(...(m.statusItems ?? []));
     out.fileItems.push(...(m.fileItems ?? []));
     out.modes.push(...(m.modes ?? []));
+    if (m.contextItems) out.context.push(m.contextItems);
   }
   return out;
 }

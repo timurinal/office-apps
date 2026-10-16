@@ -29,7 +29,7 @@ import {
   plusIcon,
   trashIcon
 } from '../../core/icons';
-import { MenuList, type MenuItem, Popover } from '../../core/ui';
+import { ContextMenu, type ContextEntry, type Point } from '../../core/ContextMenu';
 import { animate, DUR, EASE } from '../../motion';
 import { useFlipList } from '../../motion/flip';
 import './grid.css';
@@ -127,7 +127,7 @@ export function SheetTabs(props: SheetTabsProps) {
   const [order, setOrder] = useState<string[] | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
   const [renaming, setRenaming] = useState<string | null>(null);
-  const [menu, setMenu] = useState<{ id: string; x: number } | null>(null);
+  const [menu, setMenu] = useState<{ id: string; at: Point; from: Element } | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
   const drag = useRef<DragState | null>(null);
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
@@ -315,39 +315,62 @@ export function SheetTabs(props: SheetTabsProps) {
 
   // ── the menu ──────────────────────────────────────────────────────────────
 
-  const openMenu = (id: string) => {
+  /** From the pointer where a right click was, else from the tab's own top left corner (the menu key). */
+  const openMenu = (id: string, at?: Point) => {
     if (readOnly) return;
     const el = tabEls.current.get(id);
-    setMenu({ id, x: el ? el.offsetLeft - (list.current?.scrollLeft ?? 0) : 0 });
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setMenu({ id, at: at ?? { x: r.left, y: r.top }, from: el });
   };
 
   const target = menu ? sheets.find((s) => s.id === menu.id) : undefined;
   const closeMenu = useCallback(() => setMenu(null), []);
-  const first: MenuItem[] = target
+  const entries: ContextEntry[] = target
     ? [
         { label: 'Rename', icon: pencilSimpleIcon, shortcut: 'F2', onSelect: () => beginRename(target.id) },
-        { label: 'Duplicate', icon: copyIcon, onSelect: () => props.onDuplicate(target.id) }
-      ]
-    : [];
-  const rest: MenuItem[] = target
-    ? [
+        { label: 'Duplicate', icon: copyIcon, onSelect: () => props.onDuplicate(target.id) },
+        { separator: true },
+        {
+          id: 'colour',
+          custom: ({ close }) => (
+            <div className="sg-swatches" role="radiogroup" aria-label="Tab colour">
+              <button
+                type="button"
+                role="radio"
+                aria-checked={!target.color}
+                aria-label="No colour"
+                data-none="true"
+                className="sg-swatch"
+                onClick={() => {
+                  props.onColor(target.id, null);
+                  close();
+                }}
+              />
+              {TAB_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  role="radio"
+                  aria-checked={target.color === c}
+                  aria-label={c}
+                  className="sg-swatch"
+                  style={{ ['--swatch' as string]: c } as React.CSSProperties}
+                  onClick={() => {
+                    props.onColor(target.id, c);
+                    close();
+                  }}
+                />
+              ))}
+            </div>
+          )
+        },
+        { separator: true },
         { label: 'Hide', icon: eyeSlashIcon, disabled: visibleNow.length < 2, onSelect: () => props.onHide(target.id) },
-        { label: 'Delete', icon: trashIcon, danger: true, disabled: sheets.length < 2, onSelect: () => props.onDelete(target.id) }
+        { label: 'Delete', icon: trashIcon, danger: true, disabled: sheets.length < 2, onSelect: () => props.onDelete(target.id) },
+        ...hidden.map((s, i): ContextEntry => ({ label: `Show ${s.name}`, icon: eyeIcon, separated: i === 0, onSelect: () => props.onUnhide(s.id) }))
       ]
     : [];
-  const unhide: MenuItem[] = hidden.map((s, i) => ({
-    label: `Show ${s.name}`,
-    icon: eyeIcon,
-    separated: i === 0,
-    onSelect: () => props.onUnhide(s.id)
-  }));
-
-  // The menu opens on its first row for the keyboard.
-  useEffect(() => {
-    if (!menu) return;
-    const id = requestAnimationFrame(() => document.querySelector<HTMLElement>('.sg-tabs [role="menu"] [role="menuitem"]:not(:disabled)')?.focus());
-    return () => cancelAnimationFrame(id);
-  }, [menu]);
 
   const onTabKeys = (e: React.KeyboardEvent<HTMLElement>, id: string) => {
     if (renaming) return;
@@ -373,14 +396,7 @@ export function SheetTabs(props: SheetTabsProps) {
   const activeColor = sheets.find((s) => s.id === active)?.color;
 
   return (
-    <div
-      className="sg-tabs"
-      onKeyDown={(e) => {
-        if (e.key !== 'Escape' || !menu) return;
-        e.stopPropagation();
-        setMenu(null);
-      }}
-    >
+    <div className="sg-tabs">
       <span className="sg-tabs-nav">
         <button type="button" className="sg-tabnav" aria-label="Previous sheet" disabled={at <= 0} onClick={() => choose(ids[at - 1])}>
           <Icon icon={caretLeftIcon} size={13} />
@@ -446,10 +462,11 @@ export function SheetTabs(props: SheetTabsProps) {
               onClick={() => !suppress.current && choose(s.id)}
               onDoubleClick={() => beginRename(s.id)}
               onContextMenu={(e) => {
-                if (readOnly) return;
+                // Shift asks for the browser's own menu.
+                if (readOnly || e.shiftKey) return;
                 e.preventDefault();
                 choose(s.id);
-                openMenu(s.id);
+                openMenu(s.id, { x: e.clientX, y: e.clientY });
               }}
               onKeyDown={(e) => onTabKeys(e, s.id)}
               onPointerDown={(e) => onPointerDown(e, s.id)}
@@ -466,44 +483,16 @@ export function SheetTabs(props: SheetTabsProps) {
       <button type="button" className="sg-tabadd" aria-label="New sheet" disabled={readOnly} onClick={() => props.onAdd()}>
         <Icon icon={plusIcon} size={16} />
       </button>
-      <Popover open={menu !== null && target !== undefined} onClose={closeMenu} role="menu" label="Sheet" style={{ top: 'auto', bottom: 'calc(100% + 10px)', left: menu?.x ?? 0, minWidth: 196 }}>
-        {target && (
-          <>
-            <MenuList items={first} onDone={closeMenu} />
-            <div className="oa-menu-rule" />
-            <div className="sg-swatches" role="radiogroup" aria-label="Tab colour">
-              <button
-                type="button"
-                role="radio"
-                aria-checked={!target.color}
-                aria-label="No colour"
-                data-none="true"
-                className="sg-swatch"
-                onClick={() => {
-                  props.onColor(target.id, null);
-                  closeMenu();
-                }}
-              />
-              {TAB_COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  role="radio"
-                  aria-checked={target.color === c}
-                  aria-label={c}
-                  className="sg-swatch"
-                  style={{ ['--swatch' as string]: c } as React.CSSProperties}
-                  onClick={() => {
-                    props.onColor(target.id, c);
-                    closeMenu();
-                  }}
-                />
-              ))}
-            </div>
-            <MenuList items={[...rest, ...unhide]} onDone={closeMenu} />
-          </>
-        )}
-      </Popover>
+      <ContextMenu
+        at={menu && target ? menu.at : null}
+        items={entries}
+        label="Sheet"
+        from={menu?.from ?? null}
+        onClose={closeMenu}
+        returnFocus={() => {
+          if (menu) tabEls.current.get(menu.id)?.focus();
+        }}
+      />
     </div>
   );
 }

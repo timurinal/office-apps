@@ -31,7 +31,7 @@ import { filterButtonBox } from './paint';
 import { cellsIn, isWholeCols, isWholeRows, rectContains, sameRect } from './selection';
 import { useSession, type GridSession } from './session';
 import { GridView } from './view';
-import type { Cellpos, GridData, GridIntent, Rect } from './types';
+import type { Cellpos, GridContextTarget, GridData, GridIntent, Rect } from './types';
 import './grid.css';
 
 export interface GridProps {
@@ -41,6 +41,8 @@ export interface GridProps {
   onIntent: (intent: GridIntent) => void;
   /** The shell's zoom as a percentage, 50 to 200. */
   zoom: number;
+  /** The client point a change of `zoom` holds still, or null for the grid's centre; absent, the top-left cell stays. */
+  zoomAt?: { x: number; y: number } | null;
   /** Refuse edits even where the data allows them (a viewing mode); the data's own flag always applies. */
   readOnly?: boolean;
   /** Told when a key or a paste tried to change a sheet that cannot be changed. */
@@ -49,7 +51,16 @@ export interface GridProps {
   insetBottom?: number;
   /** The lines between cells. On unless this says otherwise (View > Gridlines). */
   gridlines?: boolean;
+  /** Draw what a person set as a dark ground would (View > Dark cells). Only has an effect in the dark theme. */
+  darkCells?: boolean;
   label?: string;
+  /**
+   * A right click, or the menu key, on what the selection now is. The grid has moved the selection to
+   * what was clicked and keeps the browser's own menu from opening; with Shift held it does neither,
+   * and with this prop absent the browser's menu is left alone. `x` and `y` are window coordinates;
+   * `from` is the grid, whose app colour and theme the menu wears.
+   */
+  onContextMenu?: (target: GridContextTarget, at: { x: number; y: number }, from: Element) => void;
 }
 
 type Drag =
@@ -72,7 +83,7 @@ export function pastedRect(text: string, at: Cellpos, rows: number, cols: number
 }
 
 export function Grid(props: GridProps) {
-  const { session, data, onIntent, onReadOnlyEdit, insetBottom = 0, gridlines = true, label = 'Spreadsheet' } = props;
+  const { session, data, onIntent, onReadOnlyEdit, insetBottom = 0, gridlines = true, darkCells = false, label = 'Spreadsheet' } = props;
   const zoom = Math.max(0.5, Math.min(2, props.zoom / 100));
   const readOnly = data.readOnly() || props.readOnly === true;
   useSession(session);
@@ -135,6 +146,14 @@ export function Grid(props: GridProps) {
     view.restyle();
   }, [view, gridlines]);
 
+  // Dark cells is a reader's choice about how what is set is drawn; the stylesheet turns it into
+  // `--sg-dark-cells` for the dark theme, and the view reads the colours again.
+  useLayoutEffect(() => {
+    if (!view) return;
+    root.current!.dataset.darkCells = darkCells ? 'on' : 'off';
+    view.restyle();
+  }, [view, darkCells]);
+
   // Inputs go to the session and the view after every render.
   useLayoutEffect(() => {
     session.bind({
@@ -147,7 +166,7 @@ export function Grid(props: GridProps) {
       layout: () => viewRef.current?.current() ?? null,
       focusGrid: () => root.current?.focus({ preventScroll: true })
     });
-    view?.setInputs({ data, session, zoom, insetBottom, readOnly });
+    view?.setInputs({ data, session, zoom, zoomAt: props.zoomAt, insetBottom, readOnly });
   });
 
   // What a chart over the cells follows them with, for as long as this grid is mounted.
@@ -238,6 +257,13 @@ export function Grid(props: GridProps) {
       if (session.edit) return;
       root.current?.focus({ preventScroll: true });
       if (hit.kind === 'cell' && !rectContains(session.rect(), hit)) session.selectCell(hit, false);
+      // A header that is not among the chosen lines chooses its line, as the menu is for what was clicked.
+      else if ((hit.kind === 'colHeader' || hit.kind === 'rowHeader') && hit.edge === null) {
+        const sel = session.rect();
+        if (hit.kind === 'colHeader') {
+          if (!(isWholeCols(sel, data.rowCount()) && hit.col >= sel.c1 && hit.col <= sel.c2)) session.selectCols(hit.col, hit.col);
+        } else if (!(isWholeRows(sel, data.colCount()) && hit.row >= sel.r1 && hit.row <= sel.r2)) session.selectRows(hit.row, hit.row);
+      }
       return;
     }
 
@@ -527,6 +553,43 @@ export function Grid(props: GridProps) {
     }
   };
 
+  // ── the menu ──────────────────────────────────────────────────────────────
+
+  /** What the selection is, as a menu target: whole columns or rows when that is what is chosen. */
+  const menuTarget = (where: 'cell' | 'colHeader' | 'rowHeader'): GridContextTarget => {
+    const sel = session.rect();
+    if (where === 'colHeader') return { kind: 'col', from: sel.c1, to: sel.c2 };
+    if (where === 'rowHeader') return { kind: 'row', from: sel.r1, to: sel.r2 };
+    return { kind: 'cell', rect: sel, active: session.sel.active };
+  };
+
+  const onContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Shift asks for the browser's own menu, and a cell being edited has it for spelling and paste.
+    if (!props.onContextMenu || e.shiftKey || session.edit || !view) return;
+    const { x, y } = local(e);
+    if (onScrollbar(x, y)) return;
+    const hit = view.fresh()?.hit(x, y);
+    if (!hit || (hit.kind !== 'cell' && hit.kind !== 'colHeader' && hit.kind !== 'rowHeader')) return;
+    if ((hit.kind === 'colHeader' || hit.kind === 'rowHeader') && hit.edge !== null) return;
+    e.preventDefault();
+    props.onContextMenu(menuTarget(hit.kind), { x: e.clientX, y: e.clientY }, root.current!);
+  };
+
+  /** The menu key, or Shift+F10: at the active cell, or at the header of the chosen lines. */
+  const openMenuFromKeyboard = (): void => {
+    const L = view?.fresh();
+    const box = scroller.current?.getBoundingClientRect();
+    if (!props.onContextMenu || !L || !box) return;
+    const sel = session.rect();
+    const wholeCols = isWholeCols(sel, data.rowCount());
+    const wholeRows = isWholeRows(sel, data.colCount());
+    const target = menuTarget(wholeCols && !wholeRows ? 'colHeader' : wholeRows && !wholeCols ? 'rowHeader' : 'cell');
+    const b = L.cellBox(session.sel.active.row, session.sel.active.col);
+    const x = box.left + Math.max(L.headerW, Math.min(b.x + 8, L.viewW - 8));
+    const y = box.top + Math.max(L.headerH, Math.min(b.y + b.h, L.viewH - 8));
+    props.onContextMenu(target, { x, y }, root.current!);
+  };
+
   // ── keyboard ──────────────────────────────────────────────────────────────
 
   const startTyping = (): boolean => {
@@ -563,6 +626,11 @@ export function Grid(props: GridProps) {
       handled();
       const r = session.rect();
       session.selectRows(r.r1, r.r2);
+      return;
+    }
+    if (props.onContextMenu && (key === 'ContextMenu' || (key === 'F10' && e.shiftKey))) {
+      handled();
+      openMenuFromKeyboard();
       return;
     }
 
@@ -675,6 +743,7 @@ export function Grid(props: GridProps) {
     <div
       ref={root}
       className="sg-root"
+      data-zoom-content=""
       role="grid"
       tabIndex={0}
       aria-label={label}
@@ -707,6 +776,7 @@ export function Grid(props: GridProps) {
         onPointerCancel={(e) => finish(e, true)}
         onPointerLeave={() => tip && !drag.current && setTip(null)}
         onDoubleClick={onDoubleClick}
+        onContextMenu={onContextMenu}
       >
         <div ref={spacer} className="sg-spacer" />
       </div>

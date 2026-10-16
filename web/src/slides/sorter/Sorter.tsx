@@ -10,23 +10,27 @@
  *               Alt with an arrow moves the chosen slides one place, for a keyboard.
  *   keys        arrows, Home and End move; Delete deletes; Ctrl+D copies, Ctrl+A chooses all (the
  *               page's, since the sorter has the slide list's focus)
- *   menu        right-click: New slide, Duplicate, Delete, Hide or Show
+ *   menu        right-click: the slide menu (modules/menus.tsx), through `ctx.contextMenu`
+ *   marker      beside the number of a slide with a transition: its star chooses the slide and plays the
+ *               transition inside its thumbnail, since this view has no canvas (present/TransitionMarker.tsx)
  *
  * Like the rail it follows the model itself and draws a slide's content a moment after it changes.
  * Nothing animates under a drag: the line and the dimmed slides follow the pointer.
  */
 
-import { memo, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import type React from 'react';
 import { eyeSlashIcon, Icon } from '../../core/icons';
-import { MenuList, Popover, type MenuItem } from '../../core/ui';
 import { boxOf, flip, type Box } from '../../motion/flip';
-import { chosenHidden, deleteSlides, duplicateSlides, newSlide, toggleHidden } from '../editor/actions';
+import { deleteSlides } from '../editor/actions';
 import { useRailDeck } from '../editor/Rail';
 import { useSelection } from '../editor/selection';
 import type { Aspect, SlideJSON } from '../model/deck';
+import type { SlideModel } from '../model/model';
 import type { Design } from '../model/styles';
 import type { SlidesContext } from '../modules/types';
+import { ThumbPreview } from '../present/PreviewLayer';
+import { onMarker, TransitionMarker } from '../present/TransitionMarker';
 import { Thumbnail } from '../render/Thumbnail';
 import { columnsOf, dropAt, nudgeTarget, stepIndex, thumbWidth, type Drop, type Rect, type StepKey } from './sorter';
 import './sorter.css';
@@ -49,9 +53,16 @@ interface ItemProps {
   active: boolean;
   chosen: boolean;
   dragging: boolean;
+  model: SlideModel;
+  /** The marker was pressed. */
+  onPreview: (id: string) => void;
+  /** Set while this slide's transition plays in its thumbnail: which press it was. */
+  previewing: number | null;
+  /** The preview has finished. */
+  onPreviewed: (id: string) => void;
 }
 
-const Item = memo(function Item({ id, index, slide, design, width, active, chosen, dragging }: ItemProps) {
+const Item = memo(function Item({ id, index, slide, design, width, active, chosen, dragging, model, onPreview, previewing, onPreviewed }: ItemProps) {
   const hidden = slide.hidden === true;
   return (
     <li
@@ -67,10 +78,12 @@ const Item = memo(function Item({ id, index, slide, design, width, active, chose
     >
       <span className="sl-sort-thumb">
         <Thumbnail design={design} slide={slide} width={width} number={index + 1} eager={index < 12} />
+        {previewing !== null && <ThumbPreview key={previewing} model={model} design={design} id={id} width={width} onSettled={() => onPreviewed(id)} />}
       </span>
-      <span className="sl-sort-num" aria-hidden="true">
-        {index + 1}
+      <span className="sl-sort-num">
+        <span aria-hidden="true">{index + 1}</span>
         {hidden && <Icon icon={eyeSlashIcon} size={12} />}
+        <TransitionMarker transition={slide.transition} onPreview={() => onPreview(id)} />
       </span>
     </li>
   );
@@ -142,7 +155,9 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
   }, []);
 
   const [drag, setDrag] = useState<Drag | null>(null);
-  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  // The slide whose transition is playing in its thumbnail, and which press asked, so another press plays it again.
+  const [previewing, setPreviewing] = useState<{ id: string; press: number } | null>(null);
+  const presses = useRef(0);
   const press = useRef<Press | null>(null);
   const pointer = useRef({ x: 0, y: 0 });
   const scroll = useRef<{ frame: number; speed: number }>({ frame: 0, speed: 0 });
@@ -206,6 +221,18 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
     }
   };
 
+  // A press on the marker chooses its slide as a click on the thumbnail does, unless that is the slide on the canvas already,
+  // which keeps the slides chosen with it.
+  const preview = useCallback(
+    (id: string) => {
+      if (selection.get().slide !== id) selection.showSlide(id, model.order());
+      presses.current += 1;
+      setPreviewing({ id, press: presses.current });
+    },
+    [selection, model]
+  );
+  const previewed = useCallback((id: string) => setPreviewing((p) => (p?.id === id ? null : p)), []);
+
   const open = (id: string) => {
     selection.showSlide(id, model.order());
     ctx.setView('normal');
@@ -214,7 +241,7 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
 
   const onPointerDown = (e: React.PointerEvent<HTMLOListElement>) => {
     const id = itemAt(e);
-    if (!id || e.button !== 0) return;
+    if (!id || e.button !== 0 || onMarker(e.target)) return;
     scroller.current?.focus({ preventScroll: true });
     const order = deck.order;
     const sel = selection.get();
@@ -260,7 +287,7 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
 
   const onDoubleClick = (e: React.MouseEvent) => {
     const id = itemAt(e);
-    if (id) open(id);
+    if (id && !onMarker(e.target)) open(id);
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -284,7 +311,7 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
     } else if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
       const el = s.slide ? list.current?.querySelector<HTMLElement>(`[data-slide="${CSS.escape(s.slide)}"]`) : null;
       const r = el?.getBoundingClientRect();
-      if (r && editable) setMenu({ x: r.left + 24, y: r.top + 24 });
+      if (r && scroller.current) ctx.contextMenu({ kind: 'slides', ids: s.slides }, { x: r.left + 24, y: r.top + 24 }, scroller.current);
     } else handled = false;
     if (handled) {
       e.preventDefault();
@@ -293,21 +320,13 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
   };
 
   const onContextMenu = (e: React.MouseEvent) => {
+    // Shift asks for the browser's own menu.
     const id = itemAt(e);
-    if (!id || !editable) return;
-    e.preventDefault();
+    if (!id || e.shiftKey || !scroller.current) return;
     if (!selection.get().slides.includes(id)) selection.showSlide(id, deck.order);
     selection.set({ focus: 'rail' });
-    setMenu({ x: e.clientX, y: e.clientY });
+    if (ctx.contextMenu({ kind: 'slides', ids: selection.get().slides }, { x: e.clientX, y: e.clientY }, scroller.current)) e.preventDefault();
   };
-
-  const many = chosen.length > 1;
-  const menuItems: MenuItem[] = [
-    { label: 'New slide', onSelect: () => newSlide(target) },
-    { label: many ? 'Duplicate slides' : 'Duplicate slide', onSelect: () => void duplicateSlides(target) },
-    { label: many ? 'Delete slides' : 'Delete slide', danger: true, disabled: chosen.length >= deck.order.length, onSelect: () => void deleteSlides(target) },
-    { label: chosenHidden(target) ? (many ? 'Show slides' : 'Show slide') : many ? 'Hide slides' : 'Hide slide', separated: true, onSelect: () => void toggleHidden(target) }
-  ];
 
   return (
     <div
@@ -347,18 +366,15 @@ export function Sorter({ ctx }: { ctx: SlidesContext }) {
               active={id === active}
               chosen={chosen.includes(id)}
               dragging={!!drag && drag.ids.includes(id)}
+              model={model}
+              onPreview={preview}
+              previewing={previewing?.id === id ? previewing.press : null}
+              onPreviewed={previewed}
             />
           );
         })}
         {drag && <li className="sl-sort-drop" aria-hidden="true" style={{ left: drag.drop.line.x, top: drag.drop.line.y, height: drag.drop.line.height }} />}
       </ol>
-      {menu && (
-        <div className="sl-ctx oa-pop-wrap" style={{ left: menu.x, top: menu.y }}>
-          <Popover open onClose={() => setMenu(null)} role="menu" label="Slide">
-            <MenuList items={menuItems} onDone={() => setMenu(null)} />
-          </Popover>
-        </div>
-      )}
     </div>
   );
 }

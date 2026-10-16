@@ -2,14 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { DECK_LIMITS, SLIDE_HEIGHT, SLIDE_WIDTH, type DeckJSON, type ElementJSON, type LayoutJSON, type ThemeJSON } from '../model/deck';
 import { plainText } from './build';
 import { blend, contrast, resolveColor, alphaOf } from './color';
-import { blankDeck, DEFAULT_THEME_ID, FOOTER_TYPES, LAYOUT_IDS, layoutsFor, masterFor, newSlideElements, SLIDE_NUMBER_TEXT, THEMES } from './index';
+import { blankDeck, DEFAULT_THEME_ID, FOOTER_TYPES, LAYOUT_IDS, layoutsFor, masterFor, newSlideElements, SLIDE_NUMBER_TEXT, THEMES, themeById } from './index';
 import { resolveStyle } from './styles';
 
 const H = SLIDE_HEIGHT['16:9'];
 const MARGIN = 154;
 
-const custom = (id: string, accent1: string): ThemeJSON => ({ ...THEMES[0]!, id, name: id, colors: { ...THEMES[0]!.colors, accent1 } });
-const ALL = [...THEMES, custom('plain', '#796cbf'), custom('yellow', '#ffe14d')];
+const custom = (id: string, accent1: string): ThemeJSON => ({ ...themeById('violet')!, id, name: id, colors: { ...themeById('violet')!.colors, accent1 } });
+const ALL = [...THEMES, custom('imported', '#796cbf'), custom('yellow', '#ffe14d')];
 
 const overlaps = (a: ElementJSON, b: ElementJSON): boolean => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 const contains = (outer: ElementJSON, inner: ElementJSON): boolean =>
@@ -173,10 +173,11 @@ describe.each(ALL.map((t) => [t.name, t] as const))('the layouts of %s', (_name,
     }
   });
 
-  it('draw the title and section slides on a colour, and the rest on the master’s ground', () => {
+  it('draw the title and section slides on a colour, and the rest on the master’s ground (Plain draws all ten on the master’s)', () => {
     const byId = new Map(layouts.map((l) => [l.id, l]));
-    for (const id of ['title', 'section']) expect(byId.get(id)!.bg?.kind, id).toBe('solid');
-    for (const l of layouts) if (l.id !== 'title' && l.id !== 'section') expect(l.bg, l.id).toBeUndefined();
+    const coloured = theme.id === 'plain' ? [] : ['title', 'section'];
+    for (const id of coloured) expect(byId.get(id)!.bg?.kind, id).toBe('solid');
+    for (const l of layouts) if (!coloured.includes(l.id)) expect(l.bg, l.id).toBeUndefined();
     expect(deck.layouts).toHaveLength(10);
   });
 
@@ -192,11 +193,15 @@ describe.each(ALL.map((t) => [t.name, t] as const))('the layouts of %s', (_name,
     const [figure, caption] = l.styles!.subTitle!;
     expect(figure!.fontSize!).toBeGreaterThanOrEqual(72);
     expect(caption!.fontSize!).toBeLessThan(figure!.fontSize!);
-    // The card holds both, and is a decoration: a new slide does not copy it.
-    const card = l.elements.find((e) => e.name === 'Card')!;
+    // The card holds both, and is a decoration: a new slide does not copy it. Plain draws no card.
+    const card = l.elements.find((e) => e.name === 'Card');
     const ph = l.elements.find((e) => e.ph?.type === 'subTitle')!;
-    expect(card.ph).toBeUndefined();
-    expect(contains(card, ph)).toBe(true);
+    if (theme.id === 'plain') {
+      expect(card).toBeUndefined();
+      return;
+    }
+    expect(card!.ph).toBeUndefined();
+    expect(contains(card!, ph)).toBe(true);
   });
 });
 

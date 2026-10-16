@@ -8,8 +8,10 @@
 .sl-page {
   --sl-sel: #c0501c;
   --sl-guide: #17c6bb;
-  --sl-notes-bg: #1b1d2b;
-  --sl-thumb-ring: rgba(233, 233, 237, 0.08);
+  /* The theme's own panel and hairline (dark: #1b1d2b and 8% of the ink), so the chrome is right when the
+     reader chose Light as well as in the dark the design draws. */
+  --sl-notes-bg: var(--app-panel);
+  --sl-thumb-ring: var(--bd-faint);
   position: absolute;
   inset: 0;
 }
@@ -97,6 +99,12 @@
     0 0 0 2px var(--app-solid),
     0 0 0 5px var(--focus-ring);
 }
+/* The rail and the desk draw their focus on what is chosen in them, the thumbnail and the slide, so
+   neither takes the ring every focusable part gets (styles.css and the design system's base.css). */
+.sl-rail[tabindex]:focus-visible,
+.sl-desk[tabindex]:focus-visible {
+  box-shadow: none;
+}
 
 .sl-rail-item[data-hidden] .sl-rail-thumb > .sl-view {
   opacity: 0.4;
@@ -143,6 +151,11 @@
   overflow: auto;
   outline: none;
   scrollbar-width: thin;
+  /* Shift+click adds to the selection here. Left to the browser it also selects the text between
+     the clicks (a chart's labels), and the next press on a picture drags that text natively. The
+     box being typed in is editable, so it keeps its own selection. */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .sl-desk[data-fit] {
@@ -168,6 +181,10 @@
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   touch-action: none;
 }
+/* On a light desk the slide's shadow is the soft one the other editors' paper has. */
+[data-theme='light'] .sl-canvas {
+  box-shadow: 0 12px 32px rgba(40, 28, 45, 0.18);
+}
 
 .sl-canvas > .sl-view {
   border-radius: 4px;
@@ -176,6 +193,11 @@
 .sl-desk:focus-visible .sl-canvas {
   box-shadow:
     0 16px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 3px var(--focus-ring);
+}
+[data-theme='light'] .sl-desk:focus-visible .sl-canvas {
+  box-shadow:
+    0 12px 32px rgba(40, 28, 45, 0.18),
     0 0 0 3px var(--focus-ring);
 }
 
@@ -228,30 +250,24 @@
   white-space: pre;
 }
 
-/* Other people's carets, in slide px: the scale is undone so they read the same at every zoom. */
-.sl-caret {
+/* Other people's carets (core/carets), in slide px: the scale is undone so they read the same at
+   every zoom. The text is positioned so their selections, drawn just before it, sit under it. */
+.sl-pm {
   position: relative;
-  margin-left: calc(-1px / var(--sl-scale, 1));
-  margin-right: calc(-1px / var(--sl-scale, 1));
-  border-left: calc(2px / var(--sl-scale, 1)) solid;
-  word-break: normal;
-  pointer-events: none;
 }
 
-.sl-caret-label {
-  position: absolute;
-  left: calc(-1px / var(--sl-scale, 1));
-  bottom: 100%;
+.sl-text,
+.sl-notes-body {
+  --oa-caret-w: calc(2px / var(--sl-scale, 1));
+  --oa-caret-sel-o: 0.2;
+}
+
+.sl-pm ~ .oa-carets .oa-caret-label {
   padding: 0 calc(5px / var(--sl-scale, 1));
   border-radius: calc(3px / var(--sl-scale, 1)) calc(3px / var(--sl-scale, 1)) calc(3px / var(--sl-scale, 1)) 0;
-  color: #ffffff;
   font-family: 'Inter', system-ui, sans-serif;
   font-size: calc(11px / var(--sl-scale, 1));
-  font-weight: 600;
-  font-style: normal;
   line-height: 1.5;
-  white-space: nowrap;
-  user-select: none;
 }
 
 /* What is drawn over the slide, in screen px. */
@@ -293,6 +309,13 @@
   background: #ffffff;
   pointer-events: auto;
   touch-action: none;
+}
+
+/* A line's end is grabbed from as far as the line is: HIT_PX in geometry.ts. */
+.sl-handle[data-end]::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
 }
 
 .sl-rot {
@@ -389,7 +412,7 @@
   height: 3px;
   margin: -4px 0 4px;
   border-radius: 2px;
-  background: rgba(233, 233, 237, 0.14);
+  background: var(--bd);
   cursor: ns-resize;
   touch-action: none;
   position: relative;
@@ -414,19 +437,6 @@
 
 .sl-notes-body .sl-pm {
   min-height: 1.5em;
-}
-
-.sl-notes-body .sl-caret {
-  margin-left: -1px;
-  margin-right: -1px;
-  border-left-width: 2px;
-}
-
-.sl-notes-body .sl-caret-label {
-  left: -1px;
-  padding: 0 5px;
-  font-size: 11px;
-  border-radius: 3px 3px 3px 0;
 }
 
 .sl-notes-hint {
@@ -509,13 +519,6 @@
 
 .sl-layout[aria-checked='true'] .sl-view {
   box-shadow: 0 0 0 2px var(--app-solid);
-}
-
-.sl-ctx {
-  position: fixed;
-  z-index: 60;
-  width: 0;
-  height: 0;
 }
 
 @media (max-width: 760px) {

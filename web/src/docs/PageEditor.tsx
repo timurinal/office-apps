@@ -14,6 +14,7 @@
 import { useEffect, useMemo } from 'react';
 import type { AnyExtension, Editor } from '@tiptap/core';
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react';
+import { usePageColour } from './pageColour';
 import './doc.css';
 
 /**
@@ -102,10 +103,11 @@ export function PageEditor({
 }
 
 /** The sheet of paper the editor sits on, centred on the desk. `--page-zoom` is the
- *  shell's zoom slider. */
+ *  shell's zoom slider. `data-page` is the reader's page colour, resolved (docs/pageColour.ts). */
 export function Page({ children }: { children: React.ReactNode }) {
+  const { tone } = usePageColour();
   return (
-    <article className="oa-paper" data-doc-page="true">
+    <article className="oa-paper" data-doc-page="true" data-page={tone}>
       {children}
     </article>
   );
