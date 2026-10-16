@@ -5,10 +5,11 @@ PySide6 / Qt WebEngine shell in `shell/`. Read `HANDOFF.md` first. Write in Brit
 
 ## Two kinds of code, and the `base` branch
 
-Most of `web/src` (the editors, the converters, the shell UI) and `tests/corpus` arrive on the
-**`base` branch**, which is only ever updated by a tool, with the commit message `Update base`, and
-merged into the work. **Never commit to `base` by hand**, and keep edits to files that come from it
-as small as possible: every one is a merge conflict the next time `base` moves.
+Most of `web/src` (the editors, the converters, the shell UI), `web/public/theme-init.js` and
+`tests/corpus` arrive on the **`base` branch**, which is only ever updated by a tool, with the
+commit message `Update base`, and merged into the work. **Never commit to `base` by hand**, and
+keep edits to files that come from it as small as possible: every one is a merge conflict the next
+time `base` moves.
 
 The app's own code, edited freely:
 

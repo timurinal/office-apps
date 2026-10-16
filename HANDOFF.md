@@ -1,6 +1,6 @@
 # Handoff
 
-Written 2026-10-15, when Slides arrived. Overwrite it; do not append.
+Written 2026-10-16, after the port that followed Slides. Overwrite it; do not append.
 
 ## Where it stands
 
@@ -16,7 +16,16 @@ PySide6 6.12 shell with one window per document and a Start window.
 | `pytest shell` | 8 of 8 |
 | `--self-test` under Xvfb | 13 of 13; new for Slides: type, add a picture through Insert → Picture and the open panel, save and reopen; F5 taking the screen and Escape giving it back; presenter view's audience window showing the deck and closing when the show ends; a pptx with pictures saved, reopened and exported |
 
-## What this session did
+## Since then
+
+A second port brought upstream's light and dark appearance (View → Appearance, kept in
+`localStorage` and settled before paint by `web/public/theme-init.js`, which now comes with
+`base`), a context menu and dropdowns of its own, carets beside the text, and a one-row ribbon. The
+fork mirrored `index.html`, `main.tsx` (`initAppearance`, the toast's editor colour) and the dropped
+`@tiptap/extension-collaboration-caret`. Nobody has looked at Dark on a Mac: QtWebEngine's
+`prefers-color-scheme` should follow the system's setting, which is what System means here.
+
+## What the Slides session did
 
 - **Slides.** `desktop/LocalSlidesPage.tsx` opens a blank, a template, an `.oadeck` or a PowerPoint
   file (`.pptx`, `.ppsx`, `.potx`); `slidesModule.tsx` adds the save state and the File rows. Five
