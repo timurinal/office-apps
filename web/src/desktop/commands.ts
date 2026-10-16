@@ -23,7 +23,7 @@ interface ModuleLike {
 async function modulesFor(kind: Session['kind']): Promise<readonly ModuleLike[]> {
   if (kind === 'docs') return (await import('../docs/modules')).DOCS_MODULES as unknown as readonly ModuleLike[];
   if (kind === 'sheets') return (await import('../sheets/modules')).SHEETS_MODULES as unknown as readonly ModuleLike[];
-  return [];
+  return (await import('../slides/modules')).SLIDES_MODULES as unknown as readonly ModuleLike[];
 }
 
 /** Run the command `id` against the session's editor. False when it is not there, hidden or disabled. */
@@ -42,7 +42,7 @@ export async function runCommand(session: Session, id: string): Promise<boolean>
   return false;
 }
 
-/** Undo or redo from the menu bar: a text field's own when one has the focus, the document's otherwise. */
+/** Undo or redo from the menu bar: a text field's own when one has the focus, the document's otherwise. Sheets and Slides call theirs `edit.*`. */
 export async function undoRedo(session: Session, which: 'undo' | 'redo'): Promise<boolean> {
   const el = document.activeElement;
   if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {

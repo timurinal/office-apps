@@ -30,6 +30,9 @@ IMPORTED_UTIS = {
     "xlsx": "org.openxmlformats.spreadsheetml.sheet",
     "csv": "public.comma-separated-values-text",
     "tsv": "public.tab-separated-values-text",
+    "pptx": "org.openxmlformats.presentationml.presentation",
+    "ppsx": "org.openxmlformats.presentationml.slideshow",
+    "potx": "org.openxmlformats.presentationml.template",
 }
 exported, documents = [], []
 for kind, k in KINDS.items():

@@ -1,0 +1,5885 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 120,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Slide",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content",
+  "Title and Content"
+ ],
+ "hidden": [
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 15",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 30",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 45",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 60",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 75",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 90",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 105",
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  "Notes for 120"
+ ],
+ "transitions": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "ctrTitle",
+    "box": [
+     240,
+     176.75,
+     1440,
+     376
+    ],
+    "text": "A long deck"
+   },
+   {
+    "kind": "shape",
+    "ph": "subTitle",
+    "box": [
+     240,
+     567.25,
+     1440,
+     260.75
+    ],
+    "text": "Slide 1 of 120"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 2"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 2.1\nPoint 2.2\nPoint 2.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 2"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "2"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 3"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 3.1\nPoint 3.2\nPoint 3.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "3"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 4"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 4.1\nPoint 4.2\nPoint 4.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 4"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "4"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 5"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 5.1\nPoint 5.2\nPoint 5.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 5"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "5"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 6"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 6.1\nPoint 6.2\nPoint 6.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 6"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "6"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 7"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 7.1\nPoint 7.2\nPoint 7.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 7"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "7"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 8"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 8.1\nPoint 8.2\nPoint 8.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 8"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "8"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 9"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 9.1\nPoint 9.2\nPoint 9.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 9"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "9"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 10"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 10.1\nPoint 10.2\nPoint 10.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 10"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "10"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 11"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 11.1\nPoint 11.2\nPoint 11.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 11"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "11"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 12"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 12.1\nPoint 12.2\nPoint 12.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 12"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "12"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 13"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 13.1\nPoint 13.2\nPoint 13.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 13"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "13"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 14"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 14.1\nPoint 14.2\nPoint 14.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 14"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "14"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 15"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 15.1\nPoint 15.2\nPoint 15.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 15"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "15"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 16"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 16.1\nPoint 16.2\nPoint 16.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 16"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "16"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 17"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 17.1\nPoint 17.2\nPoint 17.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 17"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "17"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 18"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 18.1\nPoint 18.2\nPoint 18.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 18"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "18"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 19"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 19.1\nPoint 19.2\nPoint 19.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 19"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "19"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 20"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 20.1\nPoint 20.2\nPoint 20.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 20"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "20"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 21"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 21.1\nPoint 21.2\nPoint 21.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 21"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "21"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 22"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 22.1\nPoint 22.2\nPoint 22.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 22"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "22"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 23"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 23.1\nPoint 23.2\nPoint 23.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 23"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "23"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 24"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 24.1\nPoint 24.2\nPoint 24.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 24"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "24"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 25"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 25.1\nPoint 25.2\nPoint 25.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 25"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "25"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 26"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 26.1\nPoint 26.2\nPoint 26.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 26"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "26"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 27"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 27.1\nPoint 27.2\nPoint 27.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 27"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "27"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 28"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 28.1\nPoint 28.2\nPoint 28.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 28"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "28"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 29"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 29.1\nPoint 29.2\nPoint 29.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 29"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "29"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 30"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 30.1\nPoint 30.2\nPoint 30.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 30"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "30"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 31"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 31.1\nPoint 31.2\nPoint 31.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 31"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "31"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 32"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 32.1\nPoint 32.2\nPoint 32.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 32"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "32"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 33"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 33.1\nPoint 33.2\nPoint 33.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 33"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "33"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 34"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 34.1\nPoint 34.2\nPoint 34.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 34"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "34"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 35"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 35.1\nPoint 35.2\nPoint 35.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 35"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "35"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 36"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 36.1\nPoint 36.2\nPoint 36.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 36"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "36"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 37"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 37.1\nPoint 37.2\nPoint 37.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 37"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "37"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 38"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 38.1\nPoint 38.2\nPoint 38.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 38"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "38"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 39"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 39.1\nPoint 39.2\nPoint 39.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 39"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "39"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 40"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 40.1\nPoint 40.2\nPoint 40.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 40"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "40"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 41"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 41.1\nPoint 41.2\nPoint 41.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 41"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "41"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 42"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 42.1\nPoint 42.2\nPoint 42.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 42"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "42"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 43"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 43.1\nPoint 43.2\nPoint 43.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 43"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "43"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 44"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 44.1\nPoint 44.2\nPoint 44.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 44"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "44"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 45"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 45.1\nPoint 45.2\nPoint 45.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 45"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "45"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 46"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 46.1\nPoint 46.2\nPoint 46.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 46"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "46"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 47"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 47.1\nPoint 47.2\nPoint 47.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 47"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "47"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 48"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 48.1\nPoint 48.2\nPoint 48.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 48"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "48"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 49"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 49.1\nPoint 49.2\nPoint 49.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 49"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "49"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 50"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 50.1\nPoint 50.2\nPoint 50.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 50"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "50"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 51"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 51.1\nPoint 51.2\nPoint 51.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 51"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "51"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 52"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 52.1\nPoint 52.2\nPoint 52.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 52"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "52"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 53"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 53.1\nPoint 53.2\nPoint 53.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 53"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "53"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 54"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 54.1\nPoint 54.2\nPoint 54.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 54"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "54"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 55"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 55.1\nPoint 55.2\nPoint 55.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 55"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "55"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 56"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 56.1\nPoint 56.2\nPoint 56.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 56"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "56"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 57"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 57.1\nPoint 57.2\nPoint 57.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 57"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "57"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 58"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 58.1\nPoint 58.2\nPoint 58.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 58"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "58"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 59"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 59.1\nPoint 59.2\nPoint 59.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 59"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "59"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 60"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 60.1\nPoint 60.2\nPoint 60.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 60"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "60"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 61"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 61.1\nPoint 61.2\nPoint 61.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 61"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "61"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 62"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 62.1\nPoint 62.2\nPoint 62.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 62"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "62"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 63"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 63.1\nPoint 63.2\nPoint 63.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 63"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "63"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 64"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 64.1\nPoint 64.2\nPoint 64.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 64"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "64"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 65"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 65.1\nPoint 65.2\nPoint 65.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 65"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "65"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 66"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 66.1\nPoint 66.2\nPoint 66.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 66"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "66"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 67"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 67.1\nPoint 67.2\nPoint 67.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 67"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "67"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 68"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 68.1\nPoint 68.2\nPoint 68.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 68"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "68"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 69"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 69.1\nPoint 69.2\nPoint 69.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 69"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "69"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 70"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 70.1\nPoint 70.2\nPoint 70.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 70"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "70"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 71"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 71.1\nPoint 71.2\nPoint 71.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 71"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "71"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 72"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 72.1\nPoint 72.2\nPoint 72.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 72"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "72"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 73"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 73.1\nPoint 73.2\nPoint 73.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 73"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "73"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 74"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 74.1\nPoint 74.2\nPoint 74.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 74"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "74"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 75"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 75.1\nPoint 75.2\nPoint 75.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 75"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "75"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 76"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 76.1\nPoint 76.2\nPoint 76.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 76"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "76"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 77"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 77.1\nPoint 77.2\nPoint 77.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 77"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "77"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 78"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 78.1\nPoint 78.2\nPoint 78.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 78"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "78"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 79"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 79.1\nPoint 79.2\nPoint 79.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 79"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "79"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 80"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 80.1\nPoint 80.2\nPoint 80.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 80"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "80"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 81"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 81.1\nPoint 81.2\nPoint 81.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 81"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "81"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 82"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 82.1\nPoint 82.2\nPoint 82.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 82"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "82"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 83"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 83.1\nPoint 83.2\nPoint 83.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 83"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "83"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 84"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 84.1\nPoint 84.2\nPoint 84.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 84"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "84"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 85"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 85.1\nPoint 85.2\nPoint 85.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 85"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "85"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 86"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 86.1\nPoint 86.2\nPoint 86.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 86"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "86"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 87"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 87.1\nPoint 87.2\nPoint 87.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 87"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "87"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 88"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 88.1\nPoint 88.2\nPoint 88.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 88"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "88"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 89"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 89.1\nPoint 89.2\nPoint 89.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 89"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "89"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 90"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 90.1\nPoint 90.2\nPoint 90.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 90"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "90"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 91"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 91.1\nPoint 91.2\nPoint 91.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 91"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "91"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 92"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 92.1\nPoint 92.2\nPoint 92.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 92"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "92"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 93"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 93.1\nPoint 93.2\nPoint 93.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 93"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "93"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 94"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 94.1\nPoint 94.2\nPoint 94.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 94"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "94"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 95"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 95.1\nPoint 95.2\nPoint 95.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 95"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "95"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 96"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 96.1\nPoint 96.2\nPoint 96.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 96"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "96"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 97"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 97.1\nPoint 97.2\nPoint 97.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 97"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "97"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 98"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 98.1\nPoint 98.2\nPoint 98.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 98"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "98"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 99"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 99.1\nPoint 99.2\nPoint 99.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 99"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "99"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 100"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 100.1\nPoint 100.2\nPoint 100.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 100"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "100"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 101"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 101.1\nPoint 101.2\nPoint 101.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 101"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "101"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 102"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 102.1\nPoint 102.2\nPoint 102.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 102"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "102"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 103"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 103.1\nPoint 103.2\nPoint 103.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 103"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "103"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 104"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 104.1\nPoint 104.2\nPoint 104.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 104"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "104"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 105"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 105.1\nPoint 105.2\nPoint 105.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 105"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "105"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 106"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 106.1\nPoint 106.2\nPoint 106.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 106"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "106"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 107"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 107.1\nPoint 107.2\nPoint 107.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 107"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "107"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 108"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 108.1\nPoint 108.2\nPoint 108.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 108"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "108"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 109"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 109.1\nPoint 109.2\nPoint 109.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 109"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "109"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 110"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 110.1\nPoint 110.2\nPoint 110.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 110"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "110"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 111"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 111.1\nPoint 111.2\nPoint 111.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 111"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "111"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 112"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 112.1\nPoint 112.2\nPoint 112.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 112"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "112"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 113"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 113.1\nPoint 113.2\nPoint 113.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 113"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "113"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 114"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 114.1\nPoint 114.2\nPoint 114.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 114"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "114"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 115"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 115.1\nPoint 115.2\nPoint 115.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 115"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "115"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 116"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 116.1\nPoint 116.2\nPoint 116.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 116"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "116"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 117"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 117.1\nPoint 117.2\nPoint 117.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 117"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "117"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 118"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 118.1\nPoint 118.2\nPoint 118.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 118"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "118"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 119"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 119.1\nPoint 119.2\nPoint 119.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 119"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "119"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Slide 120"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Point 120.1\nPoint 120.2\nPoint 120.3"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     144,
+     864,
+     576,
+     72
+    ],
+    "text": "Footnote 120"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1296,
+     792,
+     288,
+     144
+    ],
+    "text": "120"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1296,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

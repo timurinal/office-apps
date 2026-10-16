@@ -1,0 +1,125 @@
+{
+ "dialect": "google",
+ "size": "16:9",
+ "slides": 2,
+ "layouts": [
+  "Title slide",
+  "Section header",
+  "Title and body",
+  "Title and two columns",
+  "Title only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title and two columns",
+  "Title only"
+ ],
+ "hidden": [
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     65.45,
+     156.34,
+     1789.1,
+     120.25
+    ],
+    "text": "Compare"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     65.45,
+     329.13,
+     872,
+     629.98
+    ],
+    "text": "Before"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     982.55,
+     329.13,
+     872,
+     629.98
+    ],
+    "text": "After"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     65.45,
+     156.34,
+     1789.1,
+     120.25
+    ],
+    "text": "Numbers"
+   },
+   {
+    "kind": "table",
+    "box": [
+     65.45,
+     314.96,
+     1259.84,
+     233.6
+    ],
+    "text": "Region\nQ1\nQ2\nNorth\n120\n140\nSouth\n90\n95",
+    "tableTexts": [
+     "Region",
+     "Q1",
+     "Q2",
+     "North",
+     "120",
+     "140",
+     "South",
+     "90",
+     "95"
+    ],
+    "rows": 3,
+    "cols": 3
+   },
+   {
+    "kind": "image",
+    "box": [
+     1469.82,
+     734.91,
+     335.96,
+     188.98
+    ],
+    "text": null,
+    "alt": "A blue picture"
+   },
+   {
+    "kind": "image",
+    "box": [
+     1469.82,
+     482.94,
+     335.96,
+     188.98
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

@@ -1,0 +1,492 @@
+/*
+ * The Format pane, as the Slides board draws it (docs/design/boards/Slides.dc.html): a label at the
+ * left and a 112 px field at the right, the number in the mono face with its unit, sections that fold
+ * with a chevron, and a row of icon tools under the tabs. Slides' chrome is dark, so the colours are
+ * the shell's tokens (`--fg-*`, `--bd`, `--field`, `--app-*`) and follow it.
+ *
+ * Only transform and opacity animate (the pane's own slide-in, a popover's rise); nothing here moves
+ * with a value.
+ */
+
+.sl-fp {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The board's tabs: 34 px high, the app's bright underline, the active one in its text colour. */
+.sl-fp > .oa-utabs {
+  flex: none;
+  gap: 0;
+  padding: 0 8px;
+  --ind-color: var(--app-solid);
+}
+.sl-fp > .oa-utabs > button {
+  height: 34px;
+  padding: 0 10px;
+  font-size: 12.5px;
+}
+.sl-fp > .oa-utabs > button[aria-selected='true'] {
+  color: var(--app-text);
+  font-weight: 600;
+}
+
+.sl-fp-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sl-fp-icons {
+  display: flex;
+  gap: 4px;
+  padding: 10px 12px 4px;
+}
+
+.sl-fp-ib {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-2);
+}
+.sl-fp-ib:hover {
+  background: var(--app-hover);
+}
+.sl-fp-ib[aria-pressed='true'] {
+  background: var(--app-hover);
+  color: var(--app-text);
+}
+
+.sl-fp-sections {
+  padding: 8px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sl-fp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sl-fp-sec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-1);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.sl-fp-body,
+.sl-fp-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sl-fp-row {
+  display: grid;
+  grid-template-columns: 1fr 112px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--fg-2);
+}
+
+.sl-fp-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--fg-2);
+}
+
+.sl-fp-hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--fg-3);
+}
+.sl-fp-empty {
+  padding: 18px 14px;
+}
+
+/* A number field: the value in the mono face with its unit, and the spin buttons at the right. */
+.sl-fp-fld {
+  height: 30px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--field);
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.sl-fp-fld:focus-within {
+  border-color: var(--app-600);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.sl-fp-fld input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0 0 8px;
+  border: 0;
+  background: transparent;
+  outline: none;
+  box-shadow: none;
+  color: var(--fg-1);
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+}
+.sl-fp-fld[data-disabled] {
+  opacity: 0.5;
+}
+.sl-fp-spin {
+  display: flex;
+  flex-direction: column;
+  width: 18px;
+  height: 100%;
+  padding: 2px 2px 2px 0;
+  box-sizing: border-box;
+}
+.sl-fp-spin button {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--fg-3);
+}
+.sl-fp-spin button:hover:not(:disabled) {
+  background: var(--app-hover);
+  color: var(--fg-1);
+}
+
+.sl-fp-pick .oa-field {
+  gap: 0;
+}
+.sl-fp-pick .oa-field[data-size] .oa-select select {
+  height: 30px;
+  border-radius: 8px;
+  background: var(--field);
+  font-size: 12.5px;
+}
+
+.sl-fp-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--fg-2);
+  cursor: pointer;
+}
+.sl-fp-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--app-solid);
+}
+.sl-fp-check[data-disabled] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sl-fp-seg {
+  display: flex;
+  min-width: 0;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sl-fp-seg button {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sl-fp-seg button + button {
+  border-left: 1px solid var(--bd-soft);
+}
+.sl-fp-seg button:hover:not(:disabled) {
+  background: var(--app-hover);
+}
+.sl-fp-seg button[aria-pressed='true'] {
+  background: var(--app-hover);
+  color: var(--app-text);
+  font-weight: 600;
+}
+
+.sl-fp-text {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--field);
+  color: var(--fg-1);
+  font-size: 12.5px;
+  line-height: 1.4;
+  resize: vertical;
+  outline: none;
+}
+.sl-fp-text:focus {
+  border-color: var(--app-600);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* A colour: the swatch, its name, and a chevron. */
+.sl-cp {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--field);
+  color: var(--fg-1);
+  font-size: 12.5px;
+  text-align: left;
+}
+.sl-cp-swatch {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(127, 127, 140, 0.45);
+}
+.sl-cp-swatch[data-empty] {
+  background: repeating-conic-gradient(#8a8a96 0 25%, transparent 0 50%) 0 0 / 8px 8px;
+}
+.sl-cp-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sl-cp-caret {
+  flex: none;
+  color: var(--fg-3);
+}
+
+.oa-popover.sl-float {
+  position: fixed;
+  z-index: 90;
+}
+
+.sl-cp-panel {
+  width: 232px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px;
+}
+.sl-cp-title {
+  margin-top: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--fg-3);
+}
+.sl-cp-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 20px);
+  gap: 2px;
+}
+.sl-cp-chip {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(127, 127, 140, 0.4);
+}
+.sl-cp-chip:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(127, 127, 140, 0.4),
+    0 0 0 2px var(--app-300);
+}
+.sl-cp-chip[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 1px rgba(127, 127, 140, 0.4),
+    0 0 0 2px var(--app-solid);
+}
+.sl-cp-hex {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.sl-cp-hex input[type='color'] {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--field);
+}
+.sl-cp-hex input[type='text'] {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--field);
+  color: var(--fg-1);
+  font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  outline: none;
+}
+.sl-cp-hex input[aria-invalid='true'] {
+  border-color: var(--danger-500);
+}
+
+/* A chart's data. */
+.sl-fp-data-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.sl-fp-data {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 3px;
+  font-size: 11.5px;
+}
+.sl-fp-data th {
+  position: relative;
+  padding: 0 3px 0 0;
+  text-align: left;
+  font-weight: 500;
+  color: var(--fg-3);
+}
+.sl-fp-th {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.sl-fp-data td {
+  padding: 0 3px 0 0;
+}
+.sl-fp-cell {
+  width: 100%;
+  min-width: 56px;
+  height: 26px;
+  box-sizing: border-box;
+  padding: 0 6px;
+  border: 1px solid var(--bd-soft);
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--fg-1);
+  font-size: 12px;
+  outline: none;
+}
+.sl-fp-cell:focus {
+  border-color: var(--app-600);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+.sl-fp-cell[aria-invalid='true'] {
+  border-color: var(--danger-500);
+}
+.sl-fp-x {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fg-3);
+}
+.sl-fp-x:hover {
+  background: var(--app-hover);
+  color: var(--fg-1);
+}
+.sl-fp-data-add {
+  display: flex;
+  gap: 8px;
+}
+.sl-fp-data-add button,
+.sl-fp-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--bd-soft);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sl-fp-data-add button:hover:not(:disabled),
+.sl-fp-act:hover:not(:disabled) {
+  background: var(--app-hover);
+}
+
+/* A table's cells, in small, and what to do to them. */
+.sl-fp-map {
+  display: grid;
+  gap: 3px;
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.sl-fp-mapcell {
+  height: 22px;
+  min-width: 0;
+  padding: 0;
+  border: 1px solid var(--bd);
+  border-radius: 3px;
+  background: transparent;
+}
+.sl-fp-mapcell[aria-pressed='true'] {
+  border-color: var(--app-solid);
+  background: var(--app-hover);
+}
+.sl-fp-acts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+.sl-fp-acts .sl-fp-act {
+  justify-content: flex-start;
+}
+
+/* The slide's context menu. */
+.sl-ctx {
+  position: fixed;
+  z-index: 95;
+  min-width: 200px;
+}

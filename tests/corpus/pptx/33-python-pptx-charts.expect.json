@@ -1,0 +1,380 @@
+{
+ "dialect": "python-pptx",
+ "size": "4:3",
+ "slides": 3,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Comparison",
+  "Title Only",
+  "Blank",
+  "Content with Caption",
+  "Picture with Caption",
+  "Title and Vertical Text",
+  "Vertical Title and Text"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.67,
+     1728.0,
+     240.0
+    ],
+    "text": "Charts"
+   },
+   {
+    "kind": "chart",
+    "box": [
+     96.0,
+     307.2,
+     844.8,
+     672.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     960.0,
+     307.2,
+     844.8,
+     672.0
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.67,
+     1728.0,
+     240.0
+    ],
+    "text": "Line and pie"
+   },
+   {
+    "kind": "chart",
+    "box": [
+     96.0,
+     307.2,
+     844.8,
+     672.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     960.0,
+     307.2,
+     844.8,
+     672.0
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.67,
+     1728.0,
+     240.0
+    ],
+    "text": "Scatter, area, doughnut, stacked, bubble"
+   },
+   {
+    "kind": "chart",
+    "box": [
+     38.4,
+     307.2,
+     576.0,
+     480.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     633.6,
+     307.2,
+     576.0,
+     480.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     1228.8,
+     307.2,
+     576.0,
+     480.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     38.4,
+     806.4,
+     576.0,
+     480.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "chart",
+    "box": [
+     633.6,
+     806.4,
+     576.0,
+     480.0
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [
+  {
+   "chart": "column",
+   "categories": [
+    "East",
+    "West",
+    "North"
+   ],
+   "series": [
+    {
+     "name": "2025",
+     "values": [
+      19.2,
+      21.4,
+      16.7
+     ]
+    },
+    {
+     "name": "2026",
+     "values": [
+      22.3,
+      28.6,
+      15.2
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "bar",
+   "categories": [
+    "East",
+    "West",
+    "North"
+   ],
+   "series": [
+    {
+     "name": "2025",
+     "values": [
+      19.2,
+      21.4,
+      16.7
+     ]
+    },
+    {
+     "name": "2026",
+     "values": [
+      22.3,
+      28.6,
+      15.2
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "line",
+   "categories": [
+    "East",
+    "West",
+    "North"
+   ],
+   "series": [
+    {
+     "name": "2025",
+     "values": [
+      19.2,
+      21.4,
+      16.7
+     ]
+    },
+    {
+     "name": "2026",
+     "values": [
+      22.3,
+      28.6,
+      15.2
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "pie",
+   "categories": [
+    "A",
+    "B",
+    "C"
+   ],
+   "series": [
+    {
+     "name": "Share",
+     "values": [
+      0.5,
+      0.3,
+      0.2
+     ]
+    }
+   ],
+   "title": "Share of the whole"
+  },
+  {
+   "chart": "scatter",
+   "categories": [],
+   "series": [
+    {
+     "name": "Series 1",
+     "values": [
+      2.0,
+      4.0,
+      3.5,
+      8.0
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "line",
+   "categories": [
+    "East",
+    "West",
+    "North"
+   ],
+   "series": [
+    {
+     "name": "2025",
+     "values": [
+      19.2,
+      21.4,
+      16.7
+     ]
+    },
+    {
+     "name": "2026",
+     "values": [
+      22.3,
+      28.6,
+      15.2
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "pie",
+   "categories": [
+    "A",
+    "B",
+    "C"
+   ],
+   "series": [
+    {
+     "name": "Share",
+     "values": [
+      0.5,
+      0.3,
+      0.2
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "column",
+   "categories": [
+    "East",
+    "West",
+    "North"
+   ],
+   "series": [
+    {
+     "name": "2025",
+     "values": [
+      19.2,
+      21.4,
+      16.7
+     ]
+    },
+    {
+     "name": "2026",
+     "values": [
+      22.3,
+      28.6,
+      15.2
+     ]
+    }
+   ],
+   "title": null
+  },
+  {
+   "chart": "scatter",
+   "categories": [],
+   "series": [
+    {
+     "name": "Bubbles",
+     "values": [
+      2.0,
+      4.0
+     ]
+    }
+   ],
+   "title": null
+  }
+ ],
+ "warnings": [
+  "area chart is drawn as a line chart",
+  "doughnut chart is drawn as a pie chart",
+  "stacked chart is drawn side by side",
+  "bubble chart is drawn as a scatter chart"
+ ]
+}

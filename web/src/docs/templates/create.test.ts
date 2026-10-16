@@ -3,6 +3,8 @@ import * as Y from 'yjs';
 import { createRequest } from './create';
 import { DOCS_TEMPLATES, predefinedId } from './index';
 import { stateJSON } from '../seed';
+import { predefinedSlidesId, SLIDES_TEMPLATES } from '../../slides/templates';
+import { yToDeck } from '../../slides/model/ydoc';
 
 const decode = (b64: string): Uint8Array => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
 
@@ -28,6 +30,25 @@ describe('the create call for a card on Home', () => {
       expect(doc.getXmlFragment('default').length).toBeGreaterThan(0);
       expect(stateJSON(decode(req.state!)).content?.[0]?.type).toBe(t.body[0]!.type);
     }
+  });
+
+  it('is the title and the deck for a predefined Slides template, every slide of it', async () => {
+    for (const t of SLIDES_TEMPLATES) {
+      const req = await createRequest('slides', predefinedSlidesId(t));
+      expect(req.kind).toBe('slides');
+      expect(req.title).toBe(t.title);
+      expect(req.templateId, t.title).toBeUndefined();
+      const doc = new Y.Doc();
+      Y.applyUpdate(doc, decode(req.state!));
+      expect(yToDeck(doc).slides.length).toBe(t.deck().slides.length);
+    }
+  });
+
+  it('never makes a Docs page from a Slides id, or a deck from a Docs one', async () => {
+    const deck = predefinedSlidesId(SLIDES_TEMPLATES[0]!);
+    expect(await createRequest('docs', deck)).toEqual({ kind: 'docs', templateId: deck });
+    const page = predefinedId(DOCS_TEMPLATES[0]!);
+    expect(await createRequest('slides', page)).toEqual({ kind: 'slides', templateId: page });
   });
 
   it('passes an id it does not have on to the server, which says it is not available', async () => {

@@ -1,0 +1,389 @@
+{
+ "dialect": "python-pptx",
+ "size": "4:3",
+ "slides": 8,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Comparison",
+  "Title Only",
+  "Blank",
+  "Content with Caption",
+  "Picture with Caption",
+  "Title and Vertical Text",
+  "Vertical Title and Text"
+ ],
+ "slideLayouts": [
+  "Title Slide",
+  "Title and Content",
+  "Two Content",
+  "Title Only",
+  "Blank",
+  "Section Header",
+  "Comparison",
+  "Content with Caption"
+ ],
+ "hidden": [
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null,
+  null,
+  "Notes that PowerPoint's template gives a home.",
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "ctrTitle",
+    "box": [
+     144.0,
+     447.33,
+     1632.0,
+     308.67
+    ],
+    "text": "A real template"
+   },
+   {
+    "kind": "shape",
+    "ph": "subTitle",
+    "box": [
+     288.0,
+     816.0,
+     1344.0,
+     368.0
+    ],
+    "text": "PowerPoint's own master, through python-pptx"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.67,
+     1728.0,
+     240.0
+    ],
+    "text": "Levels and runs"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     96.0,
+     336.0,
+     1728.0,
+     950.33
+    ],
+    "text": "First level\nSecond level\nThird level\nBack to the first\nBold, red and linked"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.67,
+     1728.0,
+     240.0
+    ],
+    "text": "Two columns"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     96.0,
+     336.0,
+     848.0,
+     950.33
+    ],
+    "text": "Left column"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     976.0,
+     336.0,
+     848.0,
+     950.33
+    ],
+    "text": "Right column"
+   },
+   {
+    "kind": "image",
+    "box": [
+     192.0,
+     998.4,
+     384.0,
+     211.2
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.67,
+     1728.0,
+     240.0
+    ],
+    "text": "Tables and shapes"
+   },
+   {
+    "kind": "table",
+    "box": [
+     134.4,
+     345.6,
+     960.0,
+     288.0
+    ],
+    "text": "Merged header\nC\nr1c0\nr2c0\nr1c1\nr1c2\nr2c1\nr2c2",
+    "rows": 3,
+    "cols": 3,
+    "tableTexts": [
+     "Merged header",
+     "C",
+     "r1c0\nr2c0",
+     "r1c1",
+     "r1c2",
+     "r2c1",
+     "r2c2"
+    ]
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1152.0,
+     384.0,
+     480.0,
+     192.0
+    ],
+    "text": "Accent 2, lighter 40%"
+   },
+   {
+    "kind": "shape",
+    "box": [
+     1152.0,
+     691.2,
+     288.0,
+     288.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "box": [
+     134.4,
+     806.4,
+     384.0,
+     153.6
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "group",
+    "box": [
+     192.0,
+     192.0,
+     576.0,
+     384.0
+    ],
+    "text": "In a group",
+    "children": [
+     {
+      "kind": "shape",
+      "box": [
+       192.0,
+       192.0,
+       384.0,
+       192.0
+      ],
+      "text": "In a group"
+     },
+     {
+      "kind": "shape",
+      "box": [
+       576.0,
+       384.0,
+       192.0,
+       192.0
+      ],
+      "text": null
+     }
+    ]
+   },
+   {
+    "kind": "shape",
+    "box": [
+     192.0,
+     768.0,
+     768.0,
+     153.6
+    ],
+    "text": "A text box"
+   },
+   {
+    "kind": "line",
+    "box": [
+     960.0,
+     192.0,
+     576.0,
+     384.0
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     151.67,
+     925.33,
+     1632.0,
+     286.0
+    ],
+    "text": "Section"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     151.67,
+     610.33,
+     1632.0,
+     315.0
+    ],
+    "text": "Introduces a part"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.67,
+     1728.0,
+     240.0
+    ],
+    "text": "Comparison"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     96.0,
+     322.33,
+     848.33,
+     134.33
+    ],
+    "text": "Left heading"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     96.0,
+     456.67,
+     848.33,
+     829.67
+    ],
+    "text": "Left text"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     975.33,
+     322.33,
+     848.67,
+     134.33
+    ],
+    "text": "Right heading"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     975.33,
+     456.67,
+     848.67,
+     829.67
+    ],
+    "text": "Right text"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     96.0,
+     57.33,
+     631.67,
+     244.0
+    ],
+    "text": "Caption"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     750.67,
+     57.33,
+     1073.33,
+     1229.0
+    ],
+    "text": null
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     96.0,
+     301.33,
+     631.67,
+     985.0
+    ],
+    "text": "The caption's words"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

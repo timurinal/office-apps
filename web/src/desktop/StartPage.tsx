@@ -13,6 +13,7 @@ import { fileTextIcon, folderOpenIcon, Icon, presentationChartIcon, tableIcon, x
 import { isMac } from '../core/keys';
 import { predefinedSummaries } from '../docs/templates';
 import { BLANKS } from '../home/home';
+import { predefinedSlidesSummaries } from '../slides/templates/summaries';
 import { fromTemplate, TemplateGrid, type Entry } from '../home/StartSection';
 import { formatWhen } from '../theme';
 import { useHost, type RecentFile } from './host';
@@ -50,7 +51,7 @@ export function StartPage() {
 
   const entries: Entry[] = [
     ...BLANKS.filter((b) => KINDS[b.kind].enabled).map((b) => ({ key: `blank:${b.kind}`, kind: b.kind, title: b.title, blank: true })),
-    ...predefinedSummaries().map(fromTemplate)
+    ...[...predefinedSummaries(), ...predefinedSlidesSummaries()].filter((t) => KINDS[t.kind].enabled).map(fromTemplate)
   ];
   const onCreate = async (kind: DocKind, templateId?: string) => host.newDocument(kind, templateId);
 

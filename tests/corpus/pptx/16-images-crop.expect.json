@@ -1,0 +1,160 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 3,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Formats"
+   },
+   {
+    "kind": "image",
+    "box": [
+     144,
+     288,
+     288,
+     162
+    ],
+    "text": null,
+    "alt": "Blue"
+   },
+   {
+    "kind": "image",
+    "box": [
+     504,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   },
+   {
+    "kind": "image",
+    "box": [
+     864,
+     288,
+     172.8,
+     172.8
+    ],
+    "text": null
+   },
+   {
+    "kind": "image",
+    "box": [
+     1152,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Crop"
+   },
+   {
+    "kind": "image",
+    "box": [
+     144,
+     288,
+     288,
+     162
+    ],
+    "text": null,
+    "crop": {
+     "l": 0.25,
+     "t": 0.1,
+     "r": 0.25,
+     "b": 0
+    }
+   },
+   {
+    "kind": "image",
+    "box": [
+     576,
+     288,
+     144,
+     288
+    ],
+    "text": null,
+    "crop": {
+     "l": 0,
+     "t": 0.5
+    }
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Fallbacks"
+   },
+   {
+    "kind": "image",
+    "box": [
+     144,
+     288,
+     288,
+     162
+    ],
+    "text": null
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": [
+  "in a format that cannot be shown",
+  "linked from outside the file"
+ ]
+}

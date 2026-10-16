@@ -2,7 +2,7 @@
 //
 //   npm run build && npm run e2e
 //
-// It serves dist/web with `vite preview`, drives Chromium through Start, Docs and Sheets, and
+// It serves dist/web with `vite preview`, drives Chromium through Start, Docs, Sheets and Slides, and
 // fails on any request that leaves the page's origin or asks for /api, any console error, and any
 // class or id from before the rename. Screenshots at 1440x900 land in dist/e2e/.
 
@@ -203,6 +203,103 @@ await step('Sheets: a formula, saved, exported as CSV, opened again', async () =
   await page.locator('.oa-recent-open', { hasText: 'Walk book.oasheet' }).click();
   await ready();
   await until('A3 after opening again', async () => (await st("cellText('A3')")) === '5');
+});
+
+await step('Slides: a new presentation, typed, saved, opened again', async () => {
+  await page.goto(BASE);
+  await ready();
+  await page.locator('button.oa-tcard[aria-label="Blank presentation"]').click();
+  await ready();
+  expect((await st('slideCount()')) === 1, `slides ${await st('slideCount()')}`);
+  expect(await st("setSlideText('Hello from the deck')"), 'could not type on the slide');
+  await until('Not saved', async () => (await saveState()) === 'Not saved');
+  promptAnswer = 'Walk deck';
+  await page.keyboard.press('Control+s');
+  await until('Saved', async () => (await saveState()) === 'Saved');
+  await noOldNames();
+  await page.screenshot({ path: `${SHOTS}/slides.png` });
+  await page.goto(BASE);
+  await ready();
+  await page.locator('.oa-recent-open', { hasText: 'Walk deck.oadeck' }).click();
+  await ready();
+  const text = await st('deckText()');
+  expect(text?.includes('Hello from the deck'), `text ${JSON.stringify(text)}`);
+});
+
+await step('Slides: a picture from a file, kept in the deck', async () => {
+  await page.getByRole('tab', { name: 'Insert' }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Picture', exact: true }).click();
+  await (await chooser).setFiles(`${ROOT}shell/packaging/icon-1024.png`);
+  await until('the picture on the slide', async () => ((await st('slidePictures()')) ?? []).some((s) => s === 'blob:'));
+  await until('saved by itself', async () => (await saveState()) === 'Saved', 10000);
+  await page.goto(BASE);
+  await ready();
+  await page.locator('.oa-recent-open', { hasText: 'Walk deck.oadeck' }).click();
+  await ready();
+  await until('the picture after opening again', async () => ((await st('slidePictures()')) ?? []).some((s) => s === 'blob:'));
+});
+
+await step('Slides: a template', async () => {
+  await page.goto(BASE);
+  await ready();
+  await page.locator('button.oa-tcard[aria-label="Pitch"]').click();
+  await ready();
+  const n = await st('slideCount()');
+  expect(n >= 5, `${n} slides`);
+  return `${n} slides`;
+});
+
+await step('Slides: a PowerPoint file with pictures, saved with them, opened again, exported', async () => {
+  await page.goto(BASE);
+  await ready();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Open…' }).click();
+  await (await chooser).setFiles(`${ROOT}tests/corpus/pptx/16-images-crop.pptx`);
+  await ready();
+  const pictures = async () => {
+    const list = await st('slidePictures()');
+    return list?.length && list.every((s) => s === 'blob:') ? list : null;
+  };
+  const before = await until('the pictures', pictures);
+  promptAnswer = 'Walk pictures';
+  await page.keyboard.press('Control+s');
+  await until('Saved', async () => (await saveState()) === 'Saved');
+  await page.goto(BASE);
+  await ready();
+  await page.locator('.oa-recent-open', { hasText: 'Walk pictures.oadeck' }).click();
+  await ready();
+  const after = await until('the pictures after opening again', pictures);
+  expect(after.length === before.length, `${after.length} pictures after, ${before.length} before`);
+  const download = page.waitForEvent('download');
+  await openFile('Export as PowerPoint (.pptx)');
+  const zip = unzipSync(new Uint8Array(readFileSync(await (await download).path())));
+  const media = Object.keys(zip).filter((k) => k.startsWith('ppt/media/'));
+  expect(media.length > 0, 'no pictures in the export');
+  expect(strFromU8(zip['docProps/core.xml']).includes('<dc:creator>Office</dc:creator>'), 'creator is not Office');
+  return `${after.length} pictures, ${media.length} in the export`;
+});
+
+await step('Slides: presenter view opens the audience window, which shows the deck', async () => {
+  await page.goto(BASE);
+  await ready();
+  await page.locator('.oa-recent-open', { hasText: 'Walk deck.oadeck' }).click();
+  await ready();
+  await page.getByRole('tab', { name: 'Slide show' }).click();
+  const popup = context.waitForEvent('page');
+  await page.getByRole('button', { name: 'Presenter view' }).click();
+  const audience = await popup;
+  audience.on('pageerror', (e) => problems.push(`audience page error: ${e.message}`));
+  audience.on('console', (m) => {
+    if (m.type() === 'error') problems.push(`audience console error: ${m.text()}`);
+  });
+  await audience.waitForSelector('.sp-root .sl-view', { timeout: 15000 });
+  const text = await audience.locator('.sp-root').innerText();
+  expect(text.includes('Hello from the deck'), `audience shows ${JSON.stringify(text.slice(0, 80))}`);
+  await audience.screenshot({ path: `${SHOTS}/audience.png` });
+  await page.screenshot({ path: `${SHOTS}/presenter.png` });
+  await page.keyboard.press('Escape');
+  await until('the audience window to close', async () => audience.isClosed(), 10000);
 });
 
 await step('Nothing left the page, and the console is clean', async () => {

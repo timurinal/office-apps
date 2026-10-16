@@ -1,0 +1,135 @@
+/* The Design tab: the theme gallery and the background menu. */
+
+.sl-themes {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sl-theme {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  padding: 3px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--fg-2);
+  font-size: 11px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-out);
+}
+.sl-theme:hover:not(:disabled),
+.sl-theme:focus-visible {
+  background: var(--app-hover);
+}
+.sl-theme[aria-pressed='true'] {
+  background: var(--app-hover);
+  color: var(--app-text);
+}
+
+/* A theme in small: its ground, its type, its six accents, and the title slide's colour as a band. */
+.sl-theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 64px;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 5px 6px 4px;
+  overflow: hidden;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 1px rgba(127, 127, 140, 0.4);
+}
+.sl-theme-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+}
+.sl-theme-aa {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+.sl-theme-dots {
+  display: flex;
+  gap: 2px;
+}
+.sl-theme-dots span {
+  flex: 1;
+  height: 5px;
+  border-radius: 1.5px;
+}
+.sl-theme-name {
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sl-themes-more {
+  width: 22px;
+}
+
+.oa-popover.sl-theme-pop {
+  width: 340px;
+  padding: 8px;
+}
+.sl-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.sl-theme-grid .sl-theme-card {
+  width: 100%;
+}
+.sl-theme-fonts {
+  max-width: 76px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  color: var(--fg-3);
+}
+
+.oa-popover.sl-bg-pop {
+  width: 264px;
+  padding: 8px;
+}
+.sl-bg-gradients {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+.sl-bg-gradient {
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 1px rgba(127, 127, 140, 0.4);
+}
+.sl-bg-gradient:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(127, 127, 140, 0.4),
+    0 0 0 2px var(--app-300);
+}
+.sl-bg-gradient[aria-pressed='true'] {
+  box-shadow:
+    inset 0 0 0 1px rgba(127, 127, 140, 0.4),
+    0 0 0 2px var(--app-solid);
+}
+.sl-bg-pop .sl-fp-check {
+  padding: 8px 10px 2px;
+}
+.sl-bg-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 2px 4px;
+}

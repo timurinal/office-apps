@@ -40,7 +40,8 @@ def _act(win: "DocumentWindow", menu: QMenu, key: str, text: str, run, shortcut=
 def build_menus(win: "DocumentWindow") -> None:
     m = win.manager
     bar = win.menuBar()
-    doc = not win.is_start
+    # An audience window shows a presentation and holds none.
+    doc = not win.is_start and not win.audience
     SK = QKeySequence.StandardKey
 
     # ── File ────────────────────────────────────────────────────────────────

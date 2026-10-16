@@ -1,0 +1,93 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 4,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title Only",
+  "Title Only",
+  "Title Only",
+  "Title Only"
+ ],
+ "hidden": [
+  false,
+  true,
+  false,
+  true
+ ],
+ "notes": [
+  null,
+  null,
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null,
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Shown"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Hidden one"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Shown again"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Hidden two"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

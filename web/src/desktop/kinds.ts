@@ -28,7 +28,7 @@ export interface KindInfo {
   /** Other files that open as a new document of this kind, by extension. */
   imports: readonly string[];
   exports: readonly ExportEntry[];
-  /** Built and offered. Slides is not, yet. */
+  /** Built and offered. */
   enabled: boolean;
 }
 
@@ -68,9 +68,9 @@ export const KINDS: Readonly<Record<Kind, KindInfo>> = {
     noun: 'presentation',
     extension: 'oadeck',
     mime: 'application/x-office-presentation',
-    imports: [],
-    exports: [],
-    enabled: false
+    imports: ['pptx', 'ppsx', 'potx'],
+    exports: [{ command: 'file.download-pptx', label: 'PowerPoint (.pptx)' }],
+    enabled: true
   }
 };
 

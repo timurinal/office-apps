@@ -1,0 +1,53 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 1,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title and Content"
+ ],
+ "hidden": [
+  false
+ ],
+ "notes": [
+  null
+ ],
+ "transitions": [
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Strict OOXML"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Read through the other namespaces"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

@@ -1,6 +1,6 @@
 # office-apps
 
-Office: Docs and Sheets (Slides to come) as an offline desktop app. The React app in `web/` runs in a
+Office: Docs, Sheets and Slides as an offline desktop app. The React app in `web/` runs in a
 PySide6 / Qt WebEngine shell in `shell/`. Read `HANDOFF.md` first. Write in British English.
 
 ## Two kinds of code, and the `base` branch
@@ -12,7 +12,8 @@ as small as possible: every one is a merge conflict the next time `base` moves.
 
 The app's own code, edited freely:
 
-- `web/src/desktop/**`: the host bridge, the native file, sessions, Start, the editor windows.
+- `web/src/desktop/**`: the host bridge, the native file, sessions, Start, the editor windows, a
+  deck's pictures and the presenter's audience window.
 - `shell/**`, `e2e/**`, `.github/**`, `LICENSES/**`, the root configs and docs.
 - Owned replacements of base files: `web/src/main.tsx`, `web/src/state.tsx` (no accounts: `me` is
   null), `web/src/core/LockDialogs.tsx` (stubs), `shared/branding.ts` (a type), `web/index.html`,
@@ -22,11 +23,16 @@ The app's own code, edited freely:
 The edits to base files, all of them; add to this list if you must add one:
 
 1. `web/src/router.tsx`: `setNavigationGuard`, checked first in `navigate()`.
-2. `web/src/core/prefetch.ts`: loads `desktop/LocalDocsPage` and `desktop/LocalSheetsPage`.
+2. `web/src/core/prefetch.ts`: loads `desktop/LocalDocsPage`, `LocalSheetsPage` and `LocalSlidesPage`.
 3. `web/src/docs/modules/index.ts`: `desktopDocsModule` appended.
 4. `web/src/sheets/modules/index.ts`: `desktopSheetsModule` appended.
 5. `web/src/sheets/useDocumentActions.ts`: a `local` flag; a local rename does not call the server.
 6. `web/src/sheets/SheetsEditor.tsx`: passes `source.kind === 'local'` to it.
+7. `web/src/slides/SlidesEditor.tsx`: the same, for Slides.
+8. `web/src/slides/modules/index.ts`: `desktopSlidesModule` appended.
+9. `web/src/slides/render/assets.tsx`: `setLocalAssets`; `documentAssets` asks it first.
+10. `web/src/slides/modules/insert/picture.ts`: `setPictureUpload` replaces the upload step.
+11. `web/src/slides/modules/files.tsx`: PowerPoint export reads a local deck's pictures too.
 
 Code from `base` that needs a server (sharing, comments, history, `client.ts`, `docs/room.ts`) is
 kept as it is and never reached: the editors hide it when `source.features` says there is no
@@ -47,8 +53,22 @@ browser. Change all three together. The page never gets a path it did not get fr
 a path from the page is honoured only if it is in the recent list.
 
 `web/src/desktop/kinds.ts` and `shell/officeapps/kinds.json` describe the same kinds;
-`kinds.test.ts` fails when they differ. The `.oadoc` / `.oasheet` file is a zip (`container.ts`);
-bump `VERSION` there only with a reader for the old one.
+`kinds.test.ts` fails when they differ. The `.oadoc` / `.oasheet` / `.oadeck` file is a zip
+(`container.ts`); bump `VERSION` there only with a reader for the old one.
+
+## Slides
+
+A slide names a picture by an asset id, which upstream of this app is a server's. Here the id names
+a picture in the window's `PictureStore` (`desktop/pictures.ts`), drawn from a `blob:` address and
+saved in the file's `pictures/` beside the deck; hunks 9 and 10 point the editor at it
+(`desktop/slidesPictures.ts`). Only the pictures the deck still names are saved. Upstream shows
+Insert → Picture only on a server (its tests pin that), so `desktop/slidesModule.tsx` adds the
+same button in the same place; a slide background's Picture… stays hidden.
+
+Presenter view opens a second window with `window.open`. The shell turns that into an audience
+window (`DocumentWindow(audience=True)`, `Page._on_new_window`), and the presentation's window
+feeds it the deck over a BroadcastChannel (`desktop/deckMirror.ts`): it has no file of its own.
+A slide show asks for full screen, and the shell puts its window there (`set_page_full_screen`).
 
 ## Saving
 

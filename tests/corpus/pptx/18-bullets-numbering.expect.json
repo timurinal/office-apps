@@ -1,0 +1,81 @@
+{
+ "dialect": "powerpoint",
+ "size": "16:9",
+ "slides": 2,
+ "layouts": [
+  "Title Slide",
+  "Title and Content",
+  "Section Header",
+  "Two Content",
+  "Title Only",
+  "Blank"
+ ],
+ "slideLayouts": [
+  "Title and Content",
+  "Title and Content"
+ ],
+ "hidden": [
+  false,
+  false
+ ],
+ "notes": [
+  null,
+  null
+ ],
+ "transitions": [
+  null,
+  null
+ ],
+ "elements": [
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Levels"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "Level 1\nLevel 2\nLevel 3\nLevel 4\nLevel 5\nLevel 6\nLevel 7\nLevel 8\nLevel 9"
+   }
+  ],
+  [
+   {
+    "kind": "shape",
+    "ph": "title",
+    "box": [
+     132,
+     57.5,
+     1656,
+     208.75
+    ],
+    "text": "Numbered"
+   },
+   {
+    "kind": "shape",
+    "ph": "body",
+    "box": [
+     132,
+     287.5,
+     1656,
+     685.25
+    ],
+    "text": "arabic period\narabic paren\nalpha lower\nalpha upper\nroman lower\nroman upper\na char\nwingdings square\nno bullet"
+   }
+  ]
+ ],
+ "charts": [],
+ "warnings": []
+}

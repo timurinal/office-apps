@@ -22,7 +22,7 @@ import traceback
 import zipfile
 from typing import TYPE_CHECKING, Any, Callable
 
-from PySide6.QtCore import QEventLoop, Qt, QTimer
+from PySide6.QtCore import QEventLoop, QPoint, Qt, QTimer
 from PySide6.QtTest import QTest
 
 if TYPE_CHECKING:
@@ -50,6 +50,7 @@ class SelfTest:
         self.next_save: str | None = None
         self.exports: list[str] = []
         self.keep_asked: list[str] = []
+        self.next_files: list[str] = []
         self.prints = 0
 
     def attach(self, manager: "Manager") -> None:
@@ -65,6 +66,10 @@ class SelfTest:
         name = self.next_save or suggested
         self.next_save = None
         return os.path.join(self.out, name)
+
+    def choose_files(self) -> list[str]:
+        files, self.next_files = self.next_files, []
+        return files
 
     def export_path(self, name: str) -> str:
         return os.path.join(self.out, "export-" + name)
@@ -149,6 +154,20 @@ class SelfTest:
     def shot(self, win: "DocumentWindow", name: str) -> None:
         self.pump(800)
         win.grab().save(os.path.join(self.out, f"{name}.png"))
+
+    def click(self, win: "DocumentWindow", selector: str, text: str) -> None:
+        """A real click (the page sees a person's gesture) on the element `selector` whose text is `text`."""
+        at = self.js(
+            win,
+            f"(() => {{ const e = [...document.querySelectorAll({json.dumps(selector)})].find((x) => x.textContent.trim() === {json.dumps(text)});"
+            " if (!e) return null; const r = e.getBoundingClientRect(); return JSON.stringify([r.x + r.width / 2, r.y + r.height / 2]); })()",
+        )
+        at = json.loads(at) if isinstance(at, str) and at else None
+        if not at:
+            raise StepFailed(f"no {selector} reading {text!r}")
+        target = win.view.focusProxy() or win.view
+        QTest.mouseClick(target, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, QPoint(int(at[0]), int(at[1])))
+        self.pump(300)
 
     def closed(self, win: "DocumentWindow") -> None:
         self.until("the window to close", lambda: win not in self.manager.windows, 15_000)
@@ -324,6 +343,109 @@ class SelfTest:
                 raise StepFailed(f"read back {value!r}")
             return ""
 
+        def slides_round_trip() -> str:
+            w = m.new_document("slides", None)
+            self.ready(w)
+            if self.st_value(w, "slideCount()") != 1:
+                raise StepFailed("a new presentation is not one slide")
+            if not self.st_value(w, "setSlideText('Hello from the self-test deck')"):
+                raise StepFailed("could not type on the slide")
+            self.until("the deck to be dirty", lambda: self.session(w).get("dirty"))
+            self.next_save = "Self-test deck.oadeck"
+            w.menu_actions["save"].trigger()
+            s = self.until("the save", lambda: (lambda s: s if s.get("path") and not s.get("dirty") else None)(self.session(w)))
+            # A picture from a file, through the Insert tab's button and the open panel.
+            picture = os.path.join(self.out, "Picture.png")
+            w.grab().scaledToWidth(400).save(picture)
+            self.next_files = [picture]
+            self.click(w, '[role="tab"]', "Insert")
+            self.click(w, "button", "Picture")
+            self.until("the picture on the slide", lambda: "blob:" in (self.st_value(w, "slidePictures()") or []))
+            self.until("the picture to be saved", lambda: not self.session(w).get("dirty") and self.session(w).get("state") == "saved", 15_000)
+            with zipfile.ZipFile(s["path"]) as z:
+                manifest = json.loads(z.read("manifest.json"))
+                stored = [n for n in z.namelist() if n.startswith("pictures/")]
+            if manifest.get("kind") != "slides" or len(stored) != 1:
+                raise StepFailed(f"manifest: {manifest}, pictures {stored}")
+            self.shot(w, "slides")
+            w.close()
+            self.closed(w)
+            again = m.open_path(s["path"])
+            self.ready(again)
+            text = self.st_value(again, "deckText()") or ""
+            if "Hello from the self-test deck" not in text:
+                raise StepFailed(f"reopened text is {text!r}")
+            self.until("the picture after reopening", lambda: "blob:" in (self.st_value(again, "slidePictures()") or []))
+            state["deck"] = again
+            return os.path.basename(s["path"])
+
+        def present() -> str:
+            w = state["deck"]
+            # F5 is the page's own key: a real key press, so the show may take the screen.
+            w.activateWindow()
+            w.view.setFocus()
+            self.pump(300)
+            target = w.view.focusProxy() or w.view
+            QTest.keyClick(target, Qt.Key.Key_F5)
+            self.until("the show to take the screen", lambda: w.isFullScreen(), 10_000)
+            QTest.keyClick(target, Qt.Key.Key_Escape)
+            self.until("the show to give the screen back", lambda: not w.isFullScreen(), 10_000)
+            # Presenter view opens the audience's window, which the deck's window feeds.
+            before = set(m.windows)
+            self.st_value(w, "run('presenter', 'show.presenter-view')")
+            audience = self.until("the audience window", lambda: next((x for x in m.windows if x not in before and x.audience), None), 15_000)
+            shown = self.until(
+                "the slide in the audience window",
+                lambda: self.js(audience, "(document.querySelector('.sp-root .sl-view') || {}).textContent || ''"),
+                20_000,
+            )
+            if "Hello from the self-test deck" not in shown:
+                raise StepFailed(f"the audience sees {shown[:80]!r}")
+            self.shot(audience, "audience")
+            self.shot(w, "presenter")
+            # Escape in the presenter's window ends the show in both, and the audience window closes itself.
+            w.activateWindow()
+            self.pump(300)
+            QTest.keyClick(target, Qt.Key.Key_Escape)
+            self.closed(audience)
+            w.close()
+            self.closed(w)
+            return ""
+
+        def import_pptx() -> str:
+            if not self.fixtures:
+                return "skipped: no --fixtures"
+            src = os.path.join(self.fixtures, "pptx", "16-images-crop.pptx")
+            dst = os.path.join(self.out, "Pictures.pptx")
+            shutil.copyfile(src, dst)
+            w = m.open_path(dst)
+            self.ready(w)
+            seen = lambda win: (lambda p: p if p and all(x == "blob:" for x in p) else None)(self.st_value(win, "slidePictures()"))  # noqa: E731
+            pictures = self.until("the pictures", lambda: seen(w), 20_000)
+            self.next_save = "Self-test pictures.oadeck"
+            w.menu_actions["save"].trigger()
+            s = self.until("the save", lambda: (lambda s: s if s.get("path") and not s.get("dirty") else None)(self.session(w)))
+            with zipfile.ZipFile(s["path"]) as z:
+                stored = [n for n in z.namelist() if n.startswith("pictures/")]
+            if not stored:
+                raise StepFailed("the file has no pictures")
+            w.close()
+            self.closed(w)
+            again = m.open_path(s["path"])
+            self.ready(again)
+            self.until("the pictures after reopening", lambda: seen(again), 20_000)
+            self.exports.clear()
+            again.send("export", {"command": "file.download-pptx"})
+            self.until("the export", lambda: self.exports, 60_000)
+            with zipfile.ZipFile(self.exports[0]) as z:
+                media = [n for n in z.namelist() if n.startswith("ppt/media/")]
+                core = z.read("docProps/core.xml").decode("utf-8")
+            if not media or "<dc:creator>Office</dc:creator>" not in core:
+                raise StepFailed(f"export: {len(media)} pictures, core {core[:200]}")
+            again.close()
+            self.closed(again)
+            return f"{len(pictures)} on screen, {len(stored)} in the file, {len(media)} in the export"
+
         def close_untitled() -> str:
             state["sheet"].close()
             w = m.new_document("docs", None)
@@ -351,6 +473,9 @@ class SelfTest:
             ("sheets: typing through Qt's keyboard", keys),
             ("print to pdf", print_pdf),
             ("clipboard", clipboard),
+            ("slides: type, add a picture, save, reopen", slides_round_trip),
+            ("slides: full screen, and presenter view's audience window", present),
+            ("slides: import pptx with pictures, save, reopen, export pptx", import_pptx),
             ("closing a new edited document asks", close_untitled),
             ("no requests left the app", no_network),
         ]:

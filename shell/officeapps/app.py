@@ -17,7 +17,7 @@ import subprocess
 import sys
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QEvent, QFile, QIODevice, QStandardPaths, Qt, QTimer, QUrl
+from PySide6.QtCore import QEvent, QFile, QIODevice, QSettings, QStandardPaths, Qt, QTimer, QUrl
 from PySide6.QtGui import QAction, QDesktopServices, QIcon
 from PySide6.QtWebEngineCore import (
     QWebEngineDownloadRequest,
@@ -124,7 +124,7 @@ class Manager:
             (A.PluginsEnabled, False),
             (A.PdfViewerEnabled, False),
             (A.ErrorPageEnabled, False),
-            (A.FullScreenSupportEnabled, False),
+            (A.FullScreenSupportEnabled, True),
             (A.LocalContentCanAccessRemoteUrls, False),
             (A.LocalContentCanAccessFileUrls, False),
             (A.JavascriptCanOpenWindows, True),
@@ -153,6 +153,23 @@ class Manager:
         self.windows.append(w)
         if self.devtools:
             self._attach_devtools(w)
+        w.show()
+        w.raise_()
+        w.activateWindow()
+        return w
+
+    def open_audience(self, request, opener: "DocumentWindow") -> "DocumentWindow":
+        """The audience's window of a presenter's view: the page the presentation's window asked for."""
+        from .window import DocumentWindow
+
+        w = DocumentWindow(self, None, audience=True)
+        self.windows.append(w)
+        if self.devtools:
+            self._attach_devtools(w)
+        request.openIn(w.page)
+        geo = request.requestedGeometry()
+        if not QSettings().contains(w._settings_key()) and geo.width() > 0 and geo.height() > 0:
+            w.resize(geo.width(), geo.height())
         w.show()
         w.raise_()
         w.activateWindow()
@@ -452,6 +469,8 @@ def main(argv: list[str]) -> int:
     else:
         data_dir = args.data_dir or default_data_dir()
 
+    # The web profile's storage wants an absolute path: a relative one breaks the page's saves.
+    data_dir = os.path.abspath(data_dir)
     manager = Manager(app, web_dir, data_dir, devtools=args.devtools, selftest=selftest)
     app.manager = manager
     if selftest is not None:

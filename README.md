@@ -1,7 +1,6 @@
 # Office
 
-Docs and Sheets on your Mac, offline: no account, no server, your files on your disk. Slides is on
-its way.
+Docs, Sheets and Slides on your Mac, offline: no account, no server, your files on your disk.
 
 It is a web app (React, in `web/`) running in a small Qt shell (`shell/`, PySide6 and Qt WebEngine),
 so it looks and behaves the same everywhere, and the shell gives it real windows, menus and files.
@@ -21,11 +20,18 @@ so it looks and behaves the same everywhere, and the shell gives it real windows
 |---|---|---|---|
 | Docs | `.oadoc` | Word `.docx`, Markdown, HTML, plain text | Word, Markdown, HTML, plain text, PDF (Print) |
 | Sheets | `.oasheet` | Excel `.xlsx`, CSV, tab-separated | Excel, CSV, tab-separated |
+| Slides | `.oadeck` | PowerPoint `.pptx`, `.ppsx`, `.potx` | PowerPoint |
 
 The app's own files keep everything exactly; save one and it saves itself as you work (the footer
 says *Saved*). A Word or Excel file opens as a new document; File → Export writes one back out.
 Backups of the last ten versions of each file are kept in
 `~/Library/Application Support/Office/Backups`.
+
+## Presenting
+
+**Present** (or F5) plays the slides full screen; Escape ends it. **Presenter view** keeps the
+notes, the next slide and a timer in the presentation's window and opens a second window for the
+audience: move that one to the projector and press F there for full screen.
 
 ## Working on it
 
@@ -63,11 +69,11 @@ sh shell/packaging/make_dmg.sh dist/mac/Office.app dist/Office.dmg
 ## Layout
 
 ```
-web/src/              the editors (docs/, sheets/), their converters (formats/), the shell UI (core/)
+web/src/              the editors (docs/, sheets/, slides/), their converters (formats/), the shell UI (core/)
 web/src/desktop/      the desktop layer: the host bridge, the file format, Start, the editor windows
 shell/officeapps/     the Qt shell: the app:// scheme, windows, menus, the bridge, files, self-test
 shell/packaging/      PyInstaller spec, icon, disk image
 e2e/                  the browser walk
-tests/corpus/         Word and Excel files the converters are tested against
+tests/corpus/         Word, Excel and PowerPoint files the converters are tested against
 LICENSES/             third-party licences
 ```

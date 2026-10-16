@@ -10,7 +10,7 @@
 
 import { useEffect, useLayoutEffect, useSyncExternalStore } from 'react';
 import floppyDiskRaw from '@phosphor-icons/core/assets/regular/floppy-disk.svg?raw';
-import { filePlusIcon, folderOpenIcon, ph, tableIcon } from '../core/icons';
+import { filePlusIcon, folderOpenIcon, ph, presentationChartIcon, tableIcon } from '../core/icons';
 import { isMac, mod } from '../core/keys';
 import type { Command, FileItem } from '../core/shell/types';
 import type { Toast } from '../core/ui';
@@ -109,6 +109,7 @@ export function fileRows<C extends WithNotify>(): FileItem<C>[] {
   return [
     { id: 'desktop.new-docs', label: 'New document', icon: filePlusIcon, section: 'Document', order: 101, visible: here, run: () => s().host.newDocument('docs') },
     { id: 'desktop.new-sheets', label: 'New spreadsheet', icon: tableIcon, section: 'Document', order: 102, visible: here, run: () => s().host.newDocument('sheets') },
+    { id: 'desktop.new-slides', label: 'New presentation', icon: presentationChartIcon, section: 'Document', order: 103, visible: here, run: () => s().host.newDocument('slides') },
     { id: 'desktop.open', label: 'Open…', icon: folderOpenIcon, shortcut: mod('O'), section: 'Document', order: 201, visible: here, run: () => s().host.open() },
     { id: 'desktop.save', label: 'Save', icon: floppyDiskIcon, shortcut: mod('S'), section: 'Save', order: 300, visible: here, run: (c) => void saveNow(s(), c.notify) },
     { id: 'desktop.save-as', label: 'Save as…', icon: floppyDiskIcon, shortcut: mod('Shift+S'), section: 'Save', order: 310, visible: here, run: (c) => void saveNow(s(), c.notify, true) },
